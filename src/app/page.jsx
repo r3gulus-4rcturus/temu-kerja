@@ -13,31 +13,32 @@ export default function LandingPage() {
       />
 
       {/* Header */}
-      <header className="relative left-5 z-10 flex items-center justify-between p-6 lg:px-12">
+      <header className="relative left-7 z-10 flex items-center justify-between p-6 lg:px-12">
         <div className="flex items-center gap-2">
           <Image
             src="/temu-kerja-logo-white.png"
             alt="Temu Kerja Logo"
             width={40}
             height={60}
-            className="object-contain h-20 w-20"
+            className="object-contain h-15 w-15"
+              style={{ marginTop: "15px", marginRight: "-5px" }}
             priority
           />
           <span
+            className="font-plusjakarta"
             style={{
               color: "#cee9ff",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: "31.25px",
             }}
           >
             temu
           </span>{" "}
           <span
+            className="font-plusjakarta"
             style={{
               color: "#6ebfff",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: "31.25px",
             }}
           >
@@ -48,26 +49,16 @@ export default function LandingPage() {
         <div className="flex gap-10">
           <Link
             href="/login"
-            className="px-9 py-4 rounded-lg font-medium transition-colors"
+            className="px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#EBF2F7] hover:bg-[#6ebfff]"
             style={{
               color: "#2F587A",
-              background: "#EBF2F7",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "20px",
             }}
           >
             Masuk
           </Link>
           <Link
             href="/register"
-            className="text-white px-9 py-4 rounded-lg font-medium transition-colors"
-            style={{
-              background: " #4581B2",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "20px",
-            }}
+            className="text-white mr-14 px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#4581B2] hover:bg-[#6ebfff]"
           >
             Daftar
           </Link>
@@ -79,11 +70,7 @@ export default function LandingPage() {
         {/* Hashtag */}
         <div className="mb-4 lg:block text-white">
           <span
-            style={{
-              fontFamily: "'Roboto', sans-serif",
-              fontWeight: 600,
-              fontSize: "20.4px"
-            }}
+            className="font-roboto font-semibold text-[20.4px]"
           >
             #AyoBekerja
           </span>
@@ -92,11 +79,8 @@ export default function LandingPage() {
         {/* Hero Content */}
         <div className="max-w-4xl mx-auto space-y-6">
           <h1
-            className="text-left"
+            className="text-left font-plusjakarta font-extrabold text-[65.41px]"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 800,
-              fontSize: "65.41px",
               color: "#fff",
               lineHeight: 1.1,
             }}
@@ -107,12 +91,7 @@ export default function LandingPage() {
           </h1>
 
           <p
-            className="text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed"
-            style={{
-              fontFamily: "'Urbanist', sans-serif",
-              fontWeight: 600,
-              fontSize: "20.4px",
-            }}
+            className="text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed font-urbanist font-semibold text-[20.4px]"
           >
             menjembatani individu yang mencari penghasilan dengan orang-orang yang butuh bantuan. Mulai dari jasa bersih-bersih hingga proyek profesional—semuanya ada di sini.
           </p>
@@ -120,13 +99,9 @@ export default function LandingPage() {
           <div className="pt-4">
             <Link
               href="/dashboard"
-              className="px-9 py-4 rounded-lg font-medium transition-colors inline-block"
+              className="px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors inline-block bg-[#EBF2F7] hover:bg-[#6ebfff]"
               style={{
                 color: "#2F587A",
-                background: "#EBF2F7",
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: "20px",
               }}
             >
               Coba Sekarang

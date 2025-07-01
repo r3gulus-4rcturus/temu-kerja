@@ -4,6 +4,7 @@ import { MapPin, User, ChevronDown, Menu } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
+import Image from "next/image"
 
 export default function Navbar({ userRole = "jobseeker" }) {
   const pathname = usePathname()
@@ -37,26 +38,59 @@ export default function Navbar({ userRole = "jobseeker" }) {
   const userName = userRole === "jobseeker" ? "Mukhlis" : "Kurniawan"
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="shadow-sm border-b border-gray-200 py-4" style={{ background: "#EBF2F7" }}>
+      <div className="w-full px-8 sm:px-12 lg:px-16">
+        <div className="flex items-center h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-blue-600 text-xl font-semibold">temu kerja</span>
+          <div className="flex items-center gap-1 mb-2">
+            <Image
+              src="/temu-kerja-logo-gradient.svg"
+              alt="Temu Kerja Logo"
+              width={32}
+              height={32}
+              className="object-contain w-12 h-12"
+              priority
+              style={{ marginTop: "15px", marginRight: "-5px" }}
+            />
+            <span
+              className="font-plusjakarta"
+              style={{
+                color: "#3A74A2",
+                fontWeight: 700,
+                fontSize: "31.25px",
+              }}
+            >
+              temu
+            </span>{" "}
+            <span
+              className="font-plusjakarta"
+              style={{
+                background: "linear-gradient(90deg,rgb(95, 146, 188) 0%, #4581B2 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: 700,
+                fontSize: "31.25px",
+                display: "inline-block",
+              }}
+            >
+              kerja
+            </span>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8 ml-16">
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`font-medium py-4 px-2 transition-colors ${
-                  isActive(item.href) ? "text-gray-900" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={
+                  `transition-colors font-urbanist font-bold flex items-center` +
+                  (isActive(item.href)
+                    ? "text-[20px] text-[#3F75A1]"
+                    : "text-[16px] text-[#1D364B] hover:text-[#3F75A1]")
+                }
               >
                 {item.label}
               </Link>
@@ -64,7 +98,7 @@ export default function Navbar({ userRole = "jobseeker" }) {
           </div>
 
           {/* Desktop User Info */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 ml-auto">
             <User className="w-5 h-5 text-gray-600" />
             <span className="text-gray-900 font-medium">{userName}</span>
             <ChevronDown className="w-4 h-4 text-gray-600" />
@@ -87,11 +121,10 @@ export default function Navbar({ userRole = "jobseeker" }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActive(item.href)
-                      ? "text-gray-900 bg-gray-50"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive(item.href)
+                    ? "text-gray-900 bg-gray-50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
