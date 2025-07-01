@@ -4,33 +4,70 @@ import Link from "next/link"
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="relative w-full h-[1000px]">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <Image src="/landing-page-background.png" alt="Landing Page Background" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-black/20" />
-      </div>
+      <div
+        className="absolute inset-0 z-0 bg-[url('/landing-page-background.png')] bg-cover bg-center bg-no-repeat"
+        role="presentation"
+        aria-hidden="true"
+      />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-6 lg:px-12">
+      <header className="relative left-5 z-10 flex items-center justify-between p-6 lg:px-12">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <MapPin className="w-5 h-5 text-blue-600" />
-          </div>
-            <span style={{ color: "#cee9ff" }}>temu</span>{" "}
-            <span style={{ color: "#6ebfff" }}>kerja</span>
+          <Image
+            src="/temu-kerja-logo-white.png"
+            alt="Temu Kerja Logo"
+            width={40}
+            height={60}
+            className="object-contain h-20 w-20"
+            priority
+          />
+          <span
+            style={{
+              color: "#cee9ff",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 600,
+              fontSize: "31.25px",
+            }}
+          >
+            temu
+          </span>{" "}
+          <span
+            style={{
+              color: "#6ebfff",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 600,
+              fontSize: "31.25px",
+            }}
+          >
+            kerja
+          </span>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-10">
           <Link
             href="/login"
-            className="bg-white/90 text-gray-700 hover:bg-white px-6 py-2 rounded-md font-medium transition-colors"
+            className="px-9 py-4 rounded-lg font-medium transition-colors"
+            style={{
+              color: "#2F587A",
+              background: "#EBF2F7",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 700,
+              fontSize: "20px",
+            }}
           >
             Masuk
           </Link>
           <Link
             href="/register"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
+            className="text-white px-9 py-4 rounded-lg font-medium transition-colors"
+            style={{
+              background: " #4581B2",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 700,
+              fontSize: "20px",
+            }}
           >
             Daftar
           </Link>
@@ -38,42 +75,65 @@ export default function LandingPage() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 text-center">
+      <main className="absolute right-15 top-15 z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 text-center">
         {/* Hashtag */}
-        <div className="absolute top-8 right-8 hidden lg:block">
-          <span className="text-white/80 text-sm font-medium">#AyoBekerja</span>
+        <div className="mb-4 lg:block text-white">
+          <span
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              fontWeight: 600,
+              fontSize: "20.4px"
+            }}
+          >
+            #AyoBekerja
+          </span>
         </div>
 
         {/* Hero Content */}
         <div className="max-w-4xl mx-auto space-y-6">
-          <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
+          <h1
+            className="text-left"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800,
+              fontSize: "65.41px",
+              color: "#fff",
+              lineHeight: 1.1,
+            }}
+          >
             Cari Kerja Jadi Lebih
             <br />
             Mudah dan Cepat
           </h1>
 
-          <p className="text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-            menghubungkan individu yang mencari penghasilan dengan orang-orang yang butuh bantuan. Mulai dari jasa
-            bersih-bersih hingga proyek profesional—semuanya ada di sini.
+          <p
+            className="text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed"
+            style={{
+              fontFamily: "'Urbanist', sans-serif",
+              fontWeight: 600,
+              fontSize: "20.4px",
+            }}
+          >
+            menjembatani individu yang mencari penghasilan dengan orang-orang yang butuh bantuan. Mulai dari jasa bersih-bersih hingga proyek profesional—semuanya ada di sini.
           </p>
 
           <div className="pt-4">
             <Link
               href="/dashboard"
-              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold rounded-lg transition-colors inline-block"
+              className="px-9 py-4 rounded-lg font-medium transition-colors inline-block"
+              style={{
+                color: "#2F587A",
+                background: "#EBF2F7",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 700,
+                fontSize: "20px",
+              }}
             >
               Coba Sekarang
             </Link>
           </div>
         </div>
       </main>
-
-      {/* Bottom Curved Section */}
-      <div className="absolute bottom-0 left-0 right-0 z-10">
-        <svg viewBox="0 0 1200 120" className="w-full h-20 lg:h-32" preserveAspectRatio="none">
-          <path d="M0,120 C300,60 900,60 1200,120 L1200,120 L0,120 Z" fill="#4A90E2" />
-        </svg>
-      </div>
     </div>
   )
 }
