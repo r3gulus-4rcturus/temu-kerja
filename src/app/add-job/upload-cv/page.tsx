@@ -3,7 +3,7 @@
 import { JSX, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Upload, Bot } from "lucide-react"
-import Navbar from "../components/shared/Navbar"
+// import Navbar from "../components/shared/Navbar"
 
 interface FormDataState {
   cvFile: File | null
@@ -76,7 +76,7 @@ export default function UploadCVPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-8">

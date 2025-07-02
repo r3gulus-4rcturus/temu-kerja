@@ -3,7 +3,7 @@
 import { useState, useRef, JSX } from "react"
 import { useRouter } from "next/navigation"
 import { Mic, MicOff, Upload, Sparkles } from "lucide-react"
-import Navbar from "@/components/shared/Navbar"
+import Navbar from "../../components/shared/Navbar"
 
 interface FormData {
   description: string
