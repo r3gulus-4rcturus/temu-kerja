@@ -109,18 +109,6 @@ export default function WorkloadEstimationPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm p-6">
-        <div className="max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-blue-600 text-xl font-semibold">temu kerja</span>
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex items-center justify-center min-h-[calc(100vh-120px)] px-6 py-12">
         <div className="w-full max-w-2xl">

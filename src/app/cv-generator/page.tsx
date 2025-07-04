@@ -3,7 +3,6 @@
 import { useState, useRef, JSX } from "react"
 import { useRouter } from "next/navigation"
 import { Mic, MicOff, Upload, Sparkles } from "lucide-react"
-import Navbar from "../../components/shared/Navbar"
 
 interface FormData {
   description: string
@@ -116,8 +115,6 @@ export default function CVGeneratorPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <button

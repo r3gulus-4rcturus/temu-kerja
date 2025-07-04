@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ArrowUpRight, ArrowDownRight, LucideIcon } from "lucide-react"
-import Navbar from "../../components/shared/Navbar"
 import Footer from "../../components/shared/Footer"
 import SeekerDashboardMain from "../../components/seeker-dashboard/SeekerDashboardMain"
 import SeekerDashboardSidebar from "../../components/seeker-dashboard/SeekerDashboardSidebar"
@@ -200,8 +199,6 @@ export default function SeekerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar - Job Seeker Role */}
-      <Navbar userRole="jobseeker" />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

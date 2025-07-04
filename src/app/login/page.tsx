@@ -2,7 +2,7 @@
 
 import { MapPin } from "lucide-react"
 import Link from "next/link"
-import { useState, ChangeEvent, FormEvent } from "react" // Import event types
+import { useState, ChangeEvent, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 
 // ---
@@ -17,16 +17,14 @@ interface FormData {
 // LoginPage Component
 // ---
 export default function LoginPage() {
-  // Explicitly type formData state
   const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
   })
-  // Explicitly type isLoading state
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null) // State for handling errors
   const router = useRouter()
 
-  // Type 'field' as a key of FormData and 'value' as string
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -34,61 +32,49 @@ export default function LoginPage() {
     }))
   }
 
-  // Type event as FormEvent
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null) // Clear previous errors
 
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           emailOrUsername: formData.username,
           password: formData.password,
         }),
       })
 
+      const data = await res.json()
+
       if (!res.ok) {
-        const data = await res.json()
-        alert(data.error || 'Login failed')
+        setError(data.error || "Login failed")
         setIsLoading(false)
         return
       }
 
-      const { role } = await res.json()
-
       // Conditional redirect based on role
-      if (role === 'jobprovider') {
-        router.push('/dashboard')
-      } else if (role === 'jobseeker') {
-        router.push('/seeker-dashboard')
+      if (data.role === "jobprovider") {
+        // router.push("/dashboard")
+        window.location.href = "/dashboard" // hard navigation, force reload
+      } else if (data.role === "jobseeker") {
+        // router.push("/seeker-dashboard")
+        window.location.href = "/seeker-dashboard" // hard navigation, force reload
       } else {
-        alert('Unrecognized role')
+        setError("Unrecognized role") // Handle unrecognized roles
       }
     } catch (error) {
-      console.error('Login error:', error)
-      alert('Something went wrong during login.')
+      console.error("Login error:", error)
+      setError("Something went wrong during login.")
     } finally {
       setIsLoading(false)
     }
   }
 
-
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm p-6">
-        <div className="max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-blue-600 text-xl font-semibold">temu kerja</span>
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex items-center justify-center min-h-[calc(100vh-120px)] px-6 py-12">
         <div className="w-full max-w-md">
@@ -102,6 +88,13 @@ export default function LoginPage() {
 
             {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-6">
+              {/* Error Message Display */}
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">
+                  <p>{error}</p>
+                </div>
+              )}
+
               {/* Username Field */}
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-900 mb-2">
@@ -111,7 +104,7 @@ export default function LoginPage() {
                   type="text"
                   id="username"
                   value={formData.username}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("username", e.target.value)} // Type ChangeEvent
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("username", e.target.value)}
                   placeholder="Mukhlis"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
@@ -127,7 +120,7 @@ export default function LoginPage() {
                   type="password"
                   id="password"
                   value={formData.password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)} // Type ChangeEvent
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
                   placeholder="••••••••••"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required

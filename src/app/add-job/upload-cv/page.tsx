@@ -3,7 +3,6 @@
 import { JSX, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Upload, Bot } from "lucide-react"
-// import Navbar from "../components/shared/Navbar"
 
 interface FormDataState {
   cvFile: File | null

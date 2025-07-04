@@ -2,7 +2,6 @@
 
 import { useState, FormEvent, ChangeEvent, KeyboardEvent } from "react"
 import { Send, AlertTriangle, Bot, User } from "lucide-react"
-import Navbar from "../../components/shared/Navbar"
 import Footer from "../../components/shared/Footer"
 
 // Tipe untuk setiap pesan di chat
@@ -89,7 +88,6 @@ export default function LayananHukumPage() {
   if (showChat) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar userRole="jobseeker" />
         <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-t-lg border-b border-gray-200 p-6">
             <div className="flex items-center gap-3">
@@ -189,7 +187,6 @@ export default function LayananHukumPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar userRole="jobseeker" />
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl w-full">
           <div className="text-center mb-12">

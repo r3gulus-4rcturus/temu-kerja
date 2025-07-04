@@ -2,7 +2,6 @@
 
 import { useState, FormEvent, ChangeEvent } from "react"
 import { Search } from "lucide-react"
-import Navbar from "../../components/shared/Navbar"
 import Footer from "../../components/shared/Footer"
 
 type TrainingProgram = {
@@ -84,7 +83,6 @@ export default function PelatihanKerjaPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar userRole="jobseeker" />
 
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

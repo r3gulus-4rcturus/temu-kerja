@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, JSX } from "react"
-import Navbar from "../../components/shared/Navbar"
 import ChatSidebar from "../../components/chat/ChatSidebar"
 import ChatWindow from "../../components/chat/ChatWindow"
 import NegotiationPanel from "../../components/chat/NegotiationPanel"
@@ -49,8 +48,6 @@ export default function Chat(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar userRole="jobprovider" />
-
       <div className="flex-1 flex overflow-hidden">
         {(!isMobile || !selectedChat) && (
           <ChatSidebar

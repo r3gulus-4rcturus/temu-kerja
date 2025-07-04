@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ArrowUpRight, ArrowDownRight, LucideIcon } from "lucide-react" // Import LucideIcon for typing icons
-import Navbar from "../../components/shared/Navbar"
 import DashboardMain from "../../components/dashboard/DashboardMain"
 import DashboardSidebar from "../../components/dashboard/DashboardSidebar"
 import JobUploadSection from "../../components/dashboard/JobUploadSection"
@@ -149,8 +148,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar - Pass user role */}
-      <Navbar userRole="jobprovider" />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

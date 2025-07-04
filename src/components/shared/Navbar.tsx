@@ -8,6 +8,7 @@ import Image from "next/image"
 
 interface NavbarProps {
   userRole?: "jobseeker" | "jobprovider"
+  userName?: string
 }
 
 interface NavigationItem {
@@ -15,36 +16,119 @@ interface NavigationItem {
   label: string
 }
 
-export default function Navbar({ userRole = "jobseeker" }: NavbarProps) {
+export default function Navbar({ userRole, userName }: NavbarProps) {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  // =================================================================
+  // Version 1: Navbar for Login and Register pages
+  // =================================================================
+  if (pathname === "/login" || pathname === "/register") {
+    return (
+      <header className="bg-white shadow-sm p-6">
+        <div className="max-w-7xl mx-auto">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-blue-600 text-xl font-semibold">temu kerja</span>
+          </Link>
+        </div>
+      </header>
+    )
+  }
+
+  // =================================================================
+  // Version 2: Navbar for the Landing Page
+  // =================================================================
+  if (pathname === "/") {
+    return (
+      <header className="relative left-7 z-10 flex items-center justify-between p-6 lg:px-12">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/temu-kerja-logo-white.png"
+            alt="Temu Kerja Logo"
+            width={40}
+            height={60}
+            className="object-contain h-15 w-15"
+            style={{ marginTop: "15px", marginRight: "-5px" }}
+            priority
+          />
+          <span
+            className="font-plusjakarta"
+            style={{
+              color: "#cee9ff",
+              fontWeight: 700,
+              fontSize: "31.25px",
+            }}
+          >
+            temu
+          </span>{" "}
+          <span
+            className="font-plusjakarta"
+            style={{
+              color: "#6ebfff",
+              fontWeight: 700,
+              fontSize: "31.25px",
+            }}
+          >
+            kerja
+          </span>
+        </div>
+
+        <div className="flex gap-10">
+          <Link
+            href="/login"
+            className="px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#EBF2F7] hover:bg-[#6ebfff]"
+            style={{
+              color: "#2F587A",
+            }}
+          >
+            Masuk
+          </Link>
+          <Link
+            href="/register"
+            className="text-white mr-14 px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#4581B2] hover:bg-[#6ebfff]"
+          >
+            Daftar
+          </Link>
+        </div>
+      </header>
+    )
+  }
+
+  console.log("==============================================")
+  console.log("User Role:", userRole)
+
+  // =================================================================
+  // Version 3: Default Navbar for all other authenticated pages
+  // =================================================================
   const isActive = (path: string) => {
     return pathname === path || pathname.startsWith(path)
   }
 
-  // Navigation items based on user role
   const getNavigationItems = (): NavigationItem[] => {
-    const baseItems = [
+    const baseItemsForJobProvider = [
       { href: "/dashboard", label: "Dashboard" },
+      { href: "/chat", label: "Chat" },
+    ]
+    const baseItemsForJobSeeker = [
+      { href: "/seeker-dashboard", label: "Dashboard" },
       { href: "/chat", label: "Chat" },
     ]
 
     if (userRole === "jobseeker") {
       return [
-        ...baseItems,
+        ...baseItemsForJobSeeker,
         { href: "/pelatihan-kerja", label: "Pelatihan Kerja" },
         { href: "/layanan-hukum", label: "Layanan Hukum" },
         { href: "/profile", label: "Profile" },
       ]
     }
-
-    // Provider role (default)
-    return [...baseItems, { href: "/profile", label: "Profile" }]
+    return [...baseItemsForJobProvider, { href: "/profile", label: "Profile" }]
   }
 
   const navigationItems = getNavigationItems()
-  const userName = userRole === "jobseeker" ? "Mukhlis" : "Kurniawan"
 
   return (
     <nav className="shadow-sm border-b border-gray-200 py-4" style={{ background: "#EBF2F7" }}>
@@ -132,10 +216,11 @@ export default function Navbar({ userRole = "jobseeker" }: NavbarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive(item.href)
-                    ? "text-gray-900 bg-gray-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActive(item.href)
+                      ? "text-gray-900 bg-gray-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
