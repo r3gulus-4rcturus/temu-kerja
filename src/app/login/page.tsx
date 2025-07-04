@@ -39,14 +39,41 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate login process
-    setTimeout(() => {
-      console.log("Login attempt:", formData)
-      // For demo purposes, redirect to dashboard
-      router.push("/dashboard")
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emailOrUsername: formData.username,
+          password: formData.password,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || 'Login failed')
+        setIsLoading(false)
+        return
+      }
+
+      const { role } = await res.json()
+
+      // Conditional redirect based on role
+      if (role === 'jobprovider') {
+        router.push('/dashboard')
+      } else if (role === 'jobseeker') {
+        router.push('/seeker-dashboard')
+      } else {
+        alert('Unrecognized role')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      alert('Something went wrong during login.')
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
+
 
   return (
     <div className="min-h-screen bg-gray-100">

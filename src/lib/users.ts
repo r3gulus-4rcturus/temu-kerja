@@ -5,7 +5,7 @@ type RegisterPayload = {
   username: string;
   password: string;
   confirmPassword: string;
-  role: 'jobseeker' | 'provider'; // match your `UserRole` enum
+  role: 'jobseeker' | 'jobprovider'; // match your `UserRole` enum
   personalInfo: {
     fullName: string;
     email: string;

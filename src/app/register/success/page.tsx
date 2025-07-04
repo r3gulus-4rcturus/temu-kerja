@@ -16,6 +16,7 @@ export default function RegistrationSuccessPage() {
     if (registrationData) {
       const data = JSON.parse(registrationData)
       setUserRole(data.role ?? null)
+      localStorage.removeItem("registrationData") // Clear after use
     } else {
       router.push("/register")
       return
@@ -46,10 +47,10 @@ export default function RegistrationSuccessPage() {
   }
 
   // Optional role-based guard
-  // if (userRole !== "jobprovider") {
-  //   router.push("/dashboard")
-  //   return null
-  // }
+  if (userRole === "jobprovider") {
+    router.push("/dashboard")
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

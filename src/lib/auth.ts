@@ -1,16 +1,26 @@
-// jwt utilities for signing and verifying tokens
-import jwt from 'jsonwebtoken';
+import { JWTPayload, SignJWT, jwtVerify } from 'jose';
 
-const SECRET = process.env.JWT_SECRET;
+const secret = process.env.JWT_SECRET;
 
-export function signToken(payload: object) {
-  return jwt.sign(payload, SECRET, { expiresIn: '1h' });
+if (!secret) {
+  throw new Error('JWT_SECRET environment variable is not set');
 }
 
-export function verifyToken(token: string) {
+const SECRET_KEY = new TextEncoder().encode(secret);
+
+export async function signToken(payload: JWTPayload) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('7d') // token valid for 7 days
+    .sign(SECRET_KEY);
+}
+
+export async function verifyToken(token: string) {
   try {
-    return jwt.verify(token, SECRET);
-  } catch {
+    const { payload } = await jwtVerify(token, SECRET_KEY);
+    return payload;
+  } catch (err) {
+    console.error('Token verification failed:', err);
     return null;
   }
 }
