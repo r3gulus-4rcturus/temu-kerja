@@ -42,63 +42,8 @@ export default function Navbar({ userRole, userName }: NavbarProps) {
   // Version 2: Navbar for the Landing Page
   // =================================================================
   if (pathname === "/") {
-    return (
-      <header className="relative left-7 z-10 flex items-center justify-between p-6 lg:px-12">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/temu-kerja-logo-white.png"
-            alt="Temu Kerja Logo"
-            width={40}
-            height={60}
-            className="object-contain h-15 w-15"
-            style={{ marginTop: "15px", marginRight: "-5px" }}
-            priority
-          />
-          <span
-            className="font-plusjakarta"
-            style={{
-              color: "#cee9ff",
-              fontWeight: 700,
-              fontSize: "31.25px",
-            }}
-          >
-            temu
-          </span>{" "}
-          <span
-            className="font-plusjakarta"
-            style={{
-              color: "#6ebfff",
-              fontWeight: 700,
-              fontSize: "31.25px",
-            }}
-          >
-            kerja
-          </span>
-        </div>
-
-        <div className="flex gap-10">
-          <Link
-            href="/login"
-            className="px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#EBF2F7] hover:bg-[#6ebfff]"
-            style={{
-              color: "#2F587A",
-            }}
-          >
-            Masuk
-          </Link>
-          <Link
-            href="/register"
-            className="text-white mr-14 px-9 py-4 rounded-lg font-plusjakarta font-bold text-[20px] transition-colors bg-[#4581B2] hover:bg-[#6ebfff]"
-          >
-            Daftar
-          </Link>
-        </div>
-      </header>
-    )
+    return null;  // navbar for the landing page is on the layout
   }
-
-  console.log("==============================================")
-  console.log("User Role:", userRole)
 
   // =================================================================
   // Version 3: Default Navbar for all other authenticated pages
