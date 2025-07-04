@@ -13,3 +13,114 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole
+  avatar    String? // profile picture
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  jobs          Job[]          @relation("ProviderJobs")
+  applications  Application[]
+  chats         Chat[]         @relation("UserChats")
+  reviews       Review[]       @relation("UserReviews")
+  notifications Notification[]
+  Message       Message[]
+}
+
+enum UserRole {
+  jobseeker
+  jobprovider
+}
+
+model Job {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  categories  String[] // Array of categories
+  location    String
+  minRate     Float?
+  maxRate     Float?
+  rateType    String? // hourly, daily, etc.
+  status      JobStatus @default(open)
+  provider    User      @relation("ProviderJobs", fields: [providerId], references: [id])
+  providerId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  applications Application[]
+  reviews      Review[]      @relation("JobReviews")
+}
+
+enum JobStatus {
+  open
+  closed
+  inprogress
+  completed
+}
+
+model Application {
+  id              String            @id @default(uuid())
+  job             Job               @relation(fields: [jobId], references: [id])
+  jobId           String
+  seeker          User              @relation(fields: [seekerId], references: [id])
+  seekerId        String
+  status          ApplicationStatus @default(pending)
+  cvFile          String? // file path or URL
+  portfolioLinks  String?
+  additionalNotes String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+enum ApplicationStatus {
+  pending
+  accepted
+  rejected
+  withdrawn
+}
+
+model Chat {
+  id           String    @id @default(uuid())
+  participants User[]    @relation("UserChats")
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Message {
+  id       String   @id @default(uuid())
+  chat     Chat     @relation(fields: [chatId], references: [id])
+  chatId   String
+  sender   User     @relation(fields: [senderId], references: [id])
+  senderId String
+  content  String
+  sentAt   DateTime @default(now())
+  isRead   Boolean  @default(false)
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  job        Job      @relation("JobReviews", fields: [jobId], references: [id])
+  jobId      String
+  user       User     @relation("UserReviews", fields: [userId], references: [id])
+  userId     String
+  rating     Int
+  reviewText String
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id      String   @id @default(uuid())
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String
+  message String
+  date    DateTime @default(now())
+  isRead  Boolean  @default(false)
+}
