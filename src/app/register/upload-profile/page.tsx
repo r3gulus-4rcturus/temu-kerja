@@ -63,10 +63,6 @@ export default function UploadProfilePage() {
           setIsLoading(false);
           return;
         }
-
-        // Optional improvement: remove local data after success
-        localStorage.removeItem('registrationData');
-
         router.push('/register/success');
       } catch (err) {
         console.error('Registration error:', err);
