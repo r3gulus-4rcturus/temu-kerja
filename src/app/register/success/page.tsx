@@ -11,12 +11,11 @@ export default function RegistrationSuccessPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const registrationData = localStorage.getItem("registrationData")
+    // const registrationData = localStorage.getItem("registrationData")
     // console.log("FINALRegistration Data:", registrationData)
-    if (registrationData) {
-      const data = JSON.parse(registrationData)
-      setUserRole(data.role ?? null)
-      localStorage.removeItem("registrationData") // Clear after use
+    const role = localStorage.getItem("role")
+    if (role) {
+      setUserRole(role)
     } else {
       router.push("/register")
       return
