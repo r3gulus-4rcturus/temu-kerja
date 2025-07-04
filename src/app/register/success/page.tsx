@@ -12,7 +12,7 @@ export default function RegistrationSuccessPage() {
 
   useEffect(() => {
     const registrationData = localStorage.getItem("registrationData")
-
+    // console.log("FINALRegistration Data:", registrationData)
     if (registrationData) {
       const data = JSON.parse(registrationData)
       setUserRole(data.role ?? null)

@@ -37,23 +37,44 @@ export default function UploadProfilePage() {
     setIsLoading(true)
 
     // Simulate processing
-    setTimeout(() => {
-      console.log("Profile picture upload step:", uploadedFile)
-      const existingData = JSON.parse(localStorage.getItem("registrationData") || "{}")
-      localStorage.setItem(
-        "registrationData",
-        JSON.stringify({
-          ...existingData,
-          profilePicture: {
-            name: uploadedFile.name,
-            size: uploadedFile.size,
-            uploaded: true,
-          },
-        }),
-      )
-      router.push("/register/success")
-      setIsLoading(false)
-    }, 1000)
+    setTimeout(async () => {
+      try {
+        const localData = localStorage.getItem('registrationData');
+
+        if (!localData) {
+          alert('No registration data found in localStorage.');
+          setIsLoading(false);
+          return;
+        }
+
+        const parsedData = JSON.parse(localData);
+
+        console.log(parsedData)
+
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedData),
+        });
+
+        if (!res.ok) {
+          const { error } = await res.json();
+          alert(`Registration failed: ${error}`);
+          setIsLoading(false);
+          return;
+        }
+
+        // Optional improvement: remove local data after success
+        localStorage.removeItem('registrationData');
+
+        router.push('/register/success');
+      } catch (err) {
+        console.error('Registration error:', err);
+        alert('Something went wrong.');
+      } finally {
+        setIsLoading(false);
+      }
+    }, 1000);
   }
 
   const handleBack = () => {
