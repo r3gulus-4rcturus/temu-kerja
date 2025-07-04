@@ -23,7 +23,7 @@ export default function Navbar({ userRole, userName }: NavbarProps) {
   // =================================================================
   // Version 1: Navbar for Login and Register pages
   // =================================================================
-  if (pathname === "/login" || pathname === "/register") {
+  if (pathname === "/login" || pathname === "/register"|| pathname.startsWith('/login/') || pathname.startsWith('/register/')) {
     return (
       <header className="bg-white shadow-sm p-6">
         <div className="max-w-7xl mx-auto">
@@ -42,7 +42,7 @@ export default function Navbar({ userRole, userName }: NavbarProps) {
   // Version 2: Navbar for the Landing Page
   // =================================================================
   if (pathname === "/") {
-    return null;  // navbar for the landing page is on the layout
+    return null;  // navbar for the landing page is on the landing page component
   }
 
   // =================================================================

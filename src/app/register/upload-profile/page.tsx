@@ -67,12 +67,6 @@ export default function UploadProfilePage() {
         localStorage.setItem("role", role);
         localStorage.removeItem('registrationData');
 
-        // if (role === 'jobprovider') {
-        //   router.push('/dashboard');
-        // } else if (role === 'jobseeker') {
-        //   router.push('/seeker-dashboard');
-        // }
-
         router.push('/register/success');
       } catch (err) {
         console.error('Registration error:', err);

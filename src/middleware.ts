@@ -5,14 +5,15 @@ import { jwtVerify } from 'jose';
 
 // 1. Public routes that don't require authentication
 const PUBLIC_ROUTES = ['/', '/login', '/register'];
+const registerSuccessPage = '/register/success';
 
 // 2. Role-based permissions. Defines which paths a role is NOT allowed to access.
 //    (Corrected based on your feedback)
 const ROLE_PERMISSIONS = {
   // A jobseeker CANNOT access the jobprovider's dashboard
-  jobseeker: ['/dashboard'], 
+  jobseeker: ['/dashboard'],
   // A jobprovider CANNOT access the jobseeker's pages
-  jobprovider: ['/seeker-dashboard', '/layanan-hukum', '/pelatihan-kerja'], 
+  jobprovider: ['/seeker-dashboard', '/layanan-hukum', '/pelatihan-kerja'],
 };
 
 // 3. The primary dashboard for each role.
@@ -20,7 +21,7 @@ const ROLE_PERMISSIONS = {
 const ROLE_DASHBOARDS = {
   jobseeker: '/seeker-dashboard',
   jobprovider: '/dashboard',
-  default: '/dashboard', 
+  default: '/dashboard',
 };
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
@@ -31,8 +32,8 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get('token')?.value;
 
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-
+  const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'));
+  
   if (token) {
     try {
       // Decode the token to get the payload
@@ -40,7 +41,7 @@ export async function middleware(req: NextRequest) {
       const userRole = (payload.role as keyof typeof ROLE_PERMISSIONS) || 'jobseeker';
 
       // A. LOGGED-IN user tries to access a PUBLIC page (e.g., /login)
-      if (isPublicRoute) {
+      if (isPublicRoute && pathname !== registerSuccessPage) {
         const dashboardUrl = ROLE_DASHBOARDS[userRole] || ROLE_DASHBOARDS.default;
         return NextResponse.redirect(new URL(dashboardUrl, req.url));
       }

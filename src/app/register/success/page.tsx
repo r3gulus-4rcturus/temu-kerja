@@ -25,12 +25,10 @@ export default function RegistrationSuccessPage() {
   }, [router])
 
   const handleAddJob = () => {
-    localStorage.removeItem("registrationData")
     router.push("/add-job/job-details")
   }
 
   const handleSkipForNow = () => {
-    localStorage.removeItem("registrationData")
     router.push("/seeker-dashboard")
   }
 
