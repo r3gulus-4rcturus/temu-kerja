@@ -57,6 +57,8 @@ model Job {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+
+
   // Relations
   applications Application[]
   reviews      Review[]      @relation("JobReviews")
@@ -71,8 +73,8 @@ enum JobStatus {
 
 model Application {
   id              String            @id @default(uuid())
-  job             Job               @relation(fields: [jobId], references: [id])
-  jobId           String
+  job             Job?               @relation(fields: [jobId], references: [id])
+  jobId           String?
   seeker          User              @relation(fields: [seekerId], references: [id])
   seekerId        String
   status          ApplicationStatus @default(pending)
