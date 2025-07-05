@@ -28,15 +28,15 @@ export default function WorkloadEstimationPage(): JSX.Element {
   ]
 
   const workloadTypes = [
-    { value: "kecil", label: "Pekerjaan Kecil" },
-    { value: "sedang", label: "Pekerjaan Sedang" },
-    { value: "besar", label: "Pekerjaan Besar" },
+    { value: "pekerjaan_kecil", label: "Pekerjaan Kecil" },
+    { value: "pekerjaan_sedang", label: "Pekerjaan Sedang" },
+    { value: "pekerjaan_besar", label: "Pekerjaan Besar" },
   ]
 
   const dailyDurations = [
-    { value: "kurang-3", label: "< 3 jam" },
-    { value: "3-6", label: "3-6 jam" },
-    { value: "lebih-6", label: "> 6 jam" },
+    { value: "THREE_HOURS", label: "< 3 jam" },
+    { value: "THREE_TO_SIX", label: "3-6 jam" },
+    { value: "SIX_HOURS", label: "> 6 jam" },
   ]
 
   useEffect(() => {
@@ -82,6 +82,7 @@ export default function WorkloadEstimationPage(): JSX.Element {
 
     setTimeout(() => {
       const existingData = JSON.parse(localStorage.getItem("addJobData") || "{}")
+
       localStorage.setItem(
         "addJobData",
         JSON.stringify({
@@ -90,6 +91,7 @@ export default function WorkloadEstimationPage(): JSX.Element {
           currentStep: 2,
         }),
       )
+      // console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
 
       router.push("/add-job/wages")
       setIsLoading(false)

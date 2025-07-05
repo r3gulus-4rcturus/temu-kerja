@@ -99,6 +99,8 @@ export default function JobDetailsPage(): JSX.Element {
         }),
       )
 
+      // console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
+
       router.push("/add-job/workload-estimation")
       setIsLoading(false)
     }, 1000)

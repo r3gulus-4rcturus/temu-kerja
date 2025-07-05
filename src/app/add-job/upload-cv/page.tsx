@@ -45,13 +45,13 @@ export default function UploadCVPage(): JSX.Element {
     router.push("/add-job/wages")
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!formData.cvFile) {
       alert("Silakan unggah CV atau buat CV menggunakan AI terlebih dahulu")
       return
     }
 
-    const allJobData = JSON.parse(localStorage.getItem("jobFormData") || "{}")
+    const allJobData = JSON.parse(localStorage.getItem("addJobData") || "{}")
     const updatedData = {
       ...allJobData,
       cvFile: formData.cvFile,
@@ -60,9 +60,45 @@ export default function UploadCVPage(): JSX.Element {
       step: 4,
       completed: true,
     }
-    localStorage.setItem("jobFormData", JSON.stringify(updatedData))
-    alert("Pekerjaan berhasil dibuat!")
-    router.push("/seeker-dashboard")
+    localStorage.setItem("addJobData", JSON.stringify(updatedData))
+    // console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
+    // const data = JSON.parse(localStorage.getItem("addJobData") || "{}")
+    // console.log("jobName:", data.jobDetails?.jobName)
+    // console.log("jobDescription:", data.jobDetails?.jobDescription)
+    // console.log("categories:", data.jobDetails?.categories)
+    // console.log("skillLevel:", data.workloadEstimation?.skillLevel)
+    // console.log("workload:", data.workloadEstimation?.workload)
+    // console.log("dailyDuration:", data.workloadEstimation?.dailyDuration)
+    // console.log("rateType:", data.wages?.rateType)
+    // console.log("minRate:", data.wages?.minRate)
+    // console.log("maxRate:", data.wages?.maxRate)
+
+    try {
+        const parsedData = updatedData
+
+        // console.log(parsedData)
+        // console.log(">>> FINAL Job Data:", parsedData)
+
+        const res = await fetch('/api/add-job', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedData),
+        });
+
+        if (!res.ok) {
+          const { error } = await res.json();
+          alert(`Job creation failed: ${error}`);
+          return;
+        }
+
+        alert("Pekerjaan berhasil dibuat!")
+        localStorage.removeItem("addJobData")
+
+        router.push("/seeker-dashboard")
+    } catch (error) {
+        console.error("Error submitting job data:", error)
+        alert("Terjadi kesalahan saat mengirim data pekerjaan. Silakan coba lagi.")
+    }
   }
 
   const formatFileSize = (bytes: number): string => {

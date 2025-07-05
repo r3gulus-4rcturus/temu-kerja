@@ -57,8 +57,6 @@ model Job {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-
-
   // Relations
   applications Application[]
   reviews      Review[]      @relation("JobReviews")
@@ -73,7 +71,16 @@ enum JobStatus {
 
 model Application {
   id              String            @id @default(uuid())
-  job             Job?               @relation(fields: [jobId], references: [id])
+  name            String
+  description     String
+  skillLevel      SkillLevel
+  workload        Workload
+  dailyDuration   DailyDuration
+  rateType        RateType
+  minRate         Float
+  maxRate         Float
+  tags            String[]
+  job             Job?              @relation(fields: [jobId], references: [id])
   jobId           String?
   seeker          User              @relation(fields: [seekerId], references: [id])
   seekerId        String
@@ -90,6 +97,29 @@ enum ApplicationStatus {
   accepted
   rejected
   withdrawn
+}
+
+enum SkillLevel {
+  pemula
+  menengah
+  profesional
+}
+
+enum Workload {
+  pekerjaan_kecil
+  pekerjaan_sedang
+  pekerjaan_besar
+}
+
+enum DailyDuration {
+  THREE_HOURS  @map("3")
+  THREE_TO_SIX @map("3-6")
+  SIX_HOURS    @map("6")
+}
+
+enum RateType {
+  hourly
+  daily
 }
 
 model Chat {

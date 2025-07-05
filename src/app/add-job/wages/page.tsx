@@ -6,17 +6,10 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import React from "react"
 
-interface WorkingHours {
-  start: string
-  end: string
-}
-
 interface WagesFormData {
   rateType: "hourly" | "fixed"
   minRate: string
   maxRate: string
-  availability: string[]
-  workingHours: WorkingHours
 }
 
 interface SavedData {
@@ -33,11 +26,6 @@ export default function WagesPage(): JSX.Element {
     rateType: "hourly",
     minRate: "",
     maxRate: "",
-    availability: [],
-    workingHours: {
-      start: "",
-      end: "",
-    },
   })
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -93,15 +81,6 @@ export default function WagesPage(): JSX.Element {
     }))
   }
 
-  const handleAvailabilityChange = (day: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      availability: prev.availability.includes(day)
-        ? prev.availability.filter((d) => d !== day)
-        : [...prev.availability, day],
-    }))
-  }
-
   const handleBack = () => {
     router.push("/add-job/workload-estimation")
   }
@@ -123,10 +102,10 @@ export default function WagesPage(): JSX.Element {
       const updatedData = {
         ...savedData,
         wages: formData,
-        currentStep: 3,
       }
 
       localStorage.setItem("addJobData", JSON.stringify(updatedData))
+            // console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
       router.push("/add-job/upload-cv")
       setIsLoading(false)
     }, 500)
