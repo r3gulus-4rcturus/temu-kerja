@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react"; // 1. Import the Search icon
 
 // ---
 // Interfaces for Data Structures
@@ -115,63 +115,17 @@ export default function SeekerDashboardMain({
     <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-3">
-          <h1 className="text-3xl font-bold text-[#464255]">Dashboard</h1>
-          <span className="bg-gradient-to-r from-[#1D364B] via-[#3C6B90] to-[#1D364B] text-white text-sm px-3 py-1 rounded-full font-medium">
-            Talent
-          </span>
-        </div>
+        <h1 className="text-3xl font-bold text-[#464255] mb-3">Dashboard</h1>
         <p className="text-[#2F587A] text-base font-semibold">
           Hi, Mukhlis. Welcome back to Temu Kerja!
         </p>
       </div>
-
-      {/* Main Container */}
-      <div className="bg-[#EBF2F7] rounded-lg shadow-lg p-8 space-y-5">
-        {/* Active Jobs */}
-        <div className="space-y-5">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
-
-        {/* Completed Jobs Section */}
-        <div className="px-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-2xl font-bold text-[#3F75A1]">Selesai</h3>
-            <button
-              onClick={() => setShowCompletedJobs(!showCompletedJobs)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              {showCompletedJobs ? (
-                <ChevronUp className="w-6 h-6 text-[#B9BBBD]" />
-              ) : (
-                <ChevronDown className="w-6 h-6 text-[#B9BBBD]" />
-              )}
-            </button>
+      <div className="bg-[#EBF2F7] rounded-lg shadow-lg p-8">
+        <div className="flex flex-col items-center justify-center text-center min-h-[800px] space-y-8">
+          <div className="flex items-center gap-3 text-xl text-gray-500">
+            <Search className="w-9 h-9 text-[#3F75A1]" />
+            <span className="font-plusjakarta text-2xl font-bold text-[#3F75A1]">Belum Ada Pekerjaan Aktif Saat Ini!</span>
           </div>
-
-          {showCompletedJobs && (
-            <div className="space-y-4">
-              {completedJobs.map((job) => (
-                <div key={job.id}>
-                  <JobCard job={job} />
-                  <div className="flex justify-end mt-2 mb-4">
-                    <button className="bg-white border border-[#4581B2] text-[#4581B2] px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
-                      Beri Penilaian
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* CTA Button */}
-        <div className="flex justify-end pt-4">
-          <button className="bg-[#4581B2] text-white px-9 py-4 rounded-lg text-xl font-bold hover:bg-[#3F75A1] transition-colors">
-            Temukan Pekerjaan!
-          </button>
         </div>
       </div>
     </div>

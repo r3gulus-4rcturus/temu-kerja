@@ -116,13 +116,13 @@ export default function ChatTerakhirSection(): JSX.Element {
       </div>
 
       {/* Chat List Card */}
-      <div className="mt-8 rounded-xl bg-white shadow-lg">
+      {/* <div className="mt-8 rounded-xl bg-white shadow-lg">
         <div>
           {chatItems.map((chat, index) => (
             <ChatRow key={chat.id} chat={chat} isFirst={index === 0} />
           ))}
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
