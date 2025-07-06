@@ -22,7 +22,7 @@ export default function PelatihanKerjaPage() {
       title: "Asisten Pembuat Pakaian",
       category: "Garmen Apparel",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-pakaian.png",
       badge: "GRATIS dari KEMNAKER",
     },
     {
@@ -30,7 +30,7 @@ export default function PelatihanKerjaPage() {
       title: "Layanan Pembersihan Kamar",
       category: "Pariwisata",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-pembersihan-kamar.png",
       badge: "GRATIS dari KEMNAKER",
     },
     {
@@ -38,7 +38,7 @@ export default function PelatihanKerjaPage() {
       title: "Pengoprasian Inst. Elektronik",
       category: "Teknik Elektronika",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-elektronik.png",
       badge: "GRATIS dari KEMNAKER",
     },
     {
@@ -46,7 +46,7 @@ export default function PelatihanKerjaPage() {
       title: "Layanan Pembersihan Kamar",
       category: "Pariwisata",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-pembersihan-kamar.png",
       badge: "GRATIS dari KEMNAKER",
     },
     {
@@ -54,7 +54,7 @@ export default function PelatihanKerjaPage() {
       title: "Pengoprasian Inst. Elektronik",
       category: "Teknik Elektronika",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-elektronik.png",
       badge: "GRATIS dari KEMNAKER",
     },
     {
@@ -62,7 +62,7 @@ export default function PelatihanKerjaPage() {
       title: "Asisten Pembuat Pakaian",
       category: "Garmen Apparel",
       price: "Gratis",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/pelatihan-kerja-pakaian.png",
       badge: "GRATIS dari KEMNAKER",
     },
   ]
@@ -133,11 +133,6 @@ export default function PelatihanKerjaPage() {
                     alt={program.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      {program.badge}
-                    </span>
-                  </div>
                 </div>
 
                 <div className="p-6">
@@ -158,7 +153,7 @@ export default function PelatihanKerjaPage() {
           {filteredPrograms.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                Tidak ada program pelatihan yang ditemukan untuk "{searchQuery}"
+                Tidak ada program pelatihan yang ditemukan untuk &quot;{searchQuery}&quot;
               </p>
               <button
                 onClick={() => setSearchQuery("")}
