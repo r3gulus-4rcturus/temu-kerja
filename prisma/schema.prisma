@@ -76,9 +76,9 @@ model Job {
 
 enum JobStatus {
   open
-  closed
-  inprogress
-  completed
+  closed      // belum dimulai
+  inprogress  // sedang dikerjakan
+  completed   
 }
 
 model Application {
