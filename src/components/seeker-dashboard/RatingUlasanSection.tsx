@@ -58,10 +58,22 @@ export default function RatingUlasanSection({ reviews }: RatingUlasanSectionProp
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-8">
+    <div className="rounded-lg">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-gray-700">Rating dan Ulasanmu!</h2>
+        <div className="relative z-10 flex flex-col items-start gap-10 w-full h-auto pt-16">
+          {/* Header */}
+          <div className="flex flex-col items-start gap-1 w-full">
+            <h1
+              className="text-4xl font-bold leading-[120%] bg-gradient-to-r from-[#1D364B] via-[#5B7E9B] to-[#3F75A1] bg-clip-text text-transparent"
+              style={{
+                textShadow: "0px 4px 4px rgba(255, 255, 255, 0.25)",
+                fontFamily:
+                  "'Plus Jakarta Sans', -apple-system, Roboto, Helvetica, sans-serif",
+              }}
+            >
+              Rating dan Ulasanmu!</h1> </div> </div>
+
         {reviews.length > 3 && (
           <div className="flex gap-2">
             <button
@@ -83,24 +95,15 @@ export default function RatingUlasanSection({ reviews }: RatingUlasanSectionProp
       </div>
 
       {/* Reviews Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {reviews.slice(currentReviewIndex, currentReviewIndex + 3).map((review) => (
-          <div key={review.id} className="relative bg-gray-50 rounded-lg overflow-hidden">
-            {/* Background Image */}
-            <div className="absolute inset-0">
-              <img
-                src={review.backgroundImage || "/placeholder.svg"}
-                alt="Work background"
-                className="w-full h-full object-cover opacity-30"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {reviews.slice(currentReviewIndex, currentReviewIndex + 2).map((review) => (
+          <div key={review.id} className="flex bg-gray-50 rounded-2xl shadow-lg overflow-hidden">
 
-            {/* Content */}
-            <div className="relative z-10 p-6 h-full flex flex-col">
+            {/* Left Side: Review Content */}
+            <div className="p-6 flex flex-col flex-1">
               {/* Reviewer Info */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-white rounded-full overflow-hidden border-2 border-white">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
                   <img
                     src={review.reviewerAvatar || "/placeholder.svg"}
                     alt={review.reviewerName}
@@ -108,21 +111,34 @@ export default function RatingUlasanSection({ reviews }: RatingUlasanSectionProp
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{review.reviewerName}</h3>
-                  <p className="text-sm text-gray-600">{review.timeAgo}</p>
+                  <h3 className="text-lg font-bold text-gray-800">{review.reviewerName}</h3>
+                  <p className="text-sm text-gray-500">{review.timeAgo}</p>
                 </div>
               </div>
 
               {/* Review Text */}
-              <div className="flex-1 mb-4">
-                <p className="text-gray-700 text-sm leading-relaxed line-clamp-4">{review.reviewText}</p>
+              <div className="flex-grow mb-5">
+                <p className="text-gray-700 leading-relaxed">{review.reviewText}</p>
               </div>
 
               {/* Rating */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
-                <span className="font-semibold text-gray-900">{review.rating}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center text-yellow-500">
+                  {/* The renderStars function should generate star icons. 
+                Example: <StarIcon className="w-5 h-5" /> */}
+                  {renderStars(review.rating)}
+                </div>
+                <span className="font-semibold text-gray-800 text-lg">{review.rating}</span>
               </div>
+            </div>
+
+            {/* Right Side: Image */}
+            <div className="hidden sm:block sm:w-2/5 flex-shrink-0">
+              <img
+                src={review.backgroundImage || "/placeholder.svg"}
+                alt="Work background"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         ))}
