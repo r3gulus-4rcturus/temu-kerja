@@ -1,4 +1,5 @@
 import { MapPin } from 'lucide-react';
+import Image from "next/image"
 
 // Define the structure for a single job offer
 export interface JobOffer {
@@ -9,7 +10,6 @@ export interface JobOffer {
   location: string;
   schedule: string;
   price: number;
-  image: string;
 }
 
 interface JobOfferCardProps {
@@ -19,14 +19,6 @@ interface JobOfferCardProps {
 export default function JobOfferCard({ offer }: JobOfferCardProps) {
   return (
     <div className="absolute left-0 top-0 w-full h-[620px] flex flex-col md:flex-row shadow-2xl rounded-[32px] bg-[#8CB1D0]">
-      {/* Image Section */}
-      <div className="w-full md:w-[414px] h-[250px] md:h-full flex-shrink-0">
-        <img
-          src={offer.image}
-          alt={offer.jobTitle}
-          className="w-full h-full object-cover rounded-t-[32px] md:rounded-l-[32px] md:rounded-r-none"
-        />
-      </div>
 
       {/* Job Info Section */}
       <div className="flex flex-col items-start gap-4 p-6 md:p-8 text-white w-full">
@@ -40,10 +32,12 @@ export default function JobOfferCard({ offer }: JobOfferCardProps) {
         {/* Provider Info */}
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden border-2 border-white">
-            <img
+            <Image
               src={offer.providerAvatar}
               alt={offer.providerName}
               className="w-full h-full object-cover"
+              width={1200}
+              height={1200}
             />
           </div>
           <div className="text-white text-xl font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>

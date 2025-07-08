@@ -14,10 +14,10 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   username    String
   fullname    String
-  email       String   @unique
+  email       String     @unique
   password    String
   role        UserRole
   phonenumber String
@@ -25,14 +25,14 @@ model User {
   province    String
   city        String
   avatar      String? // profile picture
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   favorites   Favorite[] @relation("UserFavorites")
   favoritedBy Favorite[] @relation("FavoritedBy")
-  
+
   // Relations
   jobs          Job[]          @relation("ProviderJobs")
-  applications  Application[]
+  applications  Application[]  @relation("SeekerApplications")
   chats         Chat[]         @relation("UserChats")
   reviews       Review[]       @relation("UserReviews")
   notifications Notification[]
@@ -45,11 +45,11 @@ enum UserRole {
 }
 
 model Favorite {
-  userId      String
-  favoriteId  String
+  userId     String
+  favoriteId String
 
-  user        User   @relation("UserFavorites", fields: [userId], references: [id])
-  favorite    User   @relation("FavoritedBy", fields: [favoriteId], references: [id])
+  user     User @relation("UserFavorites", fields: [userId], references: [id])
+  favorite User @relation("FavoritedBy", fields: [favoriteId], references: [id])
 
   @@id([userId, favoriteId])
 }
@@ -72,13 +72,14 @@ model Job {
   // Relations
   applications Application[]
   reviews      Review[]      @relation("JobReviews")
+  chats        Chat[]        @relation("JobChats")
 }
 
 enum JobStatus {
   open
-  closed      // belum dimulai
-  inprogress  // sedang dikerjakan
-  completed   
+  closed // belum dimulai
+  inprogress // sedang dikerjakan
+  completed
 }
 
 model Application {
@@ -94,7 +95,7 @@ model Application {
   tags            String[]
   job             Job?              @relation(fields: [jobId], references: [id])
   jobId           String?
-  seeker          User              @relation(fields: [seekerId], references: [id])
+  seeker          User              @relation("SeekerApplications", fields: [seekerId], references: [id])
   seekerId        String
   status          ApplicationStatus @default(pending)
   cvFile          String? // file path or URL
@@ -102,10 +103,13 @@ model Application {
   additionalNotes String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  chats           Chat[]            @relation("ApplicationChats")
 }
 
 enum ApplicationStatus {
   pending
+  sent
+  onnegotiation
   accepted
   rejected
   withdrawn
@@ -135,11 +139,15 @@ enum RateType {
 }
 
 model Chat {
-  id           String    @id @default(uuid())
-  participants User[]    @relation("UserChats")
-  messages     Message[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String      @id @default(uuid())
+  participants  User[]      @relation("UserChats")
+  job           Job         @relation("JobChats", fields: [jobId], references: [id])
+  jobId         String
+  application   Application @relation("ApplicationChats", fields: [applicationId], references: [id])
+  applicationId String
+  messages      Message[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Message {

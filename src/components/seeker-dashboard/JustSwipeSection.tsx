@@ -6,16 +6,16 @@ import JobOfferCard, { JobOffer } from './JobOfferCard'; // Import the new card 
 
 // 1. Generate 10 hardcoded job offers
 const jobOffers: JobOffer[] = [
-  { id: 1, providerName: 'Budi Santoso', providerAvatar: 'https://i.pravatar.cc/150?u=1', jobTitle: 'Pembersihan Taman', location: 'Jakarta Selatan', schedule: '10 Juli 2025, 4 Jam', price: 350000, image: 'https://images.unsplash.com/photo-1585336261022-680e2954d18d?q=80&w=2070' },
-  { id: 2, providerName: 'Citra Muzaki Lestari', providerAvatar: 'https://i.pravatar.cc/150?u=2', jobTitle: 'Perawatan Kolam Ikan', location: 'Surabaya Pusat', schedule: '12 Juli 2025, 2 Jam', price: 200000, image: 'https://images.unsplash.com/photo-1595433362558-15f575de2f35?q=80&w=2070' },
-  { id: 3, providerName: 'Agus Wijaya', providerAvatar: 'https://i.pravatar.cc/150?u=3', jobTitle: 'Mengecat Pagar Rumah', location: 'Bandung Kota', schedule: '15 Juli 2025, 6 Jam', price: 500000, image: 'https://images.unsplash.com/photo-1600181523338-a009403435ER?q=80&w=2070' },
-  { id: 4, providerName: 'Dewi Naufal Anggraini', providerAvatar: 'https://i.pravatar.cc/150?u=4', jobTitle: 'Merakit Furnitur IKEA', location: 'Tangerang Selatan', schedule: '18 Juli 2025, 3 Jam', price: 250000, image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=1974' },
-  { id: 5, providerName: 'Naufal Eko Prasetyo', providerAvatar: 'https://i.pravatar.cc/150?u=5', jobTitle: 'Bantuan Pindahan Rumah', location: 'Bekasi Barat', schedule: '20 Juli 2025, 8 Jam', price: 800000, image: 'https://images.unsplash.com/photo-1598908312402-5443497d3c1d?q=80&w=2070' },
-  { id: 6, providerName: 'Fitriani', providerAvatar: 'https://i.pravatar.cc/150?u=6', jobTitle: 'Memasak untuk Acara Keluarga', location: 'Depok', schedule: '22 Juli 2025, 5 Jam', price: 450000, image: 'https://images.unsplash.com/photo-1600565193348-f74d3c2723a9?q=80&w=2070' },
-  { id: 7, providerName: 'Rafsanjani', providerAvatar: 'https://i.pravatar.cc/150?u=7', jobTitle: 'Mengajar Les', location: 'Depok', schedule: '15 Juli 2025, 2 Jam', price: 200000, image: 'https://images.unsplash.com/photo-1567697629362-a8a8f34521b2?q=80&w=2070' },
-  { id: 8, providerName: 'Hesti Purwanti', providerAvatar: 'https://i.pravatar.cc/150?u=8', jobTitle: 'Jasa Fotografi Produk', location: 'Jakarta Pusat', schedule: '28 Juli 2025, 2 Jam', price: 750000, image: 'https://images.unsplash.com/photo-1520342891905-555535b734b5?q=80&w=2070' },
-  { id: 9, providerName: 'Indra Permana', providerAvatar: 'https://i.pravatar.cc/150?u=9', jobTitle: 'Membuat Website Sederhana', location: 'Online', schedule: '1-5 Agustus 2025', price: 1500000, image: 'https://images.unsplash.com/photo-1555066931-4365d1469c98?q=80&w=2070' },
-  { id: 10, providerName: 'Joko Susilo', providerAvatar: 'https://i.pravatar.cc/150?u=10', jobTitle: 'Membersihkan AC', location: 'Jakarta Timur', schedule: '7 Agustus 2025, 1 Jam', price: 150000, image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070' },
+  { id: 1, providerName: 'Budi Santoso', providerAvatar: 'https://i.pravatar.cc/150?u=1', jobTitle: 'Pembersihan Taman', location: 'Jakarta Selatan', schedule: '10 Juli 2025, 4 Jam', price: 350000},
+  { id: 2, providerName: 'Citra Muzaki Lestari', providerAvatar: 'https://i.pravatar.cc/150?u=2', jobTitle: 'Perawatan Kolam Ikan', location: 'Surabaya Pusat', schedule: '12 Juli 2025, 2 Jam', price: 200000 },
+  { id: 3, providerName: 'Agus Wijaya', providerAvatar: 'https://i.pravatar.cc/150?u=3', jobTitle: 'Mengecat Pagar Rumah', location: 'Bandung Kota', schedule: '15 Juli 2025, 6 Jam', price: 500000},
+  { id: 4, providerName: 'Dewi Naufal Anggraini', providerAvatar: 'https://i.pravatar.cc/150?u=4', jobTitle: 'Merakit Furnitur IKEA', location: 'Tangerang Selatan', schedule: '18 Juli 2025, 3 Jam', price: 2500000},
+  { id: 5, providerName: 'Naufal Eko Prasetyo', providerAvatar: 'https://i.pravatar.cc/150?u=5', jobTitle: 'Bantuan Pindahan Rumah', location: 'Bekasi Barat', schedule: '20 Juli 2025, 8 Jam', price: 800000},
+  { id: 6, providerName: 'Fitriani', providerAvatar: 'https://i.pravatar.cc/150?u=6', jobTitle: 'Memasak untuk Acara Keluarga', location: 'Depok', schedule: '22 Juli 2025, 5 Jam', price: 450000},
+  { id: 7, providerName: 'Rafsanjani', providerAvatar: 'https://i.pravatar.cc/150?u=7', jobTitle: 'Mengajar Les', location: 'Depok', schedule: '15 Juli 2025, 2 Jam', price: 200000 },
+  { id: 8, providerName: 'Hesti Purwanti', providerAvatar: 'https://i.pravatar.cc/150?u=8', jobTitle: 'Jasa Fotografi Produk', location: 'Jakarta Pusat', schedule: '28 Juli 2025, 2 Jam', price: 750000 },
+  { id: 9, providerName: 'Indra Permana', providerAvatar: 'https://i.pravatar.cc/150?u=9', jobTitle: 'Membuat Website Sederhana', location: 'Online', schedule: '1-5 Agustus 2025', price: 1500000},
+  { id: 10, providerName: 'Joko Susilo', providerAvatar: 'https://i.pravatar.cc/150?u=10', jobTitle: 'Membersihkan AC', location: 'Jakarta Timur', schedule: '7 Agustus 2025, 1 Jam', price: 150000 },
 ];
 
 export default function JustSwipeSection(): JSX.Element {
