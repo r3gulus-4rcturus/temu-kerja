@@ -115,7 +115,14 @@ export default function SeekerDashboardMain({
     <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#464255] mb-3">Dashboard</h1>
+        <div className="flex items-center gap-4 mb-3">
+          <h1 className="text-3xl font-bold text-[#464255]">Dashboard</h1>
+          <div className="flex py-2 px-4 justify-center items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1D364B] via-[#3C6B90] to-[#1D364B]">
+            <div className="text-white text-sm md:text-base font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+              Talent
+            </div>
+          </div>
+        </div>
         <p className="text-[#2F587A] text-base font-semibold">
           Hi, Mukhlis. Welcome back to Temu Kerja!
         </p>

@@ -1,261 +1,92 @@
-import { MapPin } from "lucide-react";
-import { JSX } from "react";
+"use client";
+
+import { useState, JSX } from "react";
+import { MapPin, ArrowLeft, ArrowRight, Star } from "lucide-react";
+import JobOfferCard, { JobOffer } from './JobOfferCard'; // Import the new card and its type
+
+// 1. Generate 10 hardcoded job offers
+const jobOffers: JobOffer[] = [
+  { id: 1, providerName: 'Budi Santoso', providerAvatar: 'https://i.pravatar.cc/150?u=1', jobTitle: 'Pembersihan Taman', location: 'Jakarta Selatan', schedule: '10 Juli 2025, 4 Jam', price: 350000, image: 'https://images.unsplash.com/photo-1585336261022-680e2954d18d?q=80&w=2070' },
+  { id: 2, providerName: 'Citra Muzaki Lestari', providerAvatar: 'https://i.pravatar.cc/150?u=2', jobTitle: 'Perawatan Kolam Ikan', location: 'Surabaya Pusat', schedule: '12 Juli 2025, 2 Jam', price: 200000, image: 'https://images.unsplash.com/photo-1595433362558-15f575de2f35?q=80&w=2070' },
+  { id: 3, providerName: 'Agus Wijaya', providerAvatar: 'https://i.pravatar.cc/150?u=3', jobTitle: 'Mengecat Pagar Rumah', location: 'Bandung Kota', schedule: '15 Juli 2025, 6 Jam', price: 500000, image: 'https://images.unsplash.com/photo-1600181523338-a009403435ER?q=80&w=2070' },
+  { id: 4, providerName: 'Dewi Naufal Anggraini', providerAvatar: 'https://i.pravatar.cc/150?u=4', jobTitle: 'Merakit Furnitur IKEA', location: 'Tangerang Selatan', schedule: '18 Juli 2025, 3 Jam', price: 250000, image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=1974' },
+  { id: 5, providerName: 'Naufal Eko Prasetyo', providerAvatar: 'https://i.pravatar.cc/150?u=5', jobTitle: 'Bantuan Pindahan Rumah', location: 'Bekasi Barat', schedule: '20 Juli 2025, 8 Jam', price: 800000, image: 'https://images.unsplash.com/photo-1598908312402-5443497d3c1d?q=80&w=2070' },
+  { id: 6, providerName: 'Fitriani', providerAvatar: 'https://i.pravatar.cc/150?u=6', jobTitle: 'Memasak untuk Acara Keluarga', location: 'Depok', schedule: '22 Juli 2025, 5 Jam', price: 450000, image: 'https://images.unsplash.com/photo-1600565193348-f74d3c2723a9?q=80&w=2070' },
+  { id: 7, providerName: 'Rafsanjani', providerAvatar: 'https://i.pravatar.cc/150?u=7', jobTitle: 'Mengajar Les', location: 'Depok', schedule: '15 Juli 2025, 2 Jam', price: 200000, image: 'https://images.unsplash.com/photo-1567697629362-a8a8f34521b2?q=80&w=2070' },
+  { id: 8, providerName: 'Hesti Purwanti', providerAvatar: 'https://i.pravatar.cc/150?u=8', jobTitle: 'Jasa Fotografi Produk', location: 'Jakarta Pusat', schedule: '28 Juli 2025, 2 Jam', price: 750000, image: 'https://images.unsplash.com/photo-1520342891905-555535b734b5?q=80&w=2070' },
+  { id: 9, providerName: 'Indra Permana', providerAvatar: 'https://i.pravatar.cc/150?u=9', jobTitle: 'Membuat Website Sederhana', location: 'Online', schedule: '1-5 Agustus 2025', price: 1500000, image: 'https://images.unsplash.com/photo-1555066931-4365d1469c98?q=80&w=2070' },
+  { id: 10, providerName: 'Joko Susilo', providerAvatar: 'https://i.pravatar.cc/150?u=10', jobTitle: 'Membersihkan AC', location: 'Jakarta Timur', schedule: '7 Agustus 2025, 1 Jam', price: 150000, image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070' },
+];
 
 export default function JustSwipeSection(): JSX.Element {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [favorited, setFavorited] = useState<Record<number, boolean>>({});
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % jobOffers.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + jobOffers.length) % jobOffers.length);
+  };
+
+  const handleFavorite = () => {
+    const currentId = jobOffers[currentIndex].id;
+    setFavorited((prev) => ({
+      ...prev,
+      [currentId]: !prev[currentId], // Toggle the favorited state for the current card
+    }));
+  };
+
+  const isCurrentFavorited = favorited[jobOffers[currentIndex].id];
+
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-8 relative overflow-hidden min-h-[600px]">
-      {/* Background decoration */}
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-4 md:p-8 relative overflow-hidden min-h-[600px]">
+      {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-20">
-        {/* Scattered profile circles */}
-        <div className="absolute top-16 left-8 w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-          <img
-            src="/placeholder.svg?height=48&width=48"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute top-32 left-32 w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-          <img
-            src="/placeholder.svg?height=40&width=40"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute top-8 right-16 w-8 h-8 bg-gray-300 rounded-full overflow-hidden">
-          <img
-            src="/placeholder.svg?height=32&width=32"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute bottom-32 left-16 w-14 h-14 bg-gray-300 rounded-full overflow-hidden">
-          <img
-            src="/placeholder.svg?height=56&width=56"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute bottom-16 right-32 w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-          <img
-            src="/placeholder.svg?height=40&width=40"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Map pins and chat bubbles */}
-        <div className="absolute top-20 right-24">
-          <MapPin className="w-6 h-6 text-blue-400" />
-        </div>
-        <div className="absolute bottom-40 right-8">
-            <div className="w-8 h-8 bg-blue-300 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">💬</span>
-            </div>
-        </div>
-        <div className="absolute bottom-8 left-40">
-          <MapPin className="w-5 h-5 text-blue-400" />
-        </div>
-
-        {/* Decorative circles */}
-        <div className="absolute top-40 right-12 w-24 h-24 bg-blue-200 rounded-full"></div>
-        <div className="absolute bottom-20 left-8 w-32 h-32 bg-blue-100 rounded-full"></div>
+        <div className="absolute top-20 right-24 hidden md:block"><MapPin className="w-6 h-6 text-blue-400" /></div>
+        <div className="absolute bottom-8 left-40 hidden md:block"><MapPin className="w-5 h-5 text-blue-400" /></div>
+        <div className="absolute top-40 right-12 w-24 h-24 bg-blue-200 rounded-full hidden md:block"></div>
+        <div className="absolute bottom-20 left-8 w-32 h-32 bg-blue-100 rounded-full hidden md:block"></div>
       </div>
 
       {/* Header */}
       <div className="relative z-10 flex flex-col items-center gap-2 text-center mb-8">
-        <h1
-          className="w-full max-w-4xl text-4xl font-bold leading-[120%] text-center bg-gradient-to-r from-[#1D364B] via-[#5B7E9B] to-[#3F75A1] bg-clip-text text-transparent"
-          style={{
-            textShadow: "0px 4px 4px rgba(255, 255, 255, 0.25)",
-            fontFamily:
-              "'Plus Jakarta Sans', -apple-system, Roboto, Helvetica, sans-serif",
-          }}
-        >
+        <h1 className="w-full max-w-4xl text-3xl md:text-4xl font-bold leading-tight text-center bg-gradient-to-r from-[#1D364B] via-[#5B7E9B] to-[#3F75A1] bg-clip-text text-transparent" style={{ textShadow: "0px 4px 4px rgba(255, 255, 255, 0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Just Swipe! Jelajah Sekitar dan Temukan Kecocokan
         </h1>
-        <p
-          className="w-full max-w-2xl text-[#3F75A1] text-center text-xl font-semibold leading-[151%]"
-          style={{
-            fontFamily:
-              "Urbanist, -apple-system, Roboto, Helvetica, sans-serif",
-          }}
-        >
+        <p className="w-full max-w-2xl text-[#3F75A1] text-center text-lg md:text-xl font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
           Geser untuk menjelajah rekomendasi pekerjaanmu. Beri bintang untuk mengirimkan lamaran!
         </p>
       </div>
 
       {/* Swipe Card Interface */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-2.5 w-full max-w-6xl mx-auto rounded-lg bg-[#EBF2F7] shadow-lg p-16">
-        {/* Background illustration */}
-        <div className="absolute right-0 bottom-0 w-[506px] h-[476px] opacity-30">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8bcdf9fcffe21991b4fc84048bb4e249585cdd19?width=1013"
-            alt="Background decoration"
-            className="w-full h-full object-contain"
-          />
-        </div>
-
-        <div className="relative w-full max-w-4xl h-[700px]">
-          {/* Layered Background Cards */}
-          <div className="absolute inset-0">
-            <div className="absolute left-10 top-[75px] w-[722px] h-[586px] bg-[#CBDFEE] rounded-[27px]"></div>
-            <div className="absolute left-5 top-[61px] w-[761px] h-[586px] bg-[#B2D1EA] rounded-[27px]"></div>
-            <div className="absolute left-0 top-0 w-[804px] h-[633px] bg-[#8CB1D0] rounded-[27px]"></div>
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl mx-auto rounded-lg bg-[#EBF2F7] shadow-lg p-4 sm:p-8 md:p-16">
+        <div className="relative w-full h-[650px] md:h-[700px]">
+          {/* Layered Background Cards (for desktop) */}
+          <div className="absolute inset-0 hidden md:block">
+            <div className="absolute left-10 top-[75px] w-[calc(100%-80px)] h-[586px] bg-[#CBDFEE] rounded-[27px]"></div>
+            <div className="absolute left-5 top-[61px] w-[calc(100%-40px)] h-[586px] bg-[#B2D1EA] rounded-[27px]"></div>
           </div>
 
-          {/* Main Card */}
-          <div className="absolute left-0 top-0 w-[775px] h-[620px] flex">
-            {/* Image Section - Placeholder for Job Type */}
-            <div className="w-[414px] h-[620px] bg-white rounded-[32px] overflow-hidden">
-              <img
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/417703ea76c1990b6a35ebd1907c311f26fce32c?width=830"
-                alt="Job illustration"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            {/* Job Info Section */}
-            <div className="flex w-[298px] flex-col items-start gap-5 absolute left-[477px] top-[61px] h-auto">
-                {/* Status Tag */}
-                <div className="flex py-2 px-2 justify-center items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1D364B] via-[#3C6B90] to-[#1D364B]">
-                    <div className="text-white text-base font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
-                        Ingin mempekerjakan Anda
-                    </div>
-                </div>
-
-                {/* Provider Info */}
-                <div className="flex items-center gap-3">
-                    <div className="w-[46px] h-[46px] rounded-full bg-gray-300 overflow-hidden">
-                        <img
-                        src="/placeholder.svg?height=48&width=48"
-                        alt="Kurniawan"
-                        className="w-full h-full object-cover"
-                        />
-                    </div>
-                    <div
-                        className="text-white text-xl font-semibold"
-                        style={{ fontFamily: "Urbanist, sans-serif" }}
-                    >
-                        Kurniawan
-                    </div>
-                </div>
-
-                {/* Job Title */}
-                <div className="text-white text-3xl font-bold" style={{ fontFamily: "Urbanist, sans-serif" }}>
-                    Pembersihan Taman
-                </div>
-
-
-                {/* Job Details */}
-                <div className="flex flex-col items-start gap-2 w-full text-white" style={{ fontFamily: "Roboto, sans-serif" }}>
-                    <p className="text-sm font-semibold">Lokasi:</p>
-                    <p>Jl. Kukusan Barat, Depok Raya</p>
-                    <p className="text-sm font-semibold mt-2">Jadwal:</p>
-                    <p>12 Maret 2025, 3 Jam</p>
-                </div>
-
-                {/* Divider and Price */}
-                <div className="w-full">
-                    <div className="h-px w-full bg-white my-3"></div>
-                    <div className="text-white text-base font-semibold" style={{fontFamily: "Urbanist, sans-serif"}}>
-                        Tarif yang ditawarkan
-                    </div>
-                    <div className="text-white text-2xl font-bold" style={{fontFamily: "Urbanist, sans-serif"}}>
-                        Rp 300.000
-                    </div>
-                </div>
-            </div>
-          </div>
+          {/* Main Card Area */}
+          <JobOfferCard offer={jobOffers[currentIndex]} />
 
           {/* Swipe Controls */}
-          <div className="absolute left-[223px] top-[584px] w-[384px] h-[127px] flex justify-center items-center gap-10 drop-shadow-lg">
-            {/* Background for buttons */}
-            <div className="absolute inset-0 top-4 h-24 bg-white rounded-[51px] shadow-lg"></div>
+          <div className="absolute -bottom-8 sm:-bottom-4 left-1/2 -translate-x-1/2 w-full max-w-[384px] h-[127px] flex justify-center items-center gap-4 md:gap-10">
+            <div className="absolute inset-x-0 top-4 h-24 bg-white rounded-[51px] shadow-lg"></div>
+            
+            <button onClick={handlePrev} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors">
+              <ArrowLeft className="w-8 h-8 md:w-10 md:h-10 text-white" />
+            </button>
 
-            {/* Left Arrow Button */}
-            <div className="relative w-[77px] h-[77px]">
-              <div className="w-full h-full bg-[#3F75A1] rounded-full"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  width="40"
-                  height="41"
-                  viewBox="0 0 40 41"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M33.0715 20.4094C33.0715 19.5049 32.3383 18.7717 31.4339 18.7717H8.50673C7.60228 18.7717 6.86908 19.5049 6.86908 20.4094C6.86908 21.3138 7.60228 22.047 8.50673 22.047H31.4339C32.3383 22.047 33.0715 21.3138 33.0715 20.4094Z"
-                    fill="white"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M21.1283 7.78776C20.4887 7.14822 19.4518 7.14822 18.8123 7.78776L7.34869 19.2513C6.70914 19.8909 6.70914 20.9278 7.34869 21.5673L18.8123 33.0309C19.4518 33.6704 20.4887 33.6704 21.1283 33.0309C21.7678 32.3914 21.7678 31.3545 21.1283 30.7149L10.8227 20.4093L21.1283 10.1038C21.7678 9.46421 21.7678 8.42731 21.1283 7.78776Z"
-                    fill="white"
-                  />
-                </svg>
-              </div>
-            </div>
+            <button onClick={handleFavorite} className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-colors duration-300 ${isCurrentFavorited ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-[#F64D64] hover:bg-[#E04458]'}`}>
+              <Star className="w-12 h-12 md:w-16 md:h-16 text-white" fill={isCurrentFavorited ? 'white' : 'none'} />
+            </button>
 
-            {/* Star/Like Button */}
-            <div className="relative w-[127px] h-[127px]">
-              <div className="w-full h-full bg-[#F64D64] rounded-full drop-shadow-lg"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  width="71"
-                  height="71"
-                  viewBox="0 0 71 71"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g clipPath="url(#clip0_445_1838)">
-                    <path
-                      d="M51.7614 62.1757C51.2912 62.1776 50.8275 62.0667 50.409 61.8523L35.416 54.003L20.4229 61.8523C19.9361 62.1083 19.3872 62.2226 18.8386 62.1822C18.29 62.1417 17.7638 61.9482 17.3197 61.6236C16.8757 61.299 16.5316 60.8563 16.3266 60.3458C16.1216 59.8354 16.064 59.2777 16.1602 58.7361L19.1 42.185L6.98797 30.4257C6.61008 30.0486 6.34201 29.5757 6.21253 29.0578C6.08305 28.5399 6.09705 27.9965 6.25302 27.4859C6.42341 26.9634 6.73684 26.4991 7.15775 26.1458C7.57865 25.7924 8.09018 25.5641 8.63427 25.4868L25.3912 23.0468L32.7701 7.96551C33.0109 7.46847 33.3867 7.04929 33.8547 6.75599C34.3226 6.46269 34.8637 6.30713 35.416 6.30713C35.9682 6.30713 36.5093 6.46269 36.9773 6.75599C37.4452 7.04929 37.8211 7.46847 38.0618 7.96551L45.5289 23.0174L62.2859 25.4574C62.83 25.5347 63.3415 25.763 63.7624 26.1164C64.1833 26.4697 64.4968 26.934 64.6671 27.4565C64.8231 27.9671 64.8371 28.5105 64.7076 29.0284C64.5781 29.5463 64.3101 30.0192 63.9322 30.3963L51.8201 42.1556L54.76 58.7067C54.8649 59.2579 54.81 59.8275 54.6016 60.3485C54.3932 60.8694 54.0401 61.3198 53.584 61.6465C53.0517 62.0196 52.4107 62.2057 51.7614 62.1757Z"
-                      fill="white"
-                    />
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_445_1838">
-                      <rect
-                        width="70.5555"
-                        height="70.5555"
-                        fill="white"
-                        transform="translate(0.137207 0.439453)"
-                      />
-                    </clipPath>
-                  </defs>
-                </svg>
-              </div>
-            </div>
-
-            {/* Right Arrow Button */}
-            <div className="relative w-[77px] h-[77px]">
-              <div className="w-full h-full bg-[#3F75A1] rounded-full"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  width="40"
-                  height="41"
-                  viewBox="0 0 40 41"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M6.7583 20.4094C6.7583 19.5049 7.4915 18.7717 8.39595 18.7717H31.3231C32.2276 18.7717 32.9608 19.5049 32.9608 20.4094C32.9608 21.3138 32.2276 22.047 31.3231 22.047H8.39595C7.4915 22.047 6.7583 21.3138 6.7583 20.4094Z"
-                    fill="white"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M18.7016 7.78776C19.3411 7.14822 20.378 7.14822 21.0176 7.78776L32.4811 19.2513C33.1207 19.8909 33.1207 20.9278 32.4811 21.5673L21.0176 33.0309C20.378 33.6704 19.3411 33.6704 18.7016 33.0309C18.062 32.3914 18.062 31.3545 18.7016 30.7149L29.0072 20.4093L18.7016 10.1038C18.062 9.46421 18.062 8.42731 18.7016 7.78776Z"
-                    fill="white"
-                  />
-                </svg>
-              </div>
-            </div>
+            <button onClick={handleNext} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors">
+              <ArrowRight className="w-8 h-8 md:w-10 md:h-10 text-white" />
+            </button>
           </div>
         </div>
       </div>

@@ -35,7 +35,15 @@ export default function CVGeneratorPage(): JSX.Element {
 
     // Here you would typically send the data to an AI service
     // For now, we'll simulate CV generation
-    alert("CV sedang dibuat dengan AI... Anda akan diarahkan kembali ke halaman upload.")
+    // alert("CV sedang dibuat dengan AI... Anda akan diarahkan kembali ke halaman upload.")
+    // const link = document.createElement('a');
+    // link.href = '/cv.pdf'; // Assumes cv.pdf is in your `public` folder
+    // link.setAttribute('download', 'cv-hasil-ai.pdf'); // The filename the user will see
+
+    // // 2. Append, click, and then remove the link from the body
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
 
     // Redirect back to upload CV page
     router.push("/add-job/upload-cv")
