@@ -22,6 +22,7 @@ interface Job {
 }
 
 interface SeekerDashboardMainProps {
+  username: string;
   jobs: Job[];
   completedJobs: Job[];
 }
@@ -106,6 +107,7 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
 // ---
 
 export default function SeekerDashboardMain({
+  username,
   jobs,
   completedJobs,
 }: SeekerDashboardMainProps) {
@@ -124,7 +126,7 @@ export default function SeekerDashboardMain({
           </div>
         </div>
         <p className="text-[#2F587A] text-base font-semibold">
-          Hi, Mukhlis. Welcome back to Temu Kerja!
+          Hi, {username}. Welcome back to Temu Kerja!
         </p>
       </div>
       <div className="bg-[#EBF2F7] rounded-lg shadow-lg p-8">

@@ -1,5 +1,6 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import DashboardClient from "../../components/seeker-dashboard/SeekerDashboardClient";
+import { getCurrentUser } from "../../lib/auth";
 
 // ---
 // Data Fetching and Processing
@@ -117,6 +118,7 @@ export default async function SeekerDashboard() {
   const completedJobs = await getCompletedJobs();
   const incomeData = await getIncomeData();
   const reviews = await getReviews();
+  const user = await getCurrentUser();
 
   return (
     <DashboardClient
@@ -124,6 +126,7 @@ export default async function SeekerDashboard() {
       completedJobs={completedJobs}
       incomeData={incomeData}
       reviews={reviews}
+      username={user?.username || ""}
     />
   );
 }

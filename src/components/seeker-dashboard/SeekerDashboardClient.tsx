@@ -52,9 +52,10 @@ interface DashboardClientProps {
   completedJobs: Job[];
   incomeData: IncomeItem[];
   reviews: Review[];
+  username: string;
 }
 
-export default function DashboardClient({ jobs, completedJobs, incomeData, reviews }: DashboardClientProps) {
+export default function DashboardClient({ username, jobs, completedJobs, incomeData, reviews }: DashboardClientProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date("2025-07-02T00:00:00"));
 
   const monthNames: string[] = [
@@ -78,7 +79,7 @@ export default function DashboardClient({ jobs, completedJobs, incomeData, revie
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side - Dashboard */}
           <div className="lg:col-span-2">
-            <SeekerDashboardMain jobs={jobs} completedJobs={completedJobs} />
+            <SeekerDashboardMain username={username} jobs={jobs} completedJobs={completedJobs} />
           </div>
 
           {/* Right Side - History, Calendar & Income */}
