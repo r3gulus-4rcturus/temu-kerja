@@ -176,19 +176,17 @@ export default function SeekerDashboardSidebar({
 
           {/* Event Legend */}
           <div className="mt-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg">
-              {acceptedJobs.map((job) => (
-                <>
-                  <Calendar className="w-4 h-4 text-[#4581B2]" />
-                  <span className="text-xs font-bold text-[#1D364B]">
-                    {job.dateDate} {job.dateMonth}
-                  </span>
-                  <span className="text-xs font-bold text-[#2F587A]">
-                    [{job.provider.username}] {job.title}
-                  </span>
-                </>
-              ))}
-            </div>
+            {acceptedJobs.map((job) => (
+              <div key={job.id} className="flex items-center gap-2 px-4 py-2 rounded-lg">
+                <Calendar className="w-4 h-4 text-[#4581B2]" />
+                <span className="text-xs font-bold text-[#1D364B]">
+                  {job.dateDate} {job.dateMonth}
+                </span>
+                <span className="text-xs font-bold text-[#2F587A]">
+                  [{job.provider.username}] {job.title}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -221,8 +219,8 @@ export default function SeekerDashboardSidebar({
               );
             })}
           </div> */}
-          {/* Scrollbar */}
-          {/* <div className="w-1.5 bg-[#EBF2F7] rounded-full flex justify-center">
+        {/* Scrollbar */}
+        {/* <div className="w-1.5 bg-[#EBF2F7] rounded-full flex justify-center">
             <div className="w-full h-32 bg-[#1D364B] rounded-full"></div>
           </div>
         </div> */}
