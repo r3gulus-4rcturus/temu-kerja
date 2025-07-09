@@ -11,6 +11,7 @@ interface CreateJobParams {
   location: string;
   minRate: number;
   providerId: string;
+  dateTime: Date;
 }
 
 /**
@@ -20,7 +21,7 @@ interface CreateJobParams {
  */
 export async function createJob(params: CreateJobParams) {
   try {
-    const { title, description, categories, location, minRate, providerId } = params;
+    const { title, description, categories, location, minRate, providerId, dateTime } = params;
 
     // Validate that the provider ID exists
     if (!providerId) {
@@ -36,6 +37,7 @@ export async function createJob(params: CreateJobParams) {
         location,
         minRate,
         providerId,
+        dateTime,
         // The 'status' field defaults to 'open' as defined in your schema
       },
     });

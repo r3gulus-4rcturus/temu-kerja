@@ -68,6 +68,7 @@ model Job {
   providerId  String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  dateTime    DateTime // Add this line
 
   // Relations
   applications Application[]

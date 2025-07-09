@@ -17,6 +17,7 @@ export default function JobFormModal({ userId, onClose }: JobFormModalProps) {
     tags: "", // We'll use a single string for input, then split it into an array
     location: "",
     price: "",
+    dateTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function JobFormModal({ userId, onClose }: JobFormModalProps) {
         location: formData.location,
         minRate: parseFloat(formData.price), // Convert price string to a number
         providerId: userId,
+        dateTime: new Date(formData.dateTime),
       };
 
       // Basic validation
@@ -95,6 +97,10 @@ export default function JobFormModal({ userId, onClose }: JobFormModalProps) {
           <div>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700">Lokasi</label>
             <input type="text" name="location" id="location" value={formData.location} onChange={handleChange} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label htmlFor="dateTime" className="block text-sm font-medium text-gray-700">Tanggal dan Waktu</label>
+            <input type="datetime-local" name="dateTime" id="dateTime" value={formData.dateTime} onChange={handleChange} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
           </div>
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">Deskripsi</label>
