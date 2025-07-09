@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, ChevronLeft, ChevronRight, Clock, LucideIcon } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, LucideIcon, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { JSX } from "react";
 
 // ---
@@ -14,7 +14,7 @@ interface IncomeDataItem {
   amount: string;
   type: "income" | "expense";
   color: string;
-  icon: LucideIcon;
+  icon: string; // Changed to string
 }
 
 interface SeekerDashboardSidebarProps {
@@ -23,6 +23,11 @@ interface SeekerDashboardSidebarProps {
   monthNames: string[];
   incomeData: IncomeDataItem[];
 }
+
+const iconMap: { [key: string]: LucideIcon } = {
+  ArrowUpRight,
+  ArrowDownRight,
+};
 
 export default function SeekerDashboardSidebar({
   currentDate,
@@ -174,7 +179,7 @@ export default function SeekerDashboardSidebar({
         <div className="bg-white rounded-3xl p-5 border border-[#D9D9D9] flex gap-3">
             <div className="flex-1 space-y-5">
               {incomeData.map((item) => {
-                const IconComponent = item.icon;
+                const IconComponent = iconMap[item.icon];
                 return (
                   <div
                     key={item.id}
