@@ -3,6 +3,7 @@
 import { useState, JSX } from "react";
 import { MapPin, ArrowLeft, ArrowRight, Star } from "lucide-react";
 import { Job } from "../../lib/actions/fetchJobForSeeker.actions";
+import { updateAndSendApplication } from "../../lib/actions/application.actions";
 import Image from "next/image";
 
 // ---
@@ -69,6 +70,7 @@ interface JustSwipeSectionProps {
 export default function JustSwipeSection({ randomJobs = [] }: JustSwipeSectionProps): JSX.Element {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorited, setFavorited] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNext = () => {
     if (randomJobs.length === 0) return;
@@ -80,13 +82,36 @@ export default function JustSwipeSection({ randomJobs = [] }: JustSwipeSectionPr
     setCurrentIndex((prev) => (prev - 1 + randomJobs.length) % randomJobs.length);
   };
 
-  const handleFavorite = () => {
-    if (randomJobs.length === 0) return;
-    const currentId = randomJobs[currentIndex].id;
-    setFavorited((prev) => ({
-      ...prev,
-      [currentId]: !prev[currentId],
-    }));
+  const handleFavorite = async () => {
+    if (randomJobs.length === 0 || isSubmitting) return;
+
+    const currentJob = randomJobs[currentIndex];
+    const currentId = currentJob.id;
+
+    if (favorited[currentId]) {
+        alert("You have already sent an application for this job in this session.");
+        return;
+    }
+
+    setIsSubmitting(true);
+    try {
+        const result = await updateAndSendApplication(currentId);
+        if (result.success) {
+            setFavorited((prev) => ({
+                ...prev,
+                [currentId]: true,
+            }));
+            alert("Application sent successfully!");
+            handleNext(); 
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+    } catch (error) {
+        console.error("Failed to send application:", error);
+        alert("An unexpected error occurred.");
+    } finally {
+        setIsSubmitting(false);
+    }
   };
   
   const isCurrentFavorited = randomJobs.length > 0 ? favorited[randomJobs[currentIndex].id] : false;
@@ -137,7 +162,7 @@ export default function JustSwipeSection({ randomJobs = [] }: JustSwipeSectionPr
               <ArrowLeft className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </button>
 
-            <button onClick={handleFavorite} disabled={randomJobs.length === 0} className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-colors duration-300 ${isCurrentFavorited ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-[#F64D64] hover:bg-[#E04458]'}`}>
+            <button onClick={handleFavorite} disabled={randomJobs.length === 0 || isSubmitting || isCurrentFavorited} className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-colors duration-300 ${isCurrentFavorited ? 'bg-yellow-400' : 'bg-[#F64D64] hover:bg-[#E04458]'} disabled:opacity-50 disabled:cursor-not-allowed`}>
               <Star className="w-12 h-12 md:w-16 md:h-16 text-white" fill={isCurrentFavorited ? 'white' : 'none'} />
             </button>
 
