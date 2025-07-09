@@ -42,13 +42,13 @@ export default function JobFormModal({ userId, onClose }: JobFormModalProps) {
         // Split the tags string into an array, trimming whitespace and removing empty tags
         categories: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         location: formData.location,
-        minRate: parseFloat(formData.price), // Convert price string to a number
+        priceRate: parseFloat(formData.price), // Convert price string to a number
         providerId: userId,
         dateTime: new Date(formData.dateTime),
       };
 
       // Basic validation
-      if (isNaN(jobData.minRate)) {
+      if (isNaN(jobData.priceRate)) {
         throw new Error("Tarif harus berupa angka yang valid.");
       }
       if (jobData.categories.length === 0) {

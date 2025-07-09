@@ -60,8 +60,7 @@ model Job {
   description String
   categories  String[] // Array of categories
   location    String
-  minRate     Float?
-  maxRate     Float?
+  priceRate   Float
   rateType    String? // hourly, daily, etc.
   status      JobStatus @default(open)
   provider    User      @relation("ProviderJobs", fields: [providerId], references: [id])

@@ -102,7 +102,7 @@ export async function getOrdersForUser(): Promise<Order[]> {
       worker: acceptedApplication?.seeker?.fullname ?? 'N/A',
       tag: job.categories[0] || 'General',
       status: getStatusDisplayName(job.status),
-      price: `Rp ${job.minRate?.toLocaleString('id-ID') || 'N/A'}`,
+      price: `Rp ${job.priceRate?.toLocaleString('id-ID') || 'N/A'}`,
       statusColor: getStatusColor(job.status),
     };
   });
