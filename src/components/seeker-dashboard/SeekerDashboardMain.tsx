@@ -2,46 +2,47 @@
 
 import { useState } from "react";
 import { ChevronDown, Search } from "lucide-react"; // 1. Import the Search icon
+import { JobStatus } from "@prisma/client"
 
 // ---
 // Interfaces for Data Structures
 // ---
 
-interface Job {
+interface JobWithTimeDetails {
   id: string;
-  date: string;
-  dateRange: string;
-  time: string;
-  avatar?: string;
-  provider: string;
-  jobTitle: string;
-  status: string;
+  title: string;
   location: string;
-  tariff: string;
+  priceRate: number;
+  status: JobStatus;
+  dateTime: Date;
+  username: string;
   statusColor: string;
-}
+  avatar?: string;
+  dateMonth: string;
+  dateDate: number;
+  dateHour: string;
+};
 
 interface SeekerDashboardMainProps {
   username: string;
-  jobs: Job[];
-  completedJobs: Job[];
+  jobs: JobWithTimeDetails[];
 }
 
 // ---
 // JobCard Component
 // ---
 
-const JobCard: React.FC<{ job: Job }> = ({ job }) => (
+const JobCard: React.FC<{ job: JobWithTimeDetails }> = ({ job }) => (
   <div className="bg-white rounded-xl flex overflow-hidden">
     {/* Date Section */}
     <div className="bg-[#9FB6EF] px-9 py-5 flex flex-col items-center justify-between min-w-[125px]">
       <div className="text-center">
-        <div className="text-[#666] text-base mb-1">{job.date}</div>
+        <div className="text-[#666] text-base mb-1">{job.dateMonth}</div>
         <div className="text-[#181818] text-2xl font-normal tracking-[4.56px]">
-          {job.dateRange}
+          {job.dateDate}
         </div>
       </div>
-      <div className="text-[#3C3C43] text-xs mt-16">{job.time}</div>
+      <div className="text-[#3C3C43] text-xs mt-16">{job.dateHour}</div>
     </div>
 
     {/* Content Section */}
@@ -53,15 +54,15 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
             <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
               <img
                 src={job.avatar || "/api/placeholder/46/46"}
-                alt={job.provider}
+                alt={job.username}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="text-xl font-semibold text-black">
-              {job.provider}
+              {job.username}
             </div>
             <div className="bg-[#3C3C43] text-white text-xs px-2 py-2 rounded-full">
-              {job.jobTitle}
+              {job.username}
             </div>
           </div>
           <div className={`w-6 h-6 rounded-full ${job.statusColor}`}></div>
@@ -93,7 +94,7 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
               Tarif :
             </span>
             <span className="text-[#181818] font-semibold text-base">
-              {job.tariff}
+              {job.priceRate}
             </span>
           </div>
         </div>
@@ -109,7 +110,6 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
 export default function SeekerDashboardMain({
   username,
   jobs,
-  completedJobs,
 }: SeekerDashboardMainProps) {
   const [showCompletedJobs, setShowCompletedJobs] = useState<boolean>(true);
 
@@ -129,13 +129,33 @@ export default function SeekerDashboardMain({
           Hi, {username}. Welcome back to Temu Kerja!
         </p>
       </div>
+
+      {/* Main Container */}
       <div className="bg-[#EBF2F7] rounded-lg shadow-lg p-8">
-        <div className="flex flex-col items-center justify-center text-center min-h-[800px] space-y-8">
-          <div className="flex items-center gap-3 text-xl text-gray-500">
-            <Search className="w-9 h-9 text-[#3F75A1]" />
-            <span className="font-plusjakarta text-2xl font-bold text-[#3F75A1]">Belum Ada Pekerjaan Aktif Saat Ini!</span>
+        {/* 2. Check if there are Jobs to display */}
+        {jobs.length > 0 ? (
+          <>
+            {/* If jobs exist, map through them and show the button */}
+            <div className="space-y-6">
+              {jobs.map(job => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+            <div className="flex justify-end pt-8">
+              <button className="bg-[#4581B2] text-white px-9 py-4 rounded-lg text-xl font-bold hover:bg-[#3F75A1] transition-colors">
+                Temukan Pekerja!
+              </button>
+            </div>
+          </>
+        ) : (
+          // 3. If no orders exist, display the centered empty state message
+          <div className="flex flex-col items-center justify-center text-center min-h-[800px] space-y-8">
+            <div className="flex items-center gap-3 text-xl text-gray-500">
+              <Search className="w-9 h-9 text-[#3F75A1]" />
+              <span className="font-plusjakarta text-2xl font-bold text-[#3F75A1]">Belum Ada Pekerjaan Aktif Saat Ini!</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

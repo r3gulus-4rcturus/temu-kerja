@@ -1,66 +1,32 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  get100Jobs,
+  getAcceptedApplicationJobs,
+  getOnNegotiationApplicationJobs,
+  getSentApplicationJobs,
+} from "../../lib/actions/fetchJobForSeeker.actions";
 import DashboardClient from "../../components/seeker-dashboard/SeekerDashboardClient";
 import { getCurrentUser } from "../../lib/auth";
 
-// ---
-// Data Fetching and Processing
-// ---
-
-const getJobs = async () => {
-  // In a real application, you would fetch this data from your database or API
-  return [
-    {
-      id: "job-1",
-      date: "Maret",
-      dateRange: "2 - 5",
-      time: "12:00 PM",
-      provider: "Kurniawan",
-      jobTitle: "Jasa Tukang Kebun",
-      status: "Belum Dimulai",
-      location: "Jl. Margonda Raya 1, Blok DC No.19, Depok",
-      tariff: "Rp 500,000.00",
-      statusColor: "bg-red-500",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: "job-2",
-      date: "Maret",
-      dateRange: "2 - 5",
-      time: "12:00 PM",
-      provider: "Kurniawan",
-      jobTitle: "Jasa Tukang Kebun",
-      status: "Sedang Dikerjakan",
-      location: "Jl. Margonda Raya 1, Blok DC No.19, Depok",
-      tariff: "Rp 500,000.00",
-      statusColor: "bg-green-500",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  ];
-};
-
-const getCompletedJobs = async () => {
-  return [
-    {
-      id: "job-3",
-      date: "Maret",
-      dateRange: "2 - 5",
-      time: "12:00 PM",
-      provider: "Kurniawan",
-      jobTitle: "Jasa Tukang Kebun",
-      status: "Selesai",
-      location: "Jl. Margonda Raya 1, Blok DC No.19, Depok",
-      tariff: "Rp 500,000.00",
-      statusColor: "bg-gray-800",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  ];
-};
-
-const getIncomeData = async () => {
-  return [
+export default async function SeekerDashboard() {
+  // Fetch all necessary job data concurrently
+  const [
+    random100Jobs,
+    acceptedJobs,
+    onnegotiationJobs,
+    sentJobs,
+  ] = await Promise.all([
+    get100Jobs(),
+    getAcceptedApplicationJobs(),
+    getOnNegotiationApplicationJobs(),
+    getSentApplicationJobs(),
+  ]);
+  const user = await getCurrentUser();
+// Keep hardcoded data for sections not yet migrated to DB fetching
+  const incomeData = [
     {
       id: 1,
-      type: "income",
+      type: "income" as const,
       title: "Pendapatan Pesanan #531",
       date: "1 Apr 2025 18:00",
       amount: "+250.000",
@@ -69,7 +35,7 @@ const getIncomeData = async () => {
     },
     {
       id: 2,
-      type: "expense",
+      type: "expense" as const,
       title: "Penarikan Saldo",
       date: "1 Apr 2025 12:00",
       amount: "-150.000",
@@ -78,7 +44,7 @@ const getIncomeData = async () => {
     },
     {
       id: 3,
-      type: "income",
+      type: "income" as const,
       title: "Pendapatan Pesanan #530",
       date: "1 Apr 2025 09:00",
       amount: "+300.000",
@@ -86,18 +52,15 @@ const getIncomeData = async () => {
       icon: "ArrowUpRight",
     },
   ];
-};
 
-const getReviews = async () => {
-  return [
+  const reviews = [
     {
       id: 1,
       reviewerName: "Jons Sena",
       reviewerAvatar: "/placeholder.svg?height=48&width=48",
       timeAgo: "2 days ago",
       rating: 4.5,
-      reviewText:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text",
+      reviewText: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text",
       backgroundImage: "/placeholder.svg?height=200&width=300",
     },
     {
@@ -106,24 +69,17 @@ const getReviews = async () => {
       reviewerAvatar: "/placeholder.svg?height=48&width=48",
       timeAgo: "2 days ago",
       rating: 4.5,
-      reviewText:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text",
+      reviewText: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text",
       backgroundImage: "/placeholder.svg?height=200&width=300",
     },
   ];
-};
-
-export default async function SeekerDashboard() {
-  const jobs = await getJobs();
-  const completedJobs = await getCompletedJobs();
-  const incomeData = await getIncomeData();
-  const reviews = await getReviews();
-  const user = await getCurrentUser();
 
   return (
     <DashboardClient
-      jobs={jobs}
-      completedJobs={completedJobs}
+      random100Jobs={random100Jobs}
+      acceptedJobs={acceptedJobs}
+      onnegotiationJobs={onnegotiationJobs}
+      sentJobs={sentJobs}
       incomeData={incomeData}
       reviews={reviews}
       username={user?.username || ""}

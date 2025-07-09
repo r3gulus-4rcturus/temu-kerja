@@ -8,6 +8,7 @@ import ChatTerakhirSection from "./ChatTerakhirSection";
 import MatchSection from "./MatchSection";
 import JustSwipeSection from "./JustSwipeSection";
 import RatingUlasanSection from "./RatingUlasanSection";
+import { JobStatus } from "@prisma/client";
 
 // ---
 // Interfaces for Data Structures
@@ -15,17 +16,30 @@ import RatingUlasanSection from "./RatingUlasanSection";
 
 interface Job {
   id: string;
-  date: string;
-  dateRange: string;
-  time: string;
-  avatar?: string;
-  provider: string;
-  jobTitle: string;
-  status: string;
+  title: string;
   location: string;
-  tariff: string;
+  priceRate: number;
+  status: JobStatus;
+  dateTime: Date;
+  username: string;
   statusColor: string;
+  avatar?: string;
 }
+
+interface JobWithTimeDetails {
+  id: string;
+  title: string;
+  location: string;
+  priceRate: number;
+  status: JobStatus;
+  dateTime: Date;
+  username: string;
+  statusColor: string;
+  avatar?: string;
+  dateMonth: string;
+  dateDate: number;
+  dateHour: string;
+};
 
 interface IncomeItem {
   id: number;
@@ -48,14 +62,24 @@ interface Review {
 }
 
 interface DashboardClientProps {
-  jobs: Job[];
-  completedJobs: Job[];
-  incomeData: IncomeItem[];
-  reviews: Review[];
-  username: string;
+  random100Jobs: Job[],
+  acceptedJobs: JobWithTimeDetails[],
+  onnegotiationJobs: Job[],
+  sentJobs: Job[],
+  incomeData: IncomeItem[],
+  reviews: Review[],
+  username: string
 }
 
-export default function DashboardClient({ username, jobs, completedJobs, incomeData, reviews }: DashboardClientProps) {
+export default function DashboardClient({ 
+  random100Jobs,
+  acceptedJobs,
+  onnegotiationJobs,
+  sentJobs,
+  incomeData,
+  reviews,
+  username
+}: DashboardClientProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date("2025-07-02T00:00:00"));
 
   const monthNames: string[] = [
@@ -79,7 +103,7 @@ export default function DashboardClient({ username, jobs, completedJobs, incomeD
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side - Dashboard */}
           <div className="lg:col-span-2">
-            <SeekerDashboardMain username={username} jobs={jobs} completedJobs={completedJobs} />
+            <SeekerDashboardMain username={username} jobs={acceptedJobs}/>
           </div>
 
           {/* Right Side - History, Calendar & Income */}

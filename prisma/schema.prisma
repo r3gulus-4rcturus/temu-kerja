@@ -135,7 +135,7 @@ enum DailyDuration {
 
 enum RateType {
   hourly
-  daily
+  fixed
 }
 
 model Chat {

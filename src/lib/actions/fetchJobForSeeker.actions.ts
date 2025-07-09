@@ -1,0 +1,276 @@
+"use server";
+
+import { prisma } from "../prisma";
+import { getCurrentUser } from "../auth";
+import { Job as PrismaJob, JobStatus } from "@prisma/client";
+
+/**
+ * Defines the shape of the job data returned by our custom fetch actions.
+ * It includes a subset of the Job model and the provider's username.
+ */
+export type Job = {
+  id: string;
+  title: string;
+  location: string;
+  priceRate: number;
+  status: JobStatus;
+  dateTime: Date;
+  provider: {
+    username: string;
+  };
+  statusColor: string;
+  avatar?: string;
+};
+
+/**
+ * Defines the shape of the job data returned by our custom fetch actions.
+ * It includes a subset of the Job model and the provider's username.
+ */
+export type JobWithTimeDetails = {
+  id: string;
+  title: string;
+  location: string;
+  priceRate: number;
+  status: JobStatus;
+  dateTime: Date;
+  provider: {
+    username: string;
+  };
+  statusColor: string;
+  avatar?: string;
+  dateMonth: string;
+  dateDate: number;
+  dateHour: string;
+};
+
+// Helper function to map status to a color
+const getStatusColor = (status: JobStatus): string => {
+  switch (status) {
+    case 'completed':
+      return 'gray';
+    case 'inprogress':
+      return 'green';
+    case 'closed':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
+const getMonth = (date: Date): string => {
+  return date.toLocaleDateString('id-ID', { month: 'long' });
+
+}
+
+const getDateInMonth = (date: Date): number => {
+  return date.getDate();
+}
+
+const getHour = (date: Date): string => {
+  // 3. Get the time with AM/PM format
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true, // This is key for AM/PM format
+  });
+}
+
+/**
+ * Fetches up to 100 random job entries from the database.
+ * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
+ */
+export async function get100Jobs(): Promise<JobWithTimeDetails[]> {
+  try {
+    const jobCount = await prisma.job.count();
+    if (jobCount === 0) {
+      return [];
+    }
+
+    // Generate a random offset, ensuring it doesn't go out of bounds
+    const skip = Math.max(0, Math.floor(Math.random() * (jobCount - 100)));
+
+    const jobsWithoutColor = await prisma.job.findMany({
+      take: 100,
+      skip: skip,
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        priceRate: true,
+        status: true,
+        dateTime: true,
+        provider: {
+          select: {
+            username: true,
+            avatar: true
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc', // Order by creation date for consistency
+      },
+    });
+
+    // Map over the jobs to add the statusColor
+    const jobs = jobsWithoutColor.map(job => ({
+      ...job,
+      statusColor: getStatusColor(job.status),
+      dateMonth: getMonth(job.dateTime),
+      dateDate: getDateInMonth(job.dateTime),
+      dateHour: getHour(job.dateTime),
+    }));
+
+    return jobs;
+  } catch (error) {
+    console.error("Failed to fetch random jobs:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetches all jobs for which the current user has an 'accepted' application.
+ * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
+ */
+export async function getAcceptedApplicationJobs(): Promise<Job[]> {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      // Return empty array if no user is logged in
+      return [];
+    }
+
+    const jobsWithoutColor = await prisma.job.findMany({
+      where: {
+        applications: {
+          some: {
+            seekerId: currentUser.id,
+            status: 'accepted',
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        priceRate: true,
+        status: true,
+        dateTime: true,
+        provider: {
+          select: {
+            username: true,
+            avatar: true
+          },
+        },
+      },
+    });
+
+    // Map over the jobs to add the statusColor
+    const jobs = jobsWithoutColor.map(job => ({
+      ...job,
+      statusColor: getStatusColor(job.status),
+    }));
+
+    return jobs;
+  } catch (error) {
+    console.error("Failed to fetch accepted application jobs:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetches all jobs for which the current user has an 'onNegotiation' application.
+ * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
+ */
+export async function getOnNegotiationApplicationJobs(): Promise<Job[]> {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return [];
+    }
+
+    const jobsWithoutColor = await prisma.job.findMany({
+      where: {
+        applications: {
+          some: {
+            seekerId: currentUser.id,
+            status: 'onnegotiation',
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        priceRate: true,
+        status: true,
+        dateTime: true,
+        provider: {
+          select: {
+            username: true,
+            avatar: true
+          },
+        },
+      },
+    });
+
+    // Map over the jobs to add the statusColor
+    const jobs = jobsWithoutColor.map(job => ({
+      ...job,
+      statusColor: getStatusColor(job.status),
+    }));
+
+    return jobs;
+  } catch (error) {
+    console.error("Failed to fetch jobs with applications on negotiation:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetches all jobs for which the current user has a 'sent' application.
+ * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
+ */
+export async function getSentApplicationJobs(): Promise<Job[]> {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return [];
+    }
+
+    const jobsWithoutColor = await prisma.job.findMany({
+      where: {
+        applications: {
+          some: {
+            seekerId: currentUser.id,
+            status: 'sent',
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        priceRate: true,
+        status: true,
+        dateTime: true,
+        provider: {
+          select: {
+            username: true,
+            avatar: true
+          },
+        },
+      },
+    });
+
+    // Map over the jobs to add the statusColor
+    const jobs = jobsWithoutColor.map(job => ({
+      ...job,
+      statusColor: getStatusColor(job.status),
+    }));
+
+    return jobs;
+  } catch (error) {
+    console.error("Failed to fetch jobs with sent applications:", error);
+    return [];
+  }
+}
