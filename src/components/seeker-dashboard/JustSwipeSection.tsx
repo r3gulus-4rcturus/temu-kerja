@@ -2,46 +2,97 @@
 
 import { useState, JSX } from "react";
 import { MapPin, ArrowLeft, ArrowRight, Star } from "lucide-react";
-import JobOfferCard, { JobOffer } from './JobOfferCard'; // Import the new card and its type
+import { Job } from "../../lib/actions/fetchJobForSeeker.actions";
+import Image from "next/image";
 
-// 1. Generate 10 hardcoded job offers
-const jobOffers: JobOffer[] = [
-  { id: 1, providerName: 'Budi Santoso', providerAvatar: 'https://i.pravatar.cc/150?u=1', jobTitle: 'Pembersihan Taman', location: 'Jakarta Selatan', schedule: '10 Juli 2025, 4 Jam', price: 350000},
-  { id: 2, providerName: 'Citra Muzaki Lestari', providerAvatar: 'https://i.pravatar.cc/150?u=2', jobTitle: 'Perawatan Kolam Ikan', location: 'Surabaya Pusat', schedule: '12 Juli 2025, 2 Jam', price: 200000 },
-  { id: 3, providerName: 'Agus Wijaya', providerAvatar: 'https://i.pravatar.cc/150?u=3', jobTitle: 'Mengecat Pagar Rumah', location: 'Bandung Kota', schedule: '15 Juli 2025, 6 Jam', price: 500000},
-  { id: 4, providerName: 'Dewi Naufal Anggraini', providerAvatar: 'https://i.pravatar.cc/150?u=4', jobTitle: 'Merakit Furnitur IKEA', location: 'Tangerang Selatan', schedule: '18 Juli 2025, 3 Jam', price: 2500000},
-  { id: 5, providerName: 'Naufal Eko Prasetyo', providerAvatar: 'https://i.pravatar.cc/150?u=5', jobTitle: 'Bantuan Pindahan Rumah', location: 'Bekasi Barat', schedule: '20 Juli 2025, 8 Jam', price: 800000},
-  { id: 6, providerName: 'Fitriani', providerAvatar: 'https://i.pravatar.cc/150?u=6', jobTitle: 'Memasak untuk Acara Keluarga', location: 'Depok', schedule: '22 Juli 2025, 5 Jam', price: 450000},
-  { id: 7, providerName: 'Rafsanjani', providerAvatar: 'https://i.pravatar.cc/150?u=7', jobTitle: 'Mengajar Les', location: 'Depok', schedule: '15 Juli 2025, 2 Jam', price: 200000 },
-  { id: 8, providerName: 'Hesti Purwanti', providerAvatar: 'https://i.pravatar.cc/150?u=8', jobTitle: 'Jasa Fotografi Produk', location: 'Jakarta Pusat', schedule: '28 Juli 2025, 2 Jam', price: 750000 },
-  { id: 9, providerName: 'Indra Permana', providerAvatar: 'https://i.pravatar.cc/150?u=9', jobTitle: 'Membuat Website Sederhana', location: 'Online', schedule: '1-5 Agustus 2025', price: 1500000},
-  { id: 10, providerName: 'Joko Susilo', providerAvatar: 'https://i.pravatar.cc/150?u=10', jobTitle: 'Membersihkan AC', location: 'Jakarta Timur', schedule: '7 Agustus 2025, 1 Jam', price: 150000 },
-];
+// ---
+// Child Component for displaying a single job offer
+// ---
+const JobOfferCard: React.FC<{ job: Job }> = ({ job }) => {
+    const date = new Date(job.dateTime);
+    const schedule = `${date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
 
-export default function JustSwipeSection(): JSX.Element {
+    return (
+        <div className="absolute left-0 top-0 w-full h-[620px] flex flex-col md:flex-row shadow-2xl rounded-[32px] bg-[#8CB1D0]">
+            <div className="flex flex-col items-start gap-4 p-6 md:p-8 text-white w-full">
+                <div className="flex py-2 px-4 justify-center items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1D364B] via-[#3C6B90] to-[#1D364B]">
+                    <div className="text-white text-sm md:text-base font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+                        Rekomendasi Pekerjaan
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden border-2 border-white">
+                        <Image
+                            src={`https://i.pravatar.cc/150?u=${job.provider.username}`}
+                            alt={job.provider.username}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div className="text-white text-xl font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+                        {job.provider.username}
+                    </div>
+                </div>
+                <div className="text-white text-2xl md:text-3xl font-bold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+                    {job.title}
+                </div>
+                <div className="flex flex-col items-start gap-2 w-full" style={{ fontFamily: "Roboto, sans-serif" }}>
+                    <p className="text-sm font-semibold flex items-center gap-1"><MapPin size={16} /> Lokasi:</p>
+                    <p className="pl-5">{job.location}</p>
+                    <p className="text-sm font-semibold mt-2">Jadwal:</p>
+                    <p className="pl-5">{schedule}</p>
+                </div>
+                <div className="w-full mt-auto pt-4">
+                    <div className="h-px w-full bg-white my-3 opacity-50"></div>
+                    <div className="text-white text-base font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+                        Estimasi Tarif
+                    </div>
+                    <div className="text-white text-2xl font-bold" style={{ fontFamily: "Urbanist, sans-serif" }}>
+                        Rp {job.priceRate.toLocaleString('id-ID')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// ---
+// Main Component
+// ---
+
+interface JustSwipeSectionProps {
+  randomJobs: Job[];
+}
+
+export default function JustSwipeSection({ randomJobs = [] }: JustSwipeSectionProps): JSX.Element {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [favorited, setFavorited] = useState<Record<number, boolean>>({});
+  const [favorited, setFavorited] = useState<Record<string, boolean>>({});
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % jobOffers.length);
+    if (randomJobs.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % randomJobs.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + jobOffers.length) % jobOffers.length);
+    if (randomJobs.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + randomJobs.length) % randomJobs.length);
   };
 
   const handleFavorite = () => {
-    const currentId = jobOffers[currentIndex].id;
+    if (randomJobs.length === 0) return;
+    const currentId = randomJobs[currentIndex].id;
     setFavorited((prev) => ({
       ...prev,
-      [currentId]: !prev[currentId], // Toggle the favorited state for the current card
+      [currentId]: !prev[currentId],
     }));
   };
-
-  const isCurrentFavorited = favorited[jobOffers[currentIndex].id];
+  
+  const isCurrentFavorited = randomJobs.length > 0 ? favorited[randomJobs[currentIndex].id] : false;
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-4 md:p-8 relative overflow-hidden min-h-[600px]">
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-4 md:p-8 relative overflow-hidden min-h-[850px]">
       {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 right-24 hidden md:block"><MapPin className="w-6 h-6 text-blue-400" /></div>
@@ -70,21 +121,27 @@ export default function JustSwipeSection(): JSX.Element {
           </div>
 
           {/* Main Card Area */}
-          <JobOfferCard offer={jobOffers[currentIndex]} />
+          {randomJobs.length > 0 ? (
+            <JobOfferCard job={randomJobs[currentIndex]} />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                Tidak ada pekerjaan yang direkomendasikan saat ini.
+            </div>
+          )}
 
           {/* Swipe Controls */}
           <div className="absolute -bottom-8 sm:-bottom-4 left-1/2 -translate-x-1/2 w-full max-w-[384px] h-[127px] flex justify-center items-center gap-4 md:gap-10">
             <div className="absolute inset-x-0 top-4 h-24 bg-white rounded-[51px] shadow-lg"></div>
             
-            <button onClick={handlePrev} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors">
+            <button onClick={handlePrev} disabled={randomJobs.length < 2} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <ArrowLeft className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </button>
 
-            <button onClick={handleFavorite} className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-colors duration-300 ${isCurrentFavorited ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-[#F64D64] hover:bg-[#E04458]'}`}>
+            <button onClick={handleFavorite} disabled={randomJobs.length === 0} className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-colors duration-300 ${isCurrentFavorited ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-[#F64D64] hover:bg-[#E04458]'}`}>
               <Star className="w-12 h-12 md:w-16 md:h-16 text-white" fill={isCurrentFavorited ? 'white' : 'none'} />
             </button>
 
-            <button onClick={handleNext} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors">
+            <button onClick={handleNext} disabled={randomJobs.length < 2} className="relative z-10 w-16 h-16 md:w-20 md:h-20 bg-[#3F75A1] rounded-full flex items-center justify-center hover:bg-[#366A8F] active:bg-[#2F587A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <ArrowRight className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </button>
           </div>
