@@ -127,7 +127,7 @@ export default function DashboardClient({
 
         {/* Match Section */}
         <div className="mt-12">
-          <MatchSection />
+          <MatchSection negotiationJobs={onnegotiationJobs} sentJobs={sentJobs}/>
         </div>
 
         {/* Just Swipe Section */}
