@@ -75,7 +75,7 @@ interface DashboardClientProps {
   username: string
 }
 
-export default function DashboardClient({ 
+export default function DashboardClient({
   random100Jobs,
   acceptedJobs,
   onnegotiationJobs,
@@ -107,7 +107,7 @@ export default function DashboardClient({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side - Dashboard */}
           <div className="lg:col-span-2">
-            <SeekerDashboardMain username={username} jobs={acceptedJobs}/>
+            <SeekerDashboardMain username={username} jobs={acceptedJobs} />
           </div>
 
           {/* Right Side - History, Calendar & Income */}
@@ -116,6 +116,7 @@ export default function DashboardClient({
             navigateMonth={navigateMonth}
             monthNames={monthNames}
             incomeData={incomeData}
+            acceptedJobs={acceptedJobs}
           />
         </div>
 

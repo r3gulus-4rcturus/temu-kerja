@@ -1,7 +1,8 @@
 "use client";
 
 import { Calendar, ChevronLeft, ChevronRight, Clock, LucideIcon, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { JSX } from "react";
+import { JSX, useMemo } from "react";
+import { JobWithTimeDetails } from "../../lib/actions/fetchJobForSeeker.actions";
 
 // ---
 // Interfaces for Data Structures and Props
@@ -14,7 +15,7 @@ interface IncomeDataItem {
   amount: string;
   type: "income" | "expense";
   color: string;
-  icon: string; // Changed to string
+  icon: string;
 }
 
 interface SeekerDashboardSidebarProps {
@@ -22,6 +23,7 @@ interface SeekerDashboardSidebarProps {
   navigateMonth: (direction: number) => void;
   monthNames: string[];
   incomeData: IncomeDataItem[];
+  acceptedJobs: JobWithTimeDetails[];
 }
 
 const iconMap: { [key: string]: LucideIcon } = {
@@ -34,7 +36,20 @@ export default function SeekerDashboardSidebar({
   navigateMonth,
   monthNames,
   incomeData,
+  acceptedJobs,
 }: SeekerDashboardSidebarProps): JSX.Element {
+
+  // Memoize the set of job dates for efficient lookup
+  const jobDates = useMemo(() => {
+    const dates = new Set<string>();
+    acceptedJobs.forEach(job => {
+      const jobDate = new Date(job.dateTime);
+      // Store date as 'YYYY-M-D' string for easy comparison
+      dates.add(`${jobDate.getFullYear()}-${jobDate.getMonth()}-${jobDate.getDate()}`);
+    });
+    return dates;
+  }, [acceptedJobs]);
+
   const getDaysInMonth = (date: Date): (number | null)[] => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -63,18 +78,32 @@ export default function SeekerDashboardSidebar({
 
   const dayAbbreviations: string[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Note: The original getDayClassName logic is complex and tied to specific dates.
-  // Replicating the exact day highlighting from the source image.
   const getDayClassName = (day: number | null): string => {
-      if (!day) return "";
-      if (day === 2) return "text-white bg-[#3F75A1] rounded-xl border-2 border-[#3F75A1]";
-      if (day >= 3 && day <= 4) return "text-black bg-[#CFDAF7] rounded-xl";
-      if (day === 5) return "text-black bg-[#CFDAF7] rounded-xl border-2 border-[#3F75A1]";
-      if (day === 1) return "text-[#E56A1F]";
-      // Add logic for previous month's days if needed
-      return "text-black";
+    if (!day) return "";
+
+    const today = new Date();
+    const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+
+    // Style for today's date
+    if (
+      dayDate.getDate() === today.getDate() &&
+      dayDate.getMonth() === today.getMonth() &&
+      dayDate.getFullYear() === today.getFullYear()
+    ) {
+      return "text-white bg-[#3F75A1] rounded-xl border-2 border-[#3F75A1]";
+    }
+
+    // Style for dates with an accepted job
+    const dateString = `${dayDate.getFullYear()}-${dayDate.getMonth()}-${dayDate.getDate()}`;
+    if (jobDates.has(dateString)) {
+      return "text-black bg-[#CFDAF7] rounded-xl";
+    }
+
+    // Default style for other days
+    return "text-black";
   };
 
+  const days = getDaysInMonth(currentDate);
 
   return (
     <div className="space-y-6">
@@ -103,9 +132,8 @@ export default function SeekerDashboardSidebar({
         <div className="bg-white rounded-3xl p-5 text-gray-900 border border-[#D9D9D9]">
           {/* Calendar Header */}
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xl font-semibold text-black">{`${
-              monthNames[currentDate.getMonth()]
-            } ${currentDate.getFullYear()}`}</h4>
+            <h4 className="text-xl font-semibold text-black">{`${monthNames[currentDate.getMonth()]
+              } ${currentDate.getFullYear()}`}</h4>
             <div className="flex gap-4">
               <button
                 onClick={() => navigateMonth(-1)}
@@ -138,22 +166,10 @@ export default function SeekerDashboardSidebar({
 
             {/* Calendar Days */}
             <div className="grid grid-cols-7 gap-2">
-               {/* This is a simplified static representation based on the image. 
-                   A dynamic implementation would require more date logic. */}
-              {["23", "24", "25", "26", "27", "28"].map((day) => (
-                <div key={day} className="flex items-center justify-center h-8 text-xs font-bold text-[#B3B3B3]">
+              {days.map((day, index) => (
+                <div key={index} className={`flex items-center justify-center h-8 text-xs font-bold ${getDayClassName(day)}`}>
                   {day}
                 </div>
-              ))}
-              {[...Array(31)].map((_, i) => i + 1).map((day) => (
-                 <div key={day} className={`flex items-center justify-center h-8 text-xs font-bold ${getDayClassName(day)}`}>
-                   {day}
-                 </div>
-              ))}
-              {[1, 2, 3, 4, 5].map((day) => (
-                  <div key={`next-${day}`} className="flex items-center justify-center h-8 text-xs font-bold text-black">
-                      {day}
-                  </div>
               ))}
             </div>
           </div>
@@ -161,13 +177,17 @@ export default function SeekerDashboardSidebar({
           {/* Event Legend */}
           <div className="mt-3">
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg">
-              <Calendar className="w-4 h-4 text-[#4581B2]" />
-              <span className="text-xs font-bold text-[#1D364B]">
-                2-5 Maret
-              </span>
-              <span className="text-xs font-bold text-[#2F587A]">
-                [Mukhlis] Pembersihan Taman
-              </span>
+              {acceptedJobs.map((job) => (
+                <>
+                  <Calendar className="w-4 h-4 text-[#4581B2]" />
+                  <span className="text-xs font-bold text-[#1D364B]">
+                    {job.dateDate} {job.dateMonth}
+                  </span>
+                  <span className="text-xs font-bold text-[#2F587A]">
+                    [{job.provider.username}] {job.title}
+                  </span>
+                </>
+              ))}
             </div>
           </div>
         </div>
@@ -176,36 +196,36 @@ export default function SeekerDashboardSidebar({
       {/* Income Section */}
       <div className="bg-[#3F75A1] rounded-xl shadow-lg p-6 text-white">
         <h3 className="text-2xl font-bold mb-5 text-center">Pendapatan</h3>
-        <div className="bg-white rounded-3xl p-5 border border-[#D9D9D9] flex gap-3">
-            <div className="flex-1 space-y-5">
-              {incomeData.map((item) => {
-                const IconComponent = iconMap[item.icon];
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-3 p-4 border border-[#D9D9D9] rounded-xl bg-white"
-                  >
-                    <IconComponent
-                      className={`w-9 h-9 ${item.color}`}
-                    />
-                    <div className="flex-1">
-                      <p className="text-xs text-[#888] font-medium mb-1">
-                        {item.date}
-                      </p>
-                      <p className="text-xs font-bold text-black">
-                        {item.title}
-                      </p>
-                    </div>
-                     <span className={`text-sm font-medium ${item.color}`}>{item.amount}</span>
+        {/* <div className="bg-white rounded-3xl p-5 border border-[#D9D9D9] flex gap-3">
+          <div className="flex-1 space-y-5">
+            {incomeData.map((item) => {
+              const IconComponent = iconMap[item.icon];
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 p-4 border border-[#D9D9D9] rounded-xl bg-white"
+                >
+                  <IconComponent
+                    className={`w-9 h-9 ${item.color}`}
+                  />
+                  <div className="flex-1">
+                    <p className="text-xs text-[#888] font-medium mb-1">
+                      {item.date}
+                    </p>
+                    <p className="text-xs font-bold text-black">
+                      {item.title}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-             {/* Scrollbar */}
-             <div className="w-1.5 bg-[#EBF2F7] rounded-full flex justify-center">
-               <div className="w-full h-32 bg-[#1D364B] rounded-full"></div>
-             </div>
-        </div>
+                  <span className={`text-sm font-medium ${item.color}`}>{item.amount}</span>
+                </div>
+              );
+            })}
+          </div> */}
+          {/* Scrollbar */}
+          {/* <div className="w-1.5 bg-[#EBF2F7] rounded-full flex justify-center">
+            <div className="w-full h-32 bg-[#1D364B] rounded-full"></div>
+          </div>
+        </div> */}
       </div>
     </div>
   );

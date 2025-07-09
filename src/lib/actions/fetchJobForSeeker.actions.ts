@@ -2,7 +2,6 @@
 
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
-import { JobStatus } from "@prisma/client";
 import { getStatusColor, getStatusDisplayName } from "./order.actions";
 
 /**
