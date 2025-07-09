@@ -19,11 +19,13 @@ interface Job {
   title: string;
   location: string;
   priceRate: number;
-  status: JobStatus;
+  status: string;
   dateTime: Date;
-  username: string;
+  provider: {
+    username: string;
+    avatar?: string;
+  };
   statusColor: string;
-  avatar?: string;
 }
 
 interface JobWithTimeDetails {
@@ -31,11 +33,13 @@ interface JobWithTimeDetails {
   title: string;
   location: string;
   priceRate: number;
-  status: JobStatus;
+  status: string;
   dateTime: Date;
-  username: string;
+  provider: {
+    username: string;
+    avatar?: string;
+  };
   statusColor: string;
-  avatar?: string;
   dateMonth: string;
   dateDate: number;
   dateHour: string;

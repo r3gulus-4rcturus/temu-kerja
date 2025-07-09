@@ -2,7 +2,8 @@
 
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
-import { Job as PrismaJob, JobStatus } from "@prisma/client";
+import { JobStatus } from "@prisma/client";
+import { getStatusColor, getStatusDisplayName } from "./order.actions";
 
 /**
  * Defines the shape of the job data returned by our custom fetch actions.
@@ -13,13 +14,13 @@ export type Job = {
   title: string;
   location: string;
   priceRate: number;
-  status: JobStatus;
+  status: string;
   dateTime: Date;
   provider: {
     username: string;
+    avatar?: string;
   };
   statusColor: string;
-  avatar?: string;
 };
 
 /**
@@ -31,30 +32,16 @@ export type JobWithTimeDetails = {
   title: string;
   location: string;
   priceRate: number;
-  status: JobStatus;
+  status: string;
   dateTime: Date;
   provider: {
     username: string;
+    avatar?: string;
   };
   statusColor: string;
-  avatar?: string;
   dateMonth: string;
   dateDate: number;
   dateHour: string;
-};
-
-// Helper function to map status to a color
-const getStatusColor = (status: JobStatus): string => {
-  switch (status) {
-    case 'completed':
-      return 'gray';
-    case 'inprogress':
-      return 'green';
-    case 'closed':
-      return 'red';
-    default:
-      return 'gray';
-  }
 };
 
 const getMonth = (date: Date): string => {
@@ -79,7 +66,7 @@ const getHour = (date: Date): string => {
  * Fetches up to 100 random job entries from the database.
  * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
  */
-export async function get100Jobs(): Promise<JobWithTimeDetails[]> {
+export async function get100Jobs(): Promise<Job[]> {
   try {
     const jobCount = await prisma.job.count();
     if (jobCount === 0) {
@@ -115,9 +102,7 @@ export async function get100Jobs(): Promise<JobWithTimeDetails[]> {
     const jobs = jobsWithoutColor.map(job => ({
       ...job,
       statusColor: getStatusColor(job.status),
-      dateMonth: getMonth(job.dateTime),
-      dateDate: getDateInMonth(job.dateTime),
-      dateHour: getHour(job.dateTime),
+      status: getStatusDisplayName(job.status),
     }));
 
     return jobs;
@@ -131,7 +116,7 @@ export async function get100Jobs(): Promise<JobWithTimeDetails[]> {
  * Fetches all jobs for which the current user has an 'accepted' application.
  * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
  */
-export async function getAcceptedApplicationJobs(): Promise<Job[]> {
+export async function getAcceptedApplicationJobs(): Promise<JobWithTimeDetails[]> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -168,7 +153,13 @@ export async function getAcceptedApplicationJobs(): Promise<Job[]> {
     const jobs = jobsWithoutColor.map(job => ({
       ...job,
       statusColor: getStatusColor(job.status),
+      status: getStatusDisplayName(job.status),
+      dateMonth: getMonth(job.dateTime),
+      dateDate: getDateInMonth(job.dateTime),
+      dateHour: getHour(job.dateTime),
     }));
+
+    console.log(jobs)
 
     return jobs;
   } catch (error) {
@@ -217,6 +208,7 @@ export async function getOnNegotiationApplicationJobs(): Promise<Job[]> {
     const jobs = jobsWithoutColor.map(job => ({
       ...job,
       statusColor: getStatusColor(job.status),
+      status: getStatusDisplayName(job.status),
     }));
 
     return jobs;
@@ -266,6 +258,7 @@ export async function getSentApplicationJobs(): Promise<Job[]> {
     const jobs = jobsWithoutColor.map(job => ({
       ...job,
       statusColor: getStatusColor(job.status),
+      status: getStatusDisplayName(job.status),
     }));
 
     return jobs;

@@ -15,7 +15,7 @@ export interface Order {
 }
 
 // Helper function to map status to a color
-const getStatusColor = (status: JobStatus): string => {
+export const getStatusColor = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'gray';
@@ -29,7 +29,7 @@ const getStatusColor = (status: JobStatus): string => {
 };
 
 // Helper function to map status to a display name
-const getStatusDisplayName = (status: JobStatus): string => {
+export const getStatusDisplayName = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'Selesai';

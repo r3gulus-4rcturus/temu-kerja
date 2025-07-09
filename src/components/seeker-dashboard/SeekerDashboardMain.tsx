@@ -13,11 +13,13 @@ interface JobWithTimeDetails {
   title: string;
   location: string;
   priceRate: number;
-  status: JobStatus;
+  status: string;
   dateTime: Date;
-  username: string;
+  provider: {
+    username: string;
+    avatar?: string;
+  };
   statusColor: string;
-  avatar?: string;
   dateMonth: string;
   dateDate: number;
   dateHour: string;
@@ -27,6 +29,14 @@ interface SeekerDashboardMainProps {
   username: string;
   jobs: JobWithTimeDetails[];
 }
+
+// Helper to map color names to Tailwind CSS classes
+const colorMap: { [key: string]: string } = {
+  green: 'bg-green-500',
+  blue: 'bg-blue-500',
+  gray: 'bg-gray-800',
+  red: 'bg-red-500',
+};
 
 // ---
 // JobCard Component
@@ -53,23 +63,24 @@ const JobCard: React.FC<{ job: JobWithTimeDetails }> = ({ job }) => (
           <div className="flex items-center gap-2">
             <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
               <img
-                src={job.avatar || "/api/placeholder/46/46"}
-                alt={job.username}
+                src={job.provider.avatar || "/api/placeholder/46/46"}
+                alt={job.provider.username}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="text-xl font-semibold text-black">
-              {job.username}
-            </div>
-            <div className="bg-[#3C3C43] text-white text-xs px-2 py-2 rounded-full">
-              {job.username}
+              {job.provider.username}
             </div>
           </div>
-          <div className={`w-6 h-6 rounded-full ${job.statusColor}`}></div>
+            <div className={`w-6 h-6 rounded-full ${colorMap[job.statusColor] || 'bg-gray-400'}`}></div>
         </div>
 
         {/* Divider */}
         <div className="h-0.5 bg-[#E6E6E6]"></div>
+
+        <div className="text-grey px-2 py-2">
+          {job.title}
+        </div>
 
         {/* Status and Tarif */}
         <div className="space-y-1">
