@@ -66,7 +66,7 @@ interface Review {
 }
 
 interface DashboardClientProps {
-  random100Jobs: Job[],
+  random100AvailableJobs: Job[],
   acceptedJobs: JobWithTimeDetails[],
   onnegotiationJobs: Job[],
   sentJobs: Job[],
@@ -76,7 +76,7 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({
-  random100Jobs,
+  random100AvailableJobs,
   acceptedJobs,
   onnegotiationJobs,
   sentJobs,
@@ -132,7 +132,7 @@ export default function DashboardClient({
 
         {/* Just Swipe Section */}
         <div className="mt-12">
-          <JustSwipeSection />
+          <JustSwipeSection randomJobs={random100AvailableJobs}/>
         </div>
 
         {/* Rating dan Ulasan Section */}

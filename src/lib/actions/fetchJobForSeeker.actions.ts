@@ -62,10 +62,10 @@ const getHour = (date: Date): string => {
 }
 
 /**
- * Fetches up to 100 random job entries from the database.
+ * Fetches up to 100 random available job entries from the database.
  * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
  */
-export async function get100Jobs(): Promise<Job[]> {
+export async function get100AvailableJobs(): Promise<Job[]> {
   try {
     const jobCount = await prisma.job.count();
     if (jobCount === 0) {
@@ -78,6 +78,9 @@ export async function get100Jobs(): Promise<Job[]> {
     const jobsWithoutColor = await prisma.job.findMany({
       take: 100,
       skip: skip,
+      where: {
+        status: "open"
+      },
       select: {
         id: true,
         title: true,

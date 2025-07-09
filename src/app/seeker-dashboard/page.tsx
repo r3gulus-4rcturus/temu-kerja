@@ -1,6 +1,6 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import {
-  get100Jobs,
+  get100AvailableJobs,
   getAcceptedApplicationJobs,
   getOnNegotiationApplicationJobs,
   getSentApplicationJobs,
@@ -11,12 +11,12 @@ import { getCurrentUser } from "../../lib/auth";
 export default async function SeekerDashboard() {
   // Fetch all necessary job data concurrently
   const [
-    random100Jobs,
+    random100AvailableJobs,
     acceptedJobs,
     onnegotiationJobs,
     sentJobs,
   ] = await Promise.all([
-    get100Jobs(),
+    get100AvailableJobs(),
     getAcceptedApplicationJobs(),
     getOnNegotiationApplicationJobs(),
     getSentApplicationJobs(),
@@ -76,7 +76,7 @@ export default async function SeekerDashboard() {
 
   return (
     <DashboardClient
-      random100Jobs={random100Jobs}
+      random100AvailableJobs={random100AvailableJobs}
       acceptedJobs={acceptedJobs}
       onnegotiationJobs={onnegotiationJobs}
       sentJobs={sentJobs}
