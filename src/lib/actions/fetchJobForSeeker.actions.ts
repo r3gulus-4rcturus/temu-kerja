@@ -2,7 +2,7 @@
 
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
-import { getStatusColor, getStatusDisplayName } from "./order.actions";
+import { getStatusColor, getStatusDisplayName } from "./fetchPropsForDashboard";
 
 /**
  * Defines the shape of the job data returned by our custom fetch actions.

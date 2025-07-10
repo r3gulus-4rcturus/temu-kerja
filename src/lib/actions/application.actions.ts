@@ -62,43 +62,6 @@ export async function updateAndSendApplication(jobId: string) {
     }
 }
 
-
-/**
- * Fetches all pending applications for all jobs created by a specific user.
- * @param providerId - The ID of the job provider (the current user).
- * @returns A promise that resolves to an array of full application details.
- */
-export async function getPendingApplicationsForProvider(providerId: string): Promise<FullApplication[]> {
-  try {
-    if (!providerId) return [];
-
-    const applications = await prisma.application.findMany({
-      where: {
-        // Find applications where the related job's providerId matches the current user
-        job: {
-          providerId: providerId,
-        },
-        // Only fetch applications with a 'pending' status
-        status: 'pending',
-      },
-      include: {
-        job: true,    // Include the full Job object
-        seeker: true, // Include the full User object of the applicant
-      },
-      orderBy: {
-        createdAt: 'asc', // Show the oldest applications first
-      },
-    });
-
-    console.log(applications)
-
-    return applications;
-  } catch (error) {
-    console.error("Failed to fetch pending applications:", error);
-    return [];
-  }
-}
-
 /**
  * Updates the status of a specific application to 'accepted'.
  * @param applicationId - The ID of the application to accept.

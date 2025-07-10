@@ -32,7 +32,7 @@ export type FullApplication = Application & {
 // ---
 
 // Helper function to map status to a color
-const getStatusColor = (status: JobStatus): string => {
+export const getStatusColor = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'gray';
@@ -46,7 +46,7 @@ const getStatusColor = (status: JobStatus): string => {
 };
 
 // Helper function to map status to a display name
-const getStatusDisplayName = (status: JobStatus): string => {
+export const getStatusDisplayName = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'Selesai';
@@ -126,6 +126,8 @@ export async function getJobsByProvider(providerId: string): Promise<Job[]> {
   }
 }
 
+
+
 /**
  * Fetches all pending applications for all jobs created by a specific user.
  * @param providerId - The ID of the job provider (the current user).
@@ -135,17 +137,27 @@ export async function getPendingApplicationsForProvider(providerId: string): Pro
   try {
     if (!providerId) return [];
 
-    return await prisma.application.findMany({
+    const applications = await prisma.application.findMany({
       where: {
-        job: { providerId: providerId },
+        // Find applications where the related job's providerId matches the current user
+        job: {
+          providerId: providerId,
+        },
+        // Only fetch applications with a 'pending' status
         status: 'pending',
       },
       include: {
-        job: true,
-        seeker: true,
+        job: true,    // Include the full Job object
+        seeker: true, // Include the full User object of the applicant
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: {
+        createdAt: 'asc', // Show the oldest applications first
+      },
     });
+
+    console.log(applications)
+
+    return applications;
   } catch (error) {
     console.error("Failed to fetch pending applications:", error);
     return [];

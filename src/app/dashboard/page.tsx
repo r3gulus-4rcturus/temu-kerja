@@ -1,8 +1,6 @@
-import { getOrdersForUser } from "../../lib/actions/order.actions";
-import { getJobsByProvider } from "../../lib/actions/fetchjob.actions";
+import { getOrdersForUser, getJobsByProvider, getPendingApplicationsForProvider} from "../../lib/actions/fetchPropsForDashboard";
 import DashboardClient from "../../components/dashboard/DashboardClient";
 import { getCurrentUser } from "../../lib/auth";
-import { getPendingApplicationsForProvider } from "../../lib/actions/application.actions"; // Import the new action
 import { get } from "http";
 
 

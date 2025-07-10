@@ -1,4 +1,4 @@
-import { Order } from '../../lib/actions/order.actions';
+import { Order } from '../../lib/actions/fetchPropsForDashboard';
 
 interface OrderCardProps {
   order: Order;

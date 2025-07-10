@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Order } from "../../lib/actions/order.actions"; // Import the Order interface
+import { Order } from "../../lib/actions/fetchPropsForDashboard"; // Import the Order interface
 import DashboardMain from "./DashboardMain"
 import DashboardSidebar from "./DashboardSidebar"
 import JobUploadSection from "./JobUploadSection"

@@ -1,5 +1,5 @@
 import { ChevronDown, Search } from "lucide-react"; // 1. Import the Search icon
-import { Order } from '../../lib/actions/order.actions';
+import { Order } from '../../lib/actions/fetchPropsForDashboard';
 import OrderCard from './OrderCard';
 
 interface DashboardMainProps {
