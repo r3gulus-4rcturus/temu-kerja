@@ -2,7 +2,7 @@
 
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
-import { getStatusColor, getStatusDisplayName } from "./fetchPropsForDashboard";
+import { JobStatus } from "@prisma/client";
 
 /**
  * Defines the shape of the job data returned by our custom fetch actions.
@@ -41,6 +41,34 @@ export type JobWithTimeDetails = {
   dateMonth: string;
   dateDate: number;
   dateHour: string;
+};
+
+// Helper function to map status to a color
+const getStatusColor = (status: JobStatus): string => {
+  switch (status) {
+    case 'completed':
+      return 'gray';
+    case 'inprogress':
+      return 'green';
+    case 'closed':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
+// Helper function to map status to a display name
+const getStatusDisplayName = (status: JobStatus): string => {
+  switch (status) {
+    case 'completed':
+      return 'Selesai';
+    case 'inprogress':
+      return 'Sedang Dikerjakan';
+    case 'closed':
+      return 'Belum Dimulai';
+    default:
+      return status;
+  }
 };
 
 const getMonth = (date: Date): string => {

@@ -32,7 +32,7 @@ export type FullApplication = Application & {
 // ---
 
 // Helper function to map status to a color
-export const getStatusColor = (status: JobStatus): string => {
+const getStatusColor = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'gray';
@@ -46,7 +46,7 @@ export const getStatusColor = (status: JobStatus): string => {
 };
 
 // Helper function to map status to a display name
-export const getStatusDisplayName = (status: JobStatus): string => {
+const getStatusDisplayName = (status: JobStatus): string => {
   switch (status) {
     case 'completed':
       return 'Selesai';
@@ -95,8 +95,8 @@ export async function getOrdersForUser(): Promise<Order[]> {
     const acceptedApplication = job.applications[0];
     return {
       id: job.id,
-      date: new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }).format(job.createdAt),
-      time: new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(job.createdAt),
+      date: new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }).format(job.dateTime),
+      time: new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(job.dateTime),
       worker: acceptedApplication?.seeker?.fullname ?? 'N/A',
       tag: job.categories[0] || 'General',
       status: getStatusDisplayName(job.status),
