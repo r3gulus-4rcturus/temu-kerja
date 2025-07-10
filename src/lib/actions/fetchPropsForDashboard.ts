@@ -3,6 +3,7 @@
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
 import { Job, JobStatus, Application, User } from "@prisma/client";
+import { unique } from "next/dist/build/utils";
 
 // ---
 // Type Definitions
@@ -24,6 +25,14 @@ export interface Order {
 export type FullApplication = Application & {
   job: Job;
   seeker: User;
+};
+
+export type ApplicantInfo = {
+    id: string;
+    fullname: string;
+    location: string; // using city for location
+    tags: string[];
+    avatar: string | null;
 };
 
 
@@ -162,4 +171,75 @@ export async function getPendingApplicationsForProvider(providerId: string): Pro
     console.error("Failed to fetch pending applications:", error);
     return [];
   }
+}
+
+/**
+ * Fetches a list of unique applicants for the current provider's jobs.
+ * It aggregates all skills (tags) from the various applications a user might have submitted.
+ * @returns {Promise<ApplicantInfo[]>} A promise that resolves to an array of unique applicants.
+ */
+export async function getApplicantsForProvider(): Promise<ApplicantInfo[]> {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+        return [];
+    }
+
+    // Find all applications for jobs created by the current provider
+    const applications = await prisma.application.findMany({
+        where: {
+            job: {
+                providerId: currentUser.id,
+            },
+            status: "sent"
+        },
+        include: {
+            seeker: {
+                select: {
+                    id: true,
+                    fullname: true,
+                    city: true,
+                    avatar: true,
+                },
+            },
+            job: {
+                select: {
+                    categories: true,
+                }
+            }
+        },
+    });
+    // console.log(applications)
+
+    // Process to get unique seekers and aggregate their application tags
+    const applicantsMap = new Map<string, ApplicantInfo>();
+
+    applications.forEach(app => {
+        if (!app.seeker) return;
+
+        if (!applicantsMap.has(app.seeker.id)) {
+            applicantsMap.set(app.seeker.id, {
+                id: app.seeker.id,
+                fullname: app.seeker.fullname ?? 'Unknown Applicant',
+                location: app.seeker.city ?? 'Unknown Location',
+                avatar: app.seeker.avatar,
+                tags: [],
+            });
+        }
+        
+        const applicant = applicantsMap.get(app.seeker.id)!;
+        // Assuming tags/categories are on the job, not the application
+        if (app.job && app.job.categories) {
+            applicant.tags.push(...app.job.categories);
+        }
+    });
+
+    // Deduplicate tags for each applicant
+    const uniqueApplicants = Array.from(applicantsMap.values()).map(applicant => ({
+        ...applicant,
+        tags: [...new Set(applicant.tags)],
+    }));
+
+    console.log(uniqueApplicants)
+
+    return uniqueApplicants;
 }

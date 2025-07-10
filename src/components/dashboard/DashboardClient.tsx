@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Order } from "../../lib/actions/fetchPropsForDashboard"; // Import the Order interface
+import { Order, ApplicantInfo } from "../../lib/actions/fetchPropsForDashboard"; // Import the Order interface
 import DashboardMain from "./DashboardMain"
 import DashboardSidebar from "./DashboardSidebar"
 import JobUploadSection from "./JobUploadSection"
@@ -10,8 +10,8 @@ import JustSwipeSection from "./JustSwipeSection"
 import FindWorkerSection from "./FindWorkerSection"
 import Footer from "../shared/Footer"
 
-import { Job, Application } from "@prisma/client"
-import { FullApplication } from "@/lib/actions/fetchPropsForDashboard.actions";
+import { Job } from "@prisma/client"
+import { FullApplication } from "../../lib/actions/fetchPropsForDashboard";
 
 interface DashboardClientProps {
   orders: Order[]; // Receive orders as a prop
@@ -19,6 +19,7 @@ interface DashboardClientProps {
   userId: string;
   jobs: Job[];
   applications: FullApplication[];
+  applicants: ApplicantInfo[];
 }
 
 // Define the Notification type here or import it if defined elsewhere
@@ -28,7 +29,14 @@ interface Notification {
   message: string;
 }
 
-export default function DashboardClient({ orders, username, userId, jobs, applications}: DashboardClientProps) {
+export default function DashboardClient({ 
+  orders, 
+  username, 
+  userId, 
+  jobs, 
+  applications,
+  applicants
+}: DashboardClientProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   const notifications: Notification[] = [
@@ -62,7 +70,7 @@ export default function DashboardClient({ orders, username, userId, jobs, applic
           />
         </div>
         <div className="mt-12"> <JobUploadSection userId={userId} jobs={jobs}/> </div>
-        <div className="mt-12"> <ContactWorkersSection /> </div>
+        <div className="mt-12"> <ContactWorkersSection applicants={applicants}/> </div>
         <div className="mt-12"> <JustSwipeSection applications={applications}/> </div>
         <div className="mt-12"> <FindWorkerSection /> </div>
       </div>

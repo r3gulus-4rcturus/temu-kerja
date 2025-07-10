@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Calendar, ChevronLeft, ChevronRight, Clock } from "lucide-react";
-import { Order } from "@/lib/actions/fetchPropsForDashboard.actions";
+import { Order } from "../../lib/actions/fetchPropsForDashboard";
 
 // ---
 // Interfaces for Data Structures and Props

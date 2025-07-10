@@ -1,153 +1,56 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
-import { getCurrentUser } from "../auth";
-import { Job, JobStatus, Application, User } from "@prisma/client";
 
-// ---
-// Type Definitions
-// ---
-
-// Defines the shape of the Order data for the dashboard
-export interface Order {
-  id: string;
-  date: string;
-  time: string;
-  worker: string;
-  tag: string;
-  status: string;
-  price: string;
-  statusColor: string;
-}
-
-// Defines a more detailed type for our application data
-export type FullApplication = Application & {
-  job: Job;
-  seeker: User;
-};
-
-
-// ---
-// Internal Helper Functions
-// ---
-
-// Helper function to map status to a color
-const getStatusColor = (status: JobStatus): string => {
-  switch (status) {
-    case 'completed':
-      return 'gray';
-    case 'inprogress':
-      return 'green';
-    case 'closed':
-      return 'red';
-    default:
-      return 'gray';
-  }
-};
-
-// Helper function to map status to a display name
-const getStatusDisplayName = (status: JobStatus): string => {
-  switch (status) {
-    case 'completed':
-      return 'Selesai';
-    case 'inprogress':
-      return 'Sedang Dikerjakan';
-    case 'closed':
-      return 'Belum Dimulai';
-    default:
-      return status;
-  }
-};
-
-
-// ---
-// Data Fetching Implementations
-// ---
-
-/**
- * Fetches and processes all non-open jobs for the current user.
- * @returns {Promise<Order[]>} A promise that resolves to an array of orders.
- */
-export async function getOrdersForUser(): Promise<Order[]> {
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser) {
-    return [];
-  }
-
-  const jobs = await prisma.job.findMany({
-    where: {
-      providerId: currentUser.id,
-      status: { not: 'open' },
-      applications: { some: { status: 'accepted' } },
-    },
-    include: {
-      applications: {
-        where: { status: 'accepted' },
-        include: { seeker: { select: { fullname: true } } },
-        take: 1,
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return jobs.map((job) => {
-    const acceptedApplication = job.applications[0];
-    return {
-      id: job.id,
-      date: new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }).format(job.createdAt),
-      time: new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(job.createdAt),
-      worker: acceptedApplication?.seeker?.fullname ?? 'N/A',
-      tag: job.categories[0] || 'General',
-      status: getStatusDisplayName(job.status),
-      price: `Rp ${job.priceRate?.toLocaleString('id-ID') || 'N/A'}`,
-      statusColor: getStatusColor(job.status),
-    };
-  });
+// Define the structure of the data expected by our action
+interface CreateJobParams {
+  title: string;
+  description: string;
+  categories: string[];
+  location: string;
+  priceRate: number;
+  providerId: string;
+  dateTime: Date;
 }
 
 /**
- * Fetches all jobs for a specific provider.
- * @param providerId - The ID of the user who created the jobs.
- * @returns {Promise<Job[]>} A promise that resolves to an array of jobs.
+ * Creates a new job listing in the database.
+ * This is a server action and only runs on the server.
+ * @param params - The job details.
  */
-export async function getJobsByProvider(providerId: string): Promise<Job[]> {
+export async function createJob(params: CreateJobParams) {
   try {
+    const { title, description, categories, location, priceRate, providerId, dateTime } = params;
+
+    // Validate that the provider ID exists
     if (!providerId) {
-      return [];
+      throw new Error("User is not authenticated.");
     }
-    return await prisma.job.findMany({
-      where: { providerId: providerId },
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch (error) {
-    console.error("Failed to fetch jobs:", error);
-    return [];
-  }
-}
 
-/**
- * Fetches all pending applications for all jobs created by a specific user.
- * @param providerId - The ID of the job provider (the current user).
- * @returns A promise that resolves to an array of full application details.
- */
-export async function getPendingApplicationsForProvider(providerId: string): Promise<FullApplication[]> {
-  try {
-    if (!providerId) return [];
-
-    return await prisma.application.findMany({
-      where: {
-        job: { providerId: providerId },
-        status: 'pending',
+    // Use Prisma to create the new job entry
+    await prisma.job.create({
+      data: {
+        title,
+        description,
+        categories,
+        location,
+        priceRate,
+        providerId,
+        dateTime,
+        // The 'status' field defaults to 'open' as defined in your schema
       },
-      include: {
-        job: true,
-        seeker: true,
-      },
-      orderBy: { createdAt: 'asc' },
     });
+
+    // After creating the job, revalidate the dashboard path.
+    // This tells Next.js to refresh the data on the dashboard page,
+    // so the new job appears without a manual page reload.
+    revalidatePath("/dashboard");
+
+    return { success: true, message: "Job created successfully." };
   } catch (error) {
-    console.error("Failed to fetch pending applications:", error);
-    return [];
+    console.error("Failed to create job:", error);
+    // Return a structured error response
+    return { success: false, message: "An error occurred while creating the job." };
   }
 }
