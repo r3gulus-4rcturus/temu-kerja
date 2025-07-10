@@ -61,17 +61,17 @@ export default function UploadCVPage(): JSX.Element {
       completed: true,
     }
     localStorage.setItem("addJobData", JSON.stringify(updatedData))
-    console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
-    const data = JSON.parse(localStorage.getItem("addJobData") || "{}")
-    console.log("jobName:", data.jobDetails?.jobName)
-    console.log("jobDescription:", data.jobDetails?.jobDescription)
-    console.log("categories:", data.jobDetails?.categories)
-    console.log("skillLevel:", data.workloadEstimation?.skillLevel)
-    console.log("workload:", data.workloadEstimation?.workload)
-    console.log("dailyDuration:", data.workloadEstimation?.dailyDuration)
-    console.log("rateType:", data.wages?.rateType)
-    console.log("minRate:", data.wages?.minRate)
-    console.log("maxRate:", data.wages?.maxRate)
+    // console.log(">>> FINAL Job Data:", localStorage.getItem("addJobData"))
+    // const data = JSON.parse(localStorage.getItem("addJobData") || "{}")
+    // console.log("jobName:", data.jobDetails?.jobName)
+    // console.log("jobDescription:", data.jobDetails?.jobDescription)
+    // console.log("categories:", data.jobDetails?.categories)
+    // console.log("skillLevel:", data.workloadEstimation?.skillLevel)
+    // console.log("workload:", data.workloadEstimation?.workload)
+    // console.log("dailyDuration:", data.workloadEstimation?.dailyDuration)
+    // console.log("rateType:", data.wages?.rateType)
+    // console.log("minRate:", data.wages?.minRate)
+    // console.log("maxRate:", data.wages?.maxRate)
 
     try {
         const parsedData = updatedData

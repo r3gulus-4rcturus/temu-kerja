@@ -189,7 +189,7 @@ export async function getAcceptedApplicationJobs(): Promise<JobWithTimeDetails[]
       dateHour: getHour(job.dateTime),
     }));
 
-    console.log(jobs)
+    // console.log(jobs)
 
     return jobs;
   } catch (error) {

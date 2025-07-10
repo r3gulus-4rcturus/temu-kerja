@@ -164,7 +164,7 @@ export async function getPendingApplicationsForProvider(providerId: string): Pro
       },
     });
 
-    console.log(applications)
+    // console.log(applications)
 
     return applications;
   } catch (error) {
@@ -239,7 +239,7 @@ export async function getApplicantsForProvider(): Promise<ApplicantInfo[]> {
         tags: [...new Set(applicant.tags)],
     }));
 
-    console.log(uniqueApplicants)
+    // console.log(uniqueApplicants)
 
     return uniqueApplicants;
 }
