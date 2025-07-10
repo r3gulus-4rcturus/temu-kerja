@@ -11,13 +11,14 @@ import FindWorkerSection from "./FindWorkerSection"
 import Footer from "../shared/Footer"
 
 import { Job, Application } from "@prisma/client"
+import { FullApplication } from "@/lib/actions/fetchPropsForDashboard.actions";
 
 interface DashboardClientProps {
   orders: Order[]; // Receive orders as a prop
   username: string; // Receive username as a prop
   userId: string;
   jobs: Job[];
-  applications: Application[]
+  applications: FullApplication[];
 }
 
 // Define the Notification type here or import it if defined elsewhere
@@ -28,7 +29,7 @@ interface Notification {
 }
 
 export default function DashboardClient({ orders, username, userId, jobs, applications}: DashboardClientProps) {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date("2025-07-02T00:00:00"));
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   const notifications: Notification[] = [
     { id: 1, date: "1 Apr 2025 12:00", message: "Pesanan Berhasil Dijadwalkan!" },
@@ -57,6 +58,7 @@ export default function DashboardClient({ orders, username, userId, jobs, applic
             navigateMonth={navigateMonth}
             monthNames={monthNames}
             notifications={notifications}
+            orders={orders}
           />
         </div>
         <div className="mt-12"> <JobUploadSection userId={userId} jobs={jobs}/> </div>
