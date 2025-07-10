@@ -3,7 +3,7 @@
 import { useState, JSX } from "react";
 import { MapPin, ArrowLeft, ArrowRight, Star } from "lucide-react";
 import { Job } from "../../lib/actions/fetchJobForSeeker.actions";
-import { updateAndSendApplication } from "../../lib/actions/application.actions";
+import { handleSeekerInterest } from "../../lib/actions/seeker.actions";
 import Image from "next/image";
 
 // ---
@@ -95,19 +95,19 @@ export default function JustSwipeSection({ randomJobs = [] }: JustSwipeSectionPr
 
     setIsSubmitting(true);
     try {
-        const result = await updateAndSendApplication(currentId);
+        const result = await handleSeekerInterest(currentId);
         if (result.success) {
             setFavorited((prev) => ({
                 ...prev,
                 [currentId]: true,
             }));
-            alert("Application sent successfully!");
+            alert(result.message);
             handleNext(); 
         } else {
             alert(`Error: ${result.message}`);
         }
     } catch (error) {
-        console.error("Failed to send application:", error);
+        console.error("Failed to handle interest:", error);
         alert("An unexpected error occurred.");
     } finally {
         setIsSubmitting(false);

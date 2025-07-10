@@ -135,8 +135,6 @@ export async function getJobsByProvider(providerId: string): Promise<Job[]> {
   }
 }
 
-
-
 /**
  * Fetches all pending applications for all jobs created by a specific user.
  * @param providerId - The ID of the job provider (the current user).
@@ -148,12 +146,10 @@ export async function getPendingApplicationsForProvider(providerId: string): Pro
 
     const applications = await prisma.application.findMany({
       where: {
-        // Find applications where the related job's providerId matches the current user
-        job: {
-          providerId: providerId,
+        // Only fetch applications with a 'pending' or 'sent' status
+        status: {
+          in: ['pending', 'sent'],
         },
-        // Only fetch applications with a 'pending' status
-        status: 'pending',
       },
       include: {
         job: true,    // Include the full Job object
