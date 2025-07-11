@@ -54,7 +54,7 @@ export async function handleProviderInterest(applicationId: string) {
       });
 
       revalidatePath('/dashboard');
-      return { success: true, message: "Negotiation started and chat created." };
+      return { success: true, message: "Match! Silahkan melanjutkan negosiasi di fitur chat." };
 
     } catch (error) {
       console.error("Error starting negotiation:", error);
@@ -114,7 +114,7 @@ export async function handleProviderInterest(applicationId: string) {
       }
 
       revalidatePath('/dashboard');
-      return { success: true, message: `Offered ${openJobs.length} job(s) to the applicant.` };
+      return { success: true, message: `Berhasil menawarkan pekerjaan.` };
 
     } catch (error) {
       console.error("Error offering jobs:", error);

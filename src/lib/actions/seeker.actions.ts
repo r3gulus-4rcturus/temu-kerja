@@ -59,7 +59,7 @@ export async function handleSeekerInterest(jobId: string) {
       });
 
       revalidatePath('/seeker-dashboard');
-      return { success: true, message: "Match! Negotiation started and chat created." };
+      return { success: true, message: "Match! Silahkan melanjutkan negosiasi di fitur chat." };
     } catch (error) {
       console.error("Error starting negotiation:", error);
       return { success: false, message: "Failed to start negotiation." };
@@ -92,7 +92,7 @@ export async function handleSeekerInterest(jobId: string) {
       });
 
       revalidatePath('/seeker-dashboard');
-      return { success: true, message: "Application sent successfully!" };
+      return { success: true, message: "Lamaran berhasil dikirim!" };
     } catch (error) {
       console.error("Error sending application:", error);
       return { success: false, message: "Failed to send application." };
