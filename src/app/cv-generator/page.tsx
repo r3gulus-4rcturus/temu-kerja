@@ -10,7 +10,7 @@ interface FormData {
   workDocumentationFile: File | null
 }
 
-type FileUploadType = 'certificationFile' | 'workDocumentationFile'
+type FileUploadType = "certificationFile" | "workDocumentationFile"
 
 export default function CVGeneratorPage(): JSX.Element {
   const router = useRouter()
@@ -22,6 +22,7 @@ export default function CVGeneratorPage(): JSX.Element {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [showPopup, setShowPopup] = useState<boolean>(false) // State for the popup
 
   const handleBack = (): void => {
     router.push("/add-job/upload-cv")
@@ -33,20 +34,21 @@ export default function CVGeneratorPage(): JSX.Element {
       return
     }
 
-    // Here you would typically send the data to an AI service
-    // For now, we'll simulate CV generation
-    // alert("CV sedang dibuat dengan AI... Anda akan diarahkan kembali ke halaman upload.")
-    // const link = document.createElement('a');
-    // link.href = '/cv.pdf'; // Assumes cv.pdf is in your `public` folder
-    // link.setAttribute('download', 'cv-hasil-ai.pdf'); // The filename the user will see
+    // Show the popup instead of the alert
+    setShowPopup(true)
 
-    // // 2. Append, click, and then remove the link from the body
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+    // Simulate CV generation and download
+    const link = document.createElement("a")
+    link.href = "/cv.pdf" // Assumes cv.pdf is in your `public` folder
+    link.setAttribute("download", "cv-hasil-ai.pdf") // The filename the user will see
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-    // Redirect back to upload CV page
-    router.push("/add-job/upload-cv")
+    // Redirect back to upload CV page after a delay
+    setTimeout(() => {
+      router.push("/add-job/upload-cv")
+    }, 3000) // 3-second delay
   }
 
   const startRecording = async (): Promise<void> => {
@@ -69,7 +71,9 @@ export default function CVGeneratorPage(): JSX.Element {
       setIsRecording(true)
     } catch (error) {
       console.error("Error accessing microphone:", error)
-      alert("Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin akses.")
+      alert(
+        "Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin akses."
+      )
     }
   }
 
@@ -107,14 +111,21 @@ export default function CVGeneratorPage(): JSX.Element {
     const k = 1024
     const sizes = ["Bytes", "KB", "MB", "GB"]
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    )
   }
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+  const handleTextareaChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ): void => {
     setFormData((prev) => ({ ...prev, description: e.target.value }))
   }
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: FileUploadType): void => {
+  const handleFileInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: FileUploadType
+  ): void => {
     const file = e.target.files?.[0]
     if (file) {
       handleFileUpload(file, type)
@@ -122,7 +133,22 @@ export default function CVGeneratorPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Popup Modal */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm mx-auto transform transition-all scale-100 opacity-100">
+            <Sparkles className="w-16 h-16 text-purple-500 mx-auto mb-5 animate-pulse" />
+            <h3 className="text-2xl font-bold text-gray-800 mb-3">
+              CV Sedang Dibuat!
+            </h3>
+            <p className="text-gray-600 text-lg">
+              Anda akan diarahkan kembali ke halaman upload...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <button
@@ -139,7 +165,9 @@ export default function CVGeneratorPage(): JSX.Element {
             Buat CV Anda dengan AI!
             <Sparkles className="w-8 h-8 text-purple-500" />
           </h1>
-          <p className="text-gray-600">Deskripsikan tentang pekerjaan dan pengalaman Anda dengan lengkap!</p>
+          <p className="text-gray-600">
+            Deskripsikan tentang pekerjaan dan pengalaman Anda dengan lengkap!
+          </p>
         </div>
 
         {/* Main Description Input */}
@@ -158,10 +186,16 @@ export default function CVGeneratorPage(): JSX.Element {
           <button
             onClick={handleMicClick}
             className={`p-4 rounded-full transition-colors ${
-              isRecording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+              isRecording
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
             }`}
           >
-            {isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            {isRecording ? (
+              <MicOff className="w-6 h-6" />
+            ) : (
+              <Mic className="w-6 h-6" />
+            )}
           </button>
           <p className="text-blue-600 font-medium">
             {isRecording
@@ -172,30 +206,42 @@ export default function CVGeneratorPage(): JSX.Element {
 
         {/* Upload Documents Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Upload Dokumen Pendukung</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Upload Dokumen Pendukung
+          </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Certification Upload */}
             <div>
-              <h3 className="text-blue-600 font-medium mb-4">Unggah Sertifikasi (Jika ada)</h3>
+              <h3 className="text-blue-600 font-medium mb-4">
+                Unggah Sertifikasi (Jika ada)
+              </h3>
 
               {!formData.certificationFile ? (
                 <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors relative">
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileInputChange(e, "certificationFile")}
+                    onChange={(e) =>
+                      handleFileInputChange(e, "certificationFile")
+                    }
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <Upload className="w-8 h-8 text-blue-500 mx-auto mb-3" />
-                  <p className="text-blue-600 font-medium">Unggah Dokumen Anda Di sini!</p>
+                  <p className="text-blue-600 font-medium">
+                    Unggah Dokumen Anda Di sini!
+                  </p>
                 </div>
               ) : (
                 <div className="border-2 border-green-300 rounded-lg p-4 bg-green-50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{formData.certificationFile.name}</p>
-                      <p className="text-xs text-green-600">{formatFileSize(formData.certificationFile.size)}</p>
+                      <p className="font-medium text-gray-900">
+                        {formData.certificationFile.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {formatFileSize(formData.certificationFile.size)}
+                      </p>
                     </div>
                     <button
                       onClick={() => handleRemoveFile("certificationFile")}
@@ -210,25 +256,35 @@ export default function CVGeneratorPage(): JSX.Element {
 
             {/* Work Documentation Upload */}
             <div>
-              <h3 className="text-blue-600 font-medium mb-4">Unggah Dokumentasi Hasil Pekerjaan (Jika ada)</h3>
+              <h3 className="text-blue-600 font-medium mb-4">
+                Unggah Dokumentasi Hasil Pekerjaan (Jika ada)
+              </h3>
 
               {!formData.workDocumentationFile ? (
                 <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors relative">
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileInputChange(e, "workDocumentationFile")}
+                    onChange={(e) =>
+                      handleFileInputChange(e, "workDocumentationFile")
+                    }
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <Upload className="w-8 h-8 text-blue-500 mx-auto mb-3" />
-                  <p className="text-blue-600 font-medium">Unggah Dokumen Anda Di sini!</p>
+                  <p className="text-blue-600 font-medium">
+                    Unggah Dokumen Anda Di sini!
+                  </p>
                 </div>
               ) : (
                 <div className="border-2 border-green-300 rounded-lg p-4 bg-green-50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{formData.workDocumentationFile.name}</p>
-                      <p className="text-xs text-green-600">{formatFileSize(formData.workDocumentationFile.size)}</p>
+                      <p className="font-medium text-gray-900">
+                        {formData.workDocumentationFile.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {formatFileSize(formData.workDocumentationFile.size)}
+                      </p>
                     </div>
                     <button
                       onClick={() => handleRemoveFile("workDocumentationFile")}
