@@ -188,7 +188,7 @@ export default function DashboardSidebar({
       {/* Notifications */}
       <div className="bg-[#3F75A1] rounded-xl shadow-lg p-6 text-white">
         <h3 className="text-2xl font-bold mb-5 text-center">Notifications</h3>
-        <div className="bg-white rounded-3xl p-5 border border-[#D9D9D9] flex gap-3">
+        {/* <div className="bg-white rounded-3xl p-5 border border-[#D9D9D9] flex gap-3">
           <div className="flex-1 space-y-5">
             {notifications.map(notification => (
                 <div key={notification.id} className="flex items-center gap-3 p-4 border border-[#D9D9D9] rounded-xl bg-white">
@@ -203,7 +203,7 @@ export default function DashboardSidebar({
           <div className="w-1.5 bg-[#EBF2F7] rounded-full flex justify-center">
             <div className="w-full h-32 bg-[#1D364B] rounded-full"></div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
