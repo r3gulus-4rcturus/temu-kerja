@@ -1,16 +1,16 @@
 "use client"
 
-import { MapPin } from "lucide-react"
 import Link from "next/link"
 import { useState, ChangeEvent, FormEvent } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 // ---
 // Interface for Form Data
 // ---
 interface FormData {
-  username: string;
-  password: string;
+  username: string
+  password: string
 }
 
 // ---
@@ -57,10 +57,8 @@ export default function LoginPage() {
 
       // Conditional redirect based on role
       if (data.role === "jobprovider") {
-        // router.push("/dashboard")
         window.location.href = "/dashboard" // hard navigation, force reload
       } else if (data.role === "jobseeker") {
-        // router.push("/seeker-dashboard")
         window.location.href = "/seeker-dashboard" // hard navigation, force reload
       } else {
         setError("Unrecognized role") // Handle unrecognized roles
@@ -74,86 +72,281 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Main Content */}
-      <main className="flex items-center justify-center min-h-[calc(100vh-120px)] px-6 py-12">
-        <div className="w-full max-w-md">
-          {/* Login Card */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Log in</h1>
-              <p className="text-blue-600 text-sm">Masuk jika kamu telah memiliki akun!</p>
-            </div>
+    <>
+      <style jsx global>{`
+        :root {
+          --colors-primary-100: #ebf2f7;
+          --colors-primary-200: #bcd3e5;
+          --colors-primary-300: #84aecf;
+          --colors-primary-400: #558ebd;
+          --colors-primary-500: #4581b2;
+          --colors-primary-600: #3f75a1;
+          --colors-primary-700: #2f587a;
+          --colors-primary-800: #1d364b;
+          --colors-neutral-100: #ffffff;
+          --foreground-default: #09090b;
+          --border-default: #e4e4e7;
+          --background-default: #ffffff;
+          --foreground-muted: #71717a;
+          --theme-colordark: #464255;
 
-            {/* Login Form */}
-            <form onSubmit={handleLogin} className="space-y-6">
-              {/* Error Message Display */}
+          --heading-h3-font-family: "Plus Jakarta Sans", sans-serif;
+          --heading-h3-font-size: 32px;
+          --heading-h3-line-height: 120%;
+          --heading-h3-font-weight: 700;
+
+          --heading-h5-font-family: "Plus Jakarta Sans", sans-serif;
+          --heading-h5-font-size: 20px;
+          --heading-h5-line-height: 120%;
+          --heading-h5-font-weight: 700;
+
+          --sub-heading-s5-font-family: "Urbanist", sans-serif;
+          --sub-heading-s5-font-size: 16px;
+          --sub-heading-s5-line-height: 200%;
+          --sub-heading-s5-font-weight: 600;
+
+          --text-lg-medium-font-family: "Inter", sans-serif;
+          --text-lg-medium-font-size: 18px;
+          --text-lg-medium-line-height: 28px;
+          --text-lg-medium-font-weight: 500;
+
+          --text-lg-regular-font-family: "Inter", sans-serif;
+          --text-lg-regular-font-size: 18px;
+          --text-lg-regular-line-height: 28px;
+          --text-lg-regular-font-weight: 400;
+        }
+
+        .login-page-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background-color: #f9fafb;
+          padding: 1rem;
+        }
+
+        .login-form-wrapper {
+          border-radius: 15px;
+          border: 1.5px solid var(--colors-primary-700);
+          padding: 2.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 59px;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          max-width: 654px;
+          background-color: var(--colors-neutral-100);
+        }
+
+        .title-dashboard {
+          display: flex;
+          flex-direction: column;
+          gap: 11px;
+          align-items: flex-start;
+          text-align: center;
+          width: 100%;
+        }
+
+        .title-dashboard h1 {
+          color: var(--theme-colordark);
+          font-family: var(--heading-h3-font-family);
+          font-size: var(--heading-h3-font-size);
+          line-height: var(--heading-h3-line-height);
+          font-weight: var(--heading-h3-font-weight);
+          align-self: stretch;
+        }
+
+        .title-dashboard p {
+          color: var(--colors-primary-700);
+          font-family: var(--sub-heading-s5-font-family);
+          font-size: var(--sub-heading-s5-font-size);
+          line-height: var(--sub-heading-s5-line-height);
+          font-weight: var(--sub-heading-s5-font-weight);
+          margin: 0 auto;
+        }
+
+        .form-fields-container {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          align-items: flex-end;
+          width: 100%;
+          max-width: 440px;
+        }
+        
+        .input-group {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+          color: var(--foreground-default);
+          font-family: var(--text-lg-medium-font-family);
+          font-size: var(--text-lg-medium-font-size);
+          line-height: var(--text-lg-medium-line-height);
+          font-weight: var(--text-lg-medium-font-weight);
+          margin-bottom: 4px;
+          display: block;
+        }
+
+        .input-field {
+          background: var(--background-default);
+          border-radius: 6px;
+          border: 1px solid var(--border-default);
+          padding: 10px 12px;
+          width: 100%;
+          font-family: var(--text-lg-regular-font-family);
+          font-size: var(--text-lg-regular-font-size);
+          color: var(--foreground-muted);
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--colors-primary-500);
+            box-shadow: 0 0 0 2px rgba(69, 129, 178, 0.5);
+        }
+
+        .login-button {
+          background: var(--colors-primary-500);
+          border-radius: 10px;
+          border: 2px solid transparent;
+          padding: 0 36px;
+          height: 64px;
+          color: white;
+          font-family: var(--heading-h5-font-family);
+          font-size: var(--heading-h5-font-size);
+          line-height: var(--heading-h5-line-height);
+          font-weight: var(--heading-h5-font-weight);
+          cursor: pointer;
+          transition: background-color 0.2s;
+          width: 100%;
+          margin-top: 1rem;
+        }
+        
+        .login-button:hover {
+            background-color: var(--colors-primary-600);
+        }
+
+        .login-button:disabled {
+            background-color: var(--colors-primary-300);
+            cursor: not-allowed;
+        }
+
+        .divider-container {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          align-items: center;
+          width: 100%;
+          max-width: 481px;
+        }
+
+        .divider {
+          display: flex;
+          flex-direction: row;
+          gap: 20px;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+        }
+
+        .divider-line {
+          border-top: 1px solid #000;
+          flex: 1;
+        }
+
+        .divider-text {
+          color: var(--colors-primary-700);
+          font-family: var(--sub-heading-s5-font-family);
+          font-size: var(--sub-heading-s5-font-size);
+          line-height: var(--sub-heading-s5-line-height);
+          font-weight: var(--sub-heading-s5-font-weight);
+          white-space: nowrap;
+        }
+
+        .create-account-button {
+          background: var(--colors-primary-100);
+          border-radius: 10px;
+          border: 2px solid var(--colors-primary-500);
+          padding: 0 36px;
+          height: 64px;
+          color: var(--colors-primary-700);
+          font-family: var(--heading-h5-font-family);
+          font-size: var(--heading-h5-font-size);
+          line-height: var(--heading-h5-line-height);
+          font-weight: var(--heading-h5-font-weight);
+          cursor: pointer;
+          transition: background-color 0.2s;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+        }
+        
+        .create-account-button:hover {
+            background-color: var(--colors-primary-200);
+        }
+      `}</style>
+      <div className="login-page-container">
+        <div className="login-form-wrapper">
+          <div className="title-dashboard">
+            <h1>Log in</h1>
+            <p>Masuk jika kamu telah memiliki akun!</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="w-full max-w-[440px] flex flex-col items-center">
+            <div className="form-fields-container">
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center text-sm w-full mb-4">
                   <p>{error}</p>
                 </div>
               )}
-
-              {/* Username Field */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-900 mb-2">
-                  Username
-                </label>
+              <div className="input-group">
+                <label htmlFor="username">Username</label>
                 <input
-                  type="text"
                   id="username"
+                  name="username"
+                  type="text"
                   value={formData.username}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("username", e.target.value)}
+                  onChange={(e) => handleInputChange("username", e.target.value)}
                   placeholder="Mukhlis"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-field"
                   required
                 />
               </div>
-
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
-                  Password
-                </label>
+              <div className="input-group">
+                <label htmlFor="password">Password</label>
                 <input
-                  type="password"
                   id="password"
+                  name="password"
+                  type="password"
                   value={formData.password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
-                  placeholder="••••••••••"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  placeholder="*********"
+                  className="input-field"
                   required
                 />
               </div>
-
-              {/* Login Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "Masuk..." : "Masuk"}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="flex items-center my-8">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-600">Belum memiliki akun sebelumnya?</span>
-              <div className="flex-1 border-t border-gray-300"></div>
             </div>
+            <button type="submit" disabled={isLoading} className="login-button">
+              {isLoading ? "Masuk..." : "Masuk"}
+            </button>
+          </form>
 
-            {/* Create Account Button */}
-            <Link
-              href="/register"
-              className="w-full block text-center bg-white text-blue-600 py-3 px-4 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
-            >
+          <div className="divider-container">
+            <div className="divider">
+              <div className="divider-line"></div>
+              <div className="divider-text">Belum memiliki akun sebelumnya?</div>
+              <div className="divider-line"></div>
+            </div>
+            <Link href="/register" className="create-account-button">
               Buat Akun
             </Link>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   )
 }
