@@ -23,18 +23,51 @@ export default function Navbar({ userRole, userName }: NavbarProps) {
   // =================================================================
   // Version 1: Navbar for Login and Register pages
   // =================================================================
-  if (pathname === "/login" || pathname === "/register"|| pathname.startsWith('/login/') || pathname.startsWith('/register/')) {
+  if (pathname === "/login" || pathname === "/register" || pathname.startsWith('/login/') || pathname.startsWith('/register/')) {
     return (
-      <header className="bg-white shadow-sm p-6">
-        <div className="max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-white" />
+      <nav className="shadow-sm border-b border-gray-200 py-4" style={{ background: "#EBF2F7" }}>
+        <div className="w-full px-8 sm:px-12 lg:px-16">
+          <div className="flex items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-1 mb-2">
+              <Image
+                src="/temu-kerja-logo-gradient.svg"
+                alt="Temu Kerja Logo"
+                width={32}
+                height={32}
+                className="object-contain w-12 h-12"
+                priority
+                style={{ marginTop: "15px", marginRight: "-5px" }}
+              />
+              <span
+                className="font-plusjakarta"
+                style={{
+                  color: "#3A74A2",
+                  fontWeight: 700,
+                  fontSize: "31.25px",
+                }}
+              >
+                temu
+              </span>{" "}
+              <span
+                className="font-plusjakarta"
+                style={{
+                  background: "linear-gradient(90deg,rgb(95, 146, 188) 0%, #4581B2 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: 700,
+                  fontSize: "31.25px",
+                  display: "inline-block",
+                }}
+              >
+                kerja
+              </span>
             </div>
-            <span className="text-blue-600 text-xl font-semibold">temu kerja</span>
-          </Link>
+          </div>
         </div>
-      </header>
+      </nav>
     )
   }
 
@@ -161,11 +194,10 @@ export default function Navbar({ userRole, userName }: NavbarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActive(item.href)
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive(item.href)
                       ? "text-gray-900 bg-gray-50"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
