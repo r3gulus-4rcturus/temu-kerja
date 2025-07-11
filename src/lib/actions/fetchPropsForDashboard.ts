@@ -15,10 +15,12 @@ export interface Order {
   date: string;
   time: string;
   worker: string;
+  title: string;
   tag: string;
   status: string;
   price: string;
   statusColor: string;
+  avatar: string;
 }
 
 // Defines a more detailed type for our application data
@@ -93,7 +95,7 @@ export async function getOrdersForUser(): Promise<Order[]> {
     include: {
       applications: {
         where: { status: 'accepted' },
-        include: { seeker: { select: { fullname: true } } },
+        include: { seeker: { select: { fullname: true, avatar: true } } },
         take: 1,
       },
     },
@@ -111,6 +113,8 @@ export async function getOrdersForUser(): Promise<Order[]> {
       status: getStatusDisplayName(job.status),
       price: `Rp ${job.priceRate?.toLocaleString('id-ID') || 'N/A'}`,
       statusColor: getStatusColor(job.status),
+      avatar: acceptedApplication?.seeker?.avatar ?? null,
+      title: job.title,
     };
   });
 }

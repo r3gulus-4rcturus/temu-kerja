@@ -52,32 +52,32 @@ export default function ChatWindow({
   // The 'messages' array is hardcoded. If this were dynamic (e.g., fetched from an API),
   // it would typically be part of a state or props managed by a parent.
   const messages: Message[] = [ // Explicitly type the messages array
-    {
-      id: 1,
-      sender: "other",
-      content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-      time: "07:00",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 2,
-      sender: "me",
-      content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-      time: "07:51",
-    },
-    {
-      id: 3,
-      sender: "other",
-      content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-      time: "13:00",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 4,
-      sender: "me",
-      content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-      time: "14:11",
-    },
+    // {
+    //   id: 1,
+    //   sender: "other",
+    //   content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+    //   time: "07:00",
+    //   avatar: "/placeholder.svg?height=32&width=32",
+    // },
+    // {
+    //   id: 2,
+    //   sender: "me",
+    //   content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+    //   time: "07:51",
+    // },
+    // {
+    //   id: 3,
+    //   sender: "other",
+    //   content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+    //   time: "13:00",
+    //   avatar: "/placeholder.svg?height=32&width=32",
+    // },
+    // {
+    //   id: 4,
+    //   sender: "me",
+    //   content: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+    //   time: "14:11",
+    // },
   ]
 
   const handleSendMessage = (e: FormEvent) => { // Type event as FormEvent

@@ -44,18 +44,20 @@ export default function ChatSidebar({ selectedChat, onChatSelect, onBack, isMobi
   const chats: ChatItem[] = [ // Explicitly type the chats array
     {
       id: 1,
-      name: "Nirmala Sanika",
-      lastMessage: "Bisanya dihari apa ya? Saya butuh minggu ini...",
-      time: "Aktif 4 menit lalu",
-      avatar: "/placeholder.svg?height=40&width=40",
+      name: "Kadek Chandra",
+      // name: "Arya Pangestu",
+      lastMessage: "",
+      time: "Aktif",
+      // avatar: "https://i.pravatar.cc/150?u=arya",
+      avatar: "https://i.pravatar.cc/150?u=chan",
     },
-    {
-      id: 2,
-      name: "Nirmala Sanika",
-      lastMessage: "Kamu: Selasa, jam 4 sore aman pak?",
-      time: "Aktif 4 menit lalu",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
+    // {
+    //   id: 2,
+    //   name: "Nirmala Sanika",
+    //   lastMessage: "Kamu: Selasa, jam 4 sore aman pak?",
+    //   time: "Aktif 4 menit lalu",
+    //   avatar: "/placeholder.svg?height=40&width=40",
+    // },
   ]
 
   return (

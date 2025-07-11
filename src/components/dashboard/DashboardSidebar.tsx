@@ -176,7 +176,7 @@ export default function DashboardSidebar({
                             {date} {month}:
                         </span>
                         <span className="text-xs text-[#2F587A] truncate" title={order.worker}>
-                            [{order.worker}] {order.tag}
+                            [{order.worker}] {order.title}
                         </span>
                     </div>
                 );
