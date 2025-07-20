@@ -19,7 +19,7 @@ export default function LayananHukumPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showChat, setShowChat] = useState<boolean>(false)
 
-  const NGROK_API_URL = "https://steady-lioness-formerly.ngrok-free.app/query"
+  const NGROK_API_URL = process.env.NGROK_API_URL
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
