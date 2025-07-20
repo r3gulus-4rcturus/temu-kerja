@@ -42,7 +42,7 @@ const JobOfferCard: React.FC<{ job: Job }> = ({ job }) => {
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden border-2 border-white">
             <Image
-              src={`https://i.pravatar.cc/150?u=${job.provider.username}`}
+              src={job.provider.avatar}
               alt={job.provider.username}
               width={48}
               height={48}

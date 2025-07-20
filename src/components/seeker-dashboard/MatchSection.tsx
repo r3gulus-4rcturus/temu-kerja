@@ -18,7 +18,7 @@ const MatchJobCard: React.FC<{ job: Job }> = ({ job }) => {
 
     return (
         <div className="flex h-auto md:h-48 items-stretch w-full rounded-xl bg-white shadow-lg">
-            <img src={`https://i.pravatar.cc/150?u=${job.provider.username}`} alt={job.provider.username} className="w-1/3 md:w-48 h-auto md:h-48 object-cover rounded-l-xl" />
+            <img src={job.provider.avatar} alt={job.provider.username} className="w-1/3 md:w-48 h-auto md:h-48 object-cover rounded-l-xl" />
             <div className="flex w-full flex-col md:flex-row py-4 px-6 justify-between items-start md:items-center">
                 <div className="flex flex-col items-start gap-2">
                     <div className="text-[#4581B2] text-xl font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>{job.title}</div>
