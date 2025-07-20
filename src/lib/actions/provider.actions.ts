@@ -3,6 +3,7 @@
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
 import { revalidatePath } from "next/cache";
+import { pusherServer } from "../pusher"; // Import the Pusher server instance
 
 /**
  * Handles a job provider's interest in a seeker's application.
@@ -12,13 +13,13 @@ import { revalidatePath } from "next/cache";
  */
 export async function handleProviderInterest(applicationId: string) {
   const provider = await getCurrentUser();
-  if (!provider || provider.role !== 'jobprovider') {
+  if (!provider || provider.role !== "jobprovider") {
     return { success: false, message: "Unauthorized: Not a provider." };
   }
 
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
-    include: { job: true } // Include job to check its provider
+    include: { job: true }, // Include job to check its provider
   });
 
   if (!application) {
@@ -32,17 +33,14 @@ export async function handleProviderInterest(applicationId: string) {
       // Update application status to onNegotiation
       await prisma.application.update({
         where: { id: applicationId },
-        data: { status: 'onnegotiation' },
+        data: { status: "onnegotiation" },
       });
 
       // Create a new Chat entry
-      await prisma.chat.create({
+      const newChat = await prisma.chat.create({
         data: {
           participants: {
-            connect: [
-              { id: provider.id },
-              { id: application.seekerId },
-            ],
+            connect: [{ id: provider.id }, { id: application.seekerId }],
           },
           job: {
             connect: { id: application.jobId! },
@@ -51,11 +49,26 @@ export async function handleProviderInterest(applicationId: string) {
             connect: { id: applicationId },
           },
         },
+        include: {
+          participants: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
       });
 
-      revalidatePath('/dashboard');
-      return { success: true, message: "Match! Silahkan melanjutkan negosiasi di fitur chat." };
+      // Trigger Pusher event to notify the seeker in real-time
+      const seekerChannel = `private-user-${application.seekerId}`;
+      await pusherServer.trigger(seekerChannel, "new-chat", newChat);
 
+      revalidatePath("/dashboard");
+      return {
+        success: true,
+        message: "Match! Silahkan melanjutkan negosiasi di fitur chat.",
+      };
     } catch (error) {
       console.error("Error starting negotiation:", error);
       return { success: false, message: "Failed to start negotiation." };
@@ -67,17 +80,20 @@ export async function handleProviderInterest(applicationId: string) {
       // Find the seeker's very first application to use as a template.
       const baseApplication = await prisma.application.findFirst({
         where: { seekerId: application.seekerId },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: "asc" },
       });
 
       if (!baseApplication) {
-        return { success: false, message: "Could not find a base application for this seeker." };
+        return {
+          success: false,
+          message: "Could not find a base application for this seeker.",
+        };
       }
 
       const openJobs = await prisma.job.findMany({
         where: {
           providerId: provider.id,
-          status: 'open',
+          status: "open",
         },
       });
 
@@ -100,8 +116,8 @@ export async function handleProviderInterest(applicationId: string) {
         // Update the job to connect it to the seeker's base application.
         // This does NOT create a new application record.
         await prisma.job.update({
-          where: { 
-            id: job.id 
+          where: {
+            id: job.id,
           },
           data: {
             applications: {
@@ -113,9 +129,8 @@ export async function handleProviderInterest(applicationId: string) {
         });
       }
 
-      revalidatePath('/dashboard');
+      revalidatePath("/dashboard");
       return { success: true, message: `Berhasil menawarkan pekerjaan.` };
-
     } catch (error) {
       console.error("Error offering jobs:", error);
       return { success: false, message: "Failed to offer jobs." };

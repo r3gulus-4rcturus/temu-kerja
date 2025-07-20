@@ -1,36 +1,29 @@
-"use client"
+"use client";
 
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { useParams } from "next/navigation"
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // ---
 // Interfaces for Data Structures
 // ---
 
-// Defines the shape of a single chat item
 interface ChatItem {
-  id: string; // Changed to string to match URL params
+  id: string;
   name: string;
   lastMessage: string;
-  time: string; // e.g., "Aktif 4 menit lalu"
-  avatar?: string; // Avatar is optional
+  time: string;
+  avatar?: string;
 }
 
-// Defines the shape of the selected chat object
 interface SelectedChat {
   id: string;
   name: string;
 }
 
-// ---
-// Interface for Component Props
-// ---
-
 interface ChatSidebarProps {
-  selectedChat: SelectedChat | null; // Can be a SelectedChat object or null
-  onChatSelect: (chat: ChatItem) => void; // Function that takes a ChatItem and returns void
-  onBack: () => void; // Function with no arguments, returns void
+  onBack: () => void;
   isMobile: boolean;
 }
 
@@ -38,35 +31,32 @@ interface ChatSidebarProps {
 // ChatSidebar Component
 // ---
 
-export default function ChatSidebar({
-  selectedChat,
-  onChatSelect,
-  onBack,
-  isMobile,
-}: ChatSidebarProps) {
+export default function ChatSidebar({ onBack, isMobile }: ChatSidebarProps) {
   const params = useParams();
-  const currentChatId = params.chatId;
+  const currentChatId = params.chatId as string;
+  const [chats, setChats] = useState<ChatItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const chats: ChatItem[] = [
-    {
-      id: "1", // Hardcoded chat ID
-      name: "Kadek Chandra",
-      // name: "Arya Pangestu",
-      lastMessage: "",
-      time: "Aktif",
-      // avatar: "https://i.pravatar.cc/150?u=arya",
-      avatar: "https://i.pravatar.cc/150?u=chan",
-    },
-    {
-      id: "23", // Hardcoded chat ID
-      name: "Naufal Cik",
-      // name: "Arya Pangestu",
-      lastMessage: "",
-      time: "Aktif",
-      // avatar: "https://i.pravatar.cc/150?u=arya",
-      avatar: "https://i.pravatar.cc/150?u=ren",
-    },
-  ];
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/chats");
+        if (res.ok) {
+          const data = await res.json();
+          setChats(data);
+        } else {
+          console.error("Failed to fetch chats");
+        }
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, []);
 
   return (
     <div
@@ -77,7 +67,7 @@ export default function ChatSidebar({
       {/* Header */}
       <div className="p-4 md:p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          {isMobile && selectedChat && (
+          {isMobile && currentChatId && (
             <button
               onClick={onBack}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -93,54 +83,44 @@ export default function ChatSidebar({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {chats.map((chat) => (
-          <Link href={`/chat/${chat.id}`} key={chat.id}>
-            <div
-              className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                currentChatId === chat.id ? "bg-blue-50" : ""
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                {/* Avatar */}
-                <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden flex-shrink-0">
-                  <img
-                    src={chat.avatar || "/placeholder.svg"}
-                    alt={chat.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Chat Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium text-gray-900">{chat.name}</h3>
-                    <span className="text-sm text-blue-600">• {chat.time}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                    {chat.lastMessage}
-                  </p>
-                </div>
-
-                {/* Arrow */}
-                <div className="text-gray-400 mt-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
+        {isLoading ? (
+          <div className="p-4 text-center text-gray-500">Loading chats...</div>
+        ) : chats.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">No conversations yet.</div>
+        ) : (
+          chats.map((chat) => (
+            <Link href={`/chat/${chat.id}`} key={chat.id}>
+              <div
+                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  currentChatId === chat.id ? "bg-blue-50" : ""
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden flex-shrink-0">
+                    <img
+                      src={chat.avatar || "/placeholder.svg"}
+                      alt={chat.name}
+                      className="w-full h-full object-cover"
                     />
-                  </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {chat.name}
+                      </h3>
+                      <span className="text-xs text-gray-500 flex-shrink-0">
+                        {chat.time}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                      {chat.lastMessage}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

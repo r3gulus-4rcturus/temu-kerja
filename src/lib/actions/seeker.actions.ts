@@ -3,6 +3,7 @@
 import { prisma } from "../prisma";
 import { getCurrentUser } from "../auth";
 import { revalidatePath } from "next/cache";
+import { pusherServer } from "../pusher"; // Import the Pusher server instance
 
 /**
  * Handles a seeker's interest in a job.
@@ -12,7 +13,7 @@ import { revalidatePath } from "next/cache";
  */
 export async function handleSeekerInterest(jobId: string) {
   const seeker = await getCurrentUser();
-  if (!seeker || seeker.role !== 'jobseeker') {
+  if (!seeker || seeker.role !== "jobseeker") {
     return { success: false, message: "Unauthorized: Not a seeker." };
   }
 
@@ -37,17 +38,14 @@ export async function handleSeekerInterest(jobId: string) {
     try {
       const updatedApplication = await prisma.application.update({
         where: { id: existingApplication.id },
-        data: { status: 'onnegotiation' },
+        data: { status: "onnegotiation" },
       });
 
       // Create a new Chat entry
-      await prisma.chat.create({
+      const newChat = await prisma.chat.create({
         data: {
           participants: {
-            connect: [
-              { id: seeker.id },
-              { id: job.providerId }, // Connect with the job's provider
-            ],
+            connect: [{ id: seeker.id }, { id: job.providerId }],
           },
           job: {
             connect: { id: jobId },
@@ -56,10 +54,26 @@ export async function handleSeekerInterest(jobId: string) {
             connect: { id: updatedApplication.id },
           },
         },
+        include: {
+          participants: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
       });
 
-      revalidatePath('/seeker-dashboard');
-      return { success: true, message: "Match! Silahkan melanjutkan negosiasi di fitur chat." };
+      // Trigger Pusher event to notify the provider in real-time
+      const providerChannel = `private-user-${job.providerId}`;
+      await pusherServer.trigger(providerChannel, "new-chat", newChat);
+
+      revalidatePath("/seeker-dashboard");
+      return {
+        success: true,
+        message: "Match! Silahkan melanjutkan negosiasi di fitur chat.",
+      };
     } catch (error) {
       console.error("Error starting negotiation:", error);
       return { success: false, message: "Failed to start negotiation." };
@@ -74,12 +88,16 @@ export async function handleSeekerInterest(jobId: string) {
           jobId: null,
         },
         orderBy: {
-          createdAt: 'asc',
+          createdAt: "asc",
         },
       });
 
       if (!baseApplication) {
-        return { success: false, message: "Could not find a base application for this user. Please complete your profile." };
+        return {
+          success: false,
+          message:
+            "Could not find a base application for this user. Please complete your profile.",
+        };
       }
 
       // Update the base application to link it to this job and set status to 'sent'
@@ -87,11 +105,11 @@ export async function handleSeekerInterest(jobId: string) {
         where: { id: baseApplication.id },
         data: {
           jobId: jobId,
-          status: 'sent',
+          status: "sent",
         },
       });
 
-      revalidatePath('/seeker-dashboard');
+      revalidatePath("/seeker-dashboard");
       return { success: true, message: "Lamaran berhasil dikirim!" };
     } catch (error) {
       console.error("Error sending application:", error);

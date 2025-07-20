@@ -1,118 +1,88 @@
-"use client";
+import { notFound } from "next/navigation";
+import { getCurrentUser } from "../../../lib/auth";
+import { prisma } from "../../../lib/prisma";
+import ChatClientPage from "./ChatClientPage";
 
-import { useState, useEffect, JSX } from "react";
-import ChatSidebar from "../../../components/chat/ChatSidebar";
-import ChatWindow from "../../../components/chat/ChatWindow";
-import NegotiationPanel from "../../../components/chat/NegotiationPanel";
-import { useParams } from "next/navigation";
+// ---
+// Server-Side Data Fetching
+// ---
 
-// Define Chat type based on what your chat object contains
-type ChatType = {
-  id: string;
-  name: string;
-  lastMessage?: string;
-  avatar?: string;
-  time?: string;
-};
-
-// Mock function to get chat details by ID
-const getChatDetailsById = (id: string): ChatType | null => {
-  // In a real app, you would fetch this from an API
-  const chats: ChatType[] = [
-    {
-      id: "1", // Hardcoded to match the sidebar
-      name: "Kadek Chandra",
-      lastMessage: "",
-      time: "Aktif",
-      avatar: "https://i.pravatar.cc/150?u=chan",
+async function getChatData(chatId: string, userId: string) {
+  const chat = await prisma.chat.findFirst({
+    where: {
+      id: chatId,
+      participants: {
+        some: {
+          id: userId,
+        },
+      },
     },
-  ];
-  return chats.find((chat) => chat.id === id) || null;
-};
+    include: {
+      participants: {
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+        },
+      },
+      messages: {
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+        orderBy: {
+          sentAt: "asc",
+        },
+      },
+    },
+  });
 
-export default function ChatIdPage(): JSX.Element {
-  const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
-  const [isNegotiationOpen, setIsNegotiationOpen] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  const params = useParams();
-  const chatId = params.chatId as string;
+  return chat;
+}
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+// ---
+// Page Component
+// ---
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+export default async function ChatIdPage({
+  params,
+}: {
+  params: { chatId: string };
+}) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    // This should be handled by middleware, but as a safeguard:
+    notFound();
+  }
 
-  useEffect(() => {
-    if (chatId) {
-      const chatDetails = getChatDetailsById(chatId);
-      setSelectedChat(chatDetails);
-    }
-  }, [chatId]);
+  const chatData = await getChatData(params.chatId, currentUser.id);
 
-  const handleToggleNegotiation = () => {
-    setIsNegotiationOpen((prev) => !prev);
-  };
+  if (!chatData) {
+    // If the chat doesn't exist or the user is not a participant
+    notFound();
+  }
 
-  const handleBack = () => {
-    if (isNegotiationOpen) {
-      setIsNegotiationOpen(false);
-    }
-    // In mobile, going "back" from a chat window should probably go to the sidebar list.
-    // This would be handled by navigation, e.g., router.push('/chat')
+  // Determine the other participant for the chat header
+  const otherParticipant = chatData.participants.find(
+    (p) => p.id !== currentUser.id
+  );
+
+  const selectedChatInfo = {
+    id: chatData.id,
+    name: otherParticipant?.username || "Chat",
+    avatar: otherParticipant?.avatar || "/placeholder.svg",
+    currentUserId: currentUser.id,
   };
 
   return (
-    <>
-      {(!isMobile || !selectedChat) && (
-        <ChatSidebar
-          selectedChat={selectedChat}
-          onChatSelect={() => {}}
-          onBack={handleBack}
-          isMobile={isMobile}
-        />
-      )}
-
-      {(!isMobile || selectedChat) && (
-        <>
-          {(!isNegotiationOpen || !isMobile) && (
-            <ChatWindow
-              selectedChat={selectedChat}
-              onToggleNegotiation={handleToggleNegotiation}
-              isNegotiationOpen={isNegotiationOpen}
-              onBack={handleBack}
-              isMobile={isMobile}
-            />
-          )}
-        </>
-      )}
-
-      {selectedChat && (
-        <>
-          {isMobile && isNegotiationOpen && (
-            <NegotiationPanel
-              isOpen={isNegotiationOpen}
-              onToggle={handleToggleNegotiation}
-              selectedChat={selectedChat}
-              onBack={handleBack}
-              isMobile={isMobile}
-            />
-          )}
-
-          {!isMobile && (
-            <NegotiationPanel
-              isOpen={isNegotiationOpen}
-              onToggle={handleToggleNegotiation}
-              selectedChat={selectedChat}
-              isMobile={isMobile}
-            />
-          )}
-        </>
-      )}
-    </>
+    <ChatClientPage
+      selectedChat={selectedChatInfo}
+      initialMessages={chatData.messages}
+    />
   );
 }
