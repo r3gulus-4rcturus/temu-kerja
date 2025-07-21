@@ -6,14 +6,11 @@ import ChatWindow from "../../../components/chat/ChatWindow";
 import NegotiationPanel from "../../../components/chat/NegotiationPanel";
 import { UserRole } from "@prisma/client";
 
-// ---
-// Type Definitions
-// ---
-
+// --- Type Definitions ---
 interface Message {
   id: string;
   content: string;
-  sentAt: Date;
+  createdAt: string;
   sender: {
     id: string;
     username: string;
@@ -35,10 +32,7 @@ interface ChatClientPageProps {
   initialMessages: Message[];
 }
 
-// ---
-// Client-Side Component
-// ---
-
+// --- Client-Side Component ---
 export default function ChatClientPage({
   selectedChat,
   initialMessages,
@@ -61,28 +55,27 @@ export default function ChatClientPage({
     if (isNegotiationOpen) {
       setIsNegotiationOpen(false);
     }
-    // In a real mobile app, you might use router.back() or similar
   };
 
   return (
-    <>
+    <div className="flex w-full h-full p-8 gap-8">
       <ChatSidebar onBack={handleBack} isMobile={isMobile} />
-
-      <ChatWindow
-        selectedChat={selectedChat}
-        initialMessages={initialMessages}
-        onToggleNegotiation={handleToggleNegotiation}
-        isNegotiationOpen={isNegotiationOpen}
-        onBack={handleBack}
-        isMobile={isMobile}
-      />
-
-      <NegotiationPanel
-        isOpen={isNegotiationOpen}
-        onToggle={handleToggleNegotiation}
-        selectedChat={selectedChat}
-        isMobile={isMobile}
-      />
-    </>
+      <div className="flex-1 flex gap-8">
+        <ChatWindow
+          selectedChat={selectedChat}
+          initialMessages={initialMessages}
+          onToggleNegotiation={handleToggleNegotiation}
+          isNegotiationOpen={isNegotiationOpen}
+          onBack={handleBack}
+          isMobile={isMobile}
+        />
+        <NegotiationPanel
+          isOpen={isNegotiationOpen}
+          onToggle={handleToggleNegotiation}
+          selectedChat={selectedChat}
+          isMobile={isMobile}
+        />
+      </div>
+    </div>
   );
 }

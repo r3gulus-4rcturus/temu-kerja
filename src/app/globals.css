@@ -75,6 +75,33 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Figma Styles */
+  --body-b2-font-family: "Roboto", Helvetica;
+  --body-b2-font-size: 16px;
+  --body-b2-font-style: normal;
+  --body-b2-font-weight: 400;
+  --body-b2-letter-spacing: 0px;
+  --body-b2-line-height: 150%;
+  --heading-h3-font-family: "Plus Jakarta Sans", Helvetica;
+  --heading-h3-font-size: 32px;
+  --heading-h3-font-style: normal;
+  --heading-h3-font-weight: 700;
+  --heading-h3-letter-spacing: 0px;
+  --heading-h3-line-height: 120%;
+  --heading-h7-font-family: "Plus Jakarta Sans", Helvetica;
+  --heading-h7-font-size: 12px;
+  --heading-h7-font-style: normal;
+  --heading-h7-font-weight: 700;
+  --heading-h7-letter-spacing: 0px;
+  --heading-h7-line-height: 120%;
+  --sub-heading-s3-font-family: "Urbanist", Helvetica;
+  --sub-heading-s3-font-size: 24px;
+  --sub-heading-s3-font-style: normal;
+  --sub-heading-s3-font-weight: 600;
+  --sub-heading-s3-letter-spacing: 0px;
+  --sub-heading-s3-line-height: 200%;
+  --theme-colordark: rgba(70, 66, 85, 1);
 }
 
 .dark {

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,11 +15,6 @@ interface ChatItem {
   lastMessage: string;
   time: string;
   avatar?: string;
-}
-
-interface SelectedChat {
-  id: string;
-  name: string;
 }
 
 interface ChatSidebarProps {
@@ -59,68 +54,49 @@ export default function ChatSidebar({ onBack, isMobile }: ChatSidebarProps) {
   }, []);
 
   return (
-    <div
-      className={`bg-white border-r border-gray-200 flex flex-col h-full ${
-        isMobile ? "w-full" : "w-96"
-      }`}
-    >
-      {/* Header */}
-      <div className="p-4 md:p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          {isMobile && currentChatId && (
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-          )}
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
-            Chat
-          </h2>
-        </div>
+    <div className="flex-shrink-0 w-full md:w-[460px] h-full flex flex-col">
+      <div className="p-8">
+        <h1 style={{fontFamily: 'var(--heading-h3-font-family)', fontWeight: 'var(--heading-h3-font-weight)', color: 'var(--theme-colordark)', fontSize: 'var(--heading-h3-font-size)'}} className="whitespace-nowrap">
+          Chat
+        </h1>
       </div>
 
-      {/* Chat List */}
-      <div className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="p-4 text-center text-gray-500">Loading chats...</div>
-        ) : chats.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">No conversations yet.</div>
-        ) : (
-          chats.map((chat) => (
-            <Link href={`/chat/${chat.id}`} key={chat.id}>
-              <div
-                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  currentChatId === chat.id ? "bg-blue-50" : ""
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden flex-shrink-0">
-                    <img
-                      src={chat.avatar || "/placeholder.svg"}
-                      alt={chat.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-medium text-gray-900 truncate">
-                        {chat.name}
-                      </h3>
-                      <span className="text-xs text-gray-500 flex-shrink-0">
-                        {chat.time}
-                      </span>
+      <div className="flex-1 px-4 pb-4">
+        <div className="flex flex-col h-full items-start gap-4 p-5 bg-[#fdfdff] rounded-[20px] border border-solid border-[#ebf2f7] overflow-y-auto">
+          {isLoading ? (
+            <div className="p-4 text-center text-gray-500 w-full">Loading chats...</div>
+          ) : chats.length === 0 ? (
+            <div className="p-4 text-center text-gray-500 w-full">No conversations yet.</div>
+          ) : (
+            chats.map((chat) => (
+              <Link href={`/chat/${chat.id}`} key={chat.id} className="w-full">
+                <div className={`flex w-full items-center p-4 rounded-[10px] border border-solid border-[#dfe0eb] cursor-pointer transition-colors ${currentChatId === chat.id ? "bg-blue-50" : "bg-white hover:bg-gray-50"}`}>
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="relative w-12 h-12">
+                        <img src={chat.avatar || '/placeholder.svg'} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                      {chat.lastMessage}
-                    </p>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-black text-xl truncate" style={{fontFamily: 'Roboto-Medium, Helvetica'}}>
+                          {chat.name}
+                        </p>
+                        <div className="w-1 h-1 bg-[#46464680] rounded-sm" />
+                        <p className="text-[#1976d2] text-base whitespace-nowrap" style={{fontFamily: 'Public_Sans-Regular, Helvetica'}}>
+                          {chat.time}
+                        </p>
+                      </div>
+                      <p className="font-body-b2 text-[#a1a1a1] text-sm truncate" style={{fontFamily: 'var(--body-b2-font-family)'}}>
+                        {chat.lastMessage}
+                      </p>
+                    </div>
                   </div>
+                  <ChevronRight className="w-6 h-6 text-gray-400 ml-4" />
                 </div>
-              </div>
-            </Link>
-          ))
-        )}
+              </Link>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
