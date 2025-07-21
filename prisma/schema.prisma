@@ -31,12 +31,14 @@ model User {
   favoritedBy Favorite[] @relation("FavoritedBy")
 
   // Relations
-  jobs          Job[]          @relation("ProviderJobs")
-  applications  Application[]  @relation("SeekerApplications")
-  chats         Chat[]         @relation("UserChats")
-  reviews       Review[]       @relation("UserReviews")
-  notifications Notification[]
-  Message       Message[]
+  jobs                Job[]                @relation("ProviderJobs")
+  applications        Application[]        @relation("SeekerApplications")
+  chats               Chat[]               @relation("UserChats")
+  reviews             Review[]             @relation("UserReviews")
+  notifications       Notification[]
+  Message             Message[]
+  negotiationChats    NegotiationChat[]    @relation("NegotiationParticipants")
+  negotiationMessages NegotiationMessage[]
 }
 
 enum UserRole {
@@ -139,15 +141,16 @@ enum RateType {
 }
 
 model Chat {
-  id            String      @id @default(uuid())
-  participants  User[]      @relation("UserChats")
-  job           Job         @relation("JobChats", fields: [jobId], references: [id])
-  jobId         String
-  application   Application @relation("ApplicationChats", fields: [applicationId], references: [id])
-  applicationId String
-  messages      Message[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id              String           @id @default(uuid())
+  participants    User[]           @relation("UserChats")
+  job             Job              @relation("JobChats", fields: [jobId], references: [id])
+  jobId           String
+  application     Application      @relation("ApplicationChats", fields: [applicationId], references: [id])
+  applicationId   String
+  messages        Message[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  negotiationChat NegotiationChat?
 }
 
 model Message {
@@ -159,6 +162,35 @@ model Message {
   content  String
   sentAt   DateTime @default(now())
   isRead   Boolean  @default(false)
+}
+
+model NegotiationChat {
+  id             String               @id @default(uuid())
+  chat           Chat                 @relation(fields: [chatId], references: [id])
+  chatId         String               @unique
+  participants   User[]               @relation("NegotiationParticipants")
+  messages       NegotiationMessage[]
+  providerStatus NegotiationStatus    @default(onnegotiation)
+  seekerStatus   NegotiationStatus    @default(onnegotiation)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+enum NegotiationStatus {
+  onnegotiation
+  agreed
+}
+
+model NegotiationMessage {
+  id                String          @id @default(uuid())
+  negotiationChat   NegotiationChat @relation(fields: [negotiationChatId], references: [id])
+  negotiationChatId String
+  sender            User            @relation(fields: [senderId], references: [id])
+  senderId          String
+  negotiationPrice  Int
+  workHoursDuration Int
+  workDaysDuration  Int
+  createdAt         DateTime        @default(now())
 }
 
 model Review {
