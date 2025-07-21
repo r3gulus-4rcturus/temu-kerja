@@ -24,6 +24,23 @@ export default function CVGeneratorPage(): JSX.Element {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [showPopup, setShowPopup] = useState<boolean>(false) // State for the popup
 
+  const generateDataDiri = (): string => {
+    const dataDiri = JSON.parse(localStorage.getItem("registrationData") || "{}")
+    const dataPekerjaan = JSON.parse(localStorage.getItem("addJobData") || "{}")
+    const { fullName, address, city, email, phoneNumber, province } = dataDiri.personalInfo;
+    const { jobName, jobDescription } = dataPekerjaan.jobDetails;
+  
+    const data = `
+      Nama: ${fullName}
+      Nomor: ${phoneNumber}
+      Email: ${email}
+      Alamat: ${address}, ${city}, ${province}
+      Nama Pekerjaan: ${jobName}
+      Deskripsi Pekerjaan: ${jobDescription}
+    `
+    return data;
+  }
+
   const handleBack = (): void => {
     router.push("/add-job/upload-cv")
   }
@@ -33,6 +50,9 @@ export default function CVGeneratorPage(): JSX.Element {
       alert("Silakan deskripsikan pengalaman kerja Anda terlebih dahulu")
       return
     }
+
+    const dataDiri = generateDataDiri();
+    console.log(dataDiri)
 
     // Show the popup instead of the alert
     setShowPopup(true)
@@ -185,11 +205,10 @@ export default function CVGeneratorPage(): JSX.Element {
         <div className="flex items-center justify-center gap-4 mb-8">
           <button
             onClick={handleMicClick}
-            className={`p-4 rounded-full transition-colors ${
-              isRecording
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-            }`}
+            className={`p-4 rounded-full transition-colors ${isRecording
+              ? "bg-red-500 hover:bg-red-600 text-white"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+              }`}
           >
             {isRecording ? (
               <MicOff className="w-6 h-6" />

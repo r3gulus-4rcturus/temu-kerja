@@ -66,7 +66,7 @@ export default function UploadProfilePage() {
         }
         const { role } = await res.json()
         localStorage.setItem("role", role)
-        localStorage.removeItem("registrationData")
+        // localStorage.removeItem("registrationData")
 
         router.push("/register/success")
       } catch (err) {
