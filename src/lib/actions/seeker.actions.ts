@@ -64,6 +64,20 @@ export async function handleSeekerInterest(jobId: string) {
           },
         },
       });
+      
+      // Create the associated NegotiationChat entry
+      await prisma.negotiationChat.create({
+        data: {
+          chatId: newChat.id,
+          participants: {
+            connect: [
+              { id: seeker.id },
+              { id: job.providerId }
+            ],
+          },
+        },
+      });
+
 
       // Trigger Pusher event to notify the provider in real-time
       const providerChannel = `private-user-${job.providerId}`;

@@ -1,107 +1,357 @@
-"use client"
+"use client";
 
-import { Calendar, ArrowLeft } from "lucide-react"
-import { useState } from "react"
+import { Calendar, ArrowLeft, CheckCircle, XCircle, Info } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { pusherClient } from "../../lib/pusher-client";
+import { Channel } from "pusher-js";
+import { UserRole } from "@prisma/client";
 
-// Define type for selectedChat
+// --- Type Definitions ---
+
+type User = {
+  id: string;
+  username: string;
+  avatar?: string | null;
+};
+
+type NegotiationMessage = {
+  id: string;
+  senderId: string;
+  sender: User;
+  negotiationPrice: number;
+  workHoursDuration: number;
+  workDaysDuration: number;
+  createdAt: string;
+};
+
+type NegotiationData = {
+  id: string;
+  chatId: string;
+  providerStatus: "onnegotiation" | "agreed";
+  seekerStatus: "onnegotiation" | "agreed";
+  jobDetails: {
+    location: string;
+    dateTime: string;
+  };
+  messages: NegotiationMessage[];
+};
+
 type SelectedChat = {
-  id: string
-  name: string
-  avatar?: string
-}
+  id: string;
+  name: string;
+  avatar?: string;
+  currentUserId: string;
+  currentUserRole: UserRole;
+};
 
-// Props for NegotiationPanel
 type NegotiationPanelProps = {
-  isOpen: boolean
-  onToggle: () => void
-  selectedChat: SelectedChat | null
-  onBack?: () => void
-  isMobile?: boolean
-}
+  isOpen: boolean;
+  onToggle: () => void;
+  selectedChat: SelectedChat | null;
+  isMobile?: boolean;
+};
+
+type AgreementState =
+  | "initial" // Both sides onnegotiation, no new offer
+  | "can_propose" // User has typed something
+  | "waiting_other" // User has made an offer
+  | "can_accept" // The other user has made an offer
+  | "user_agreed" // Current user has agreed, waiting for other
+  | "agreed"; // Both parties have agreed
+
+// --- Main Component ---
 
 export default function NegotiationPanel({
   isOpen,
   onToggle,
   selectedChat,
-  onBack,
   isMobile = false,
 }: NegotiationPanelProps) {
   const [formData, setFormData] = useState({
-    location: "Jl. Kukusan Barat, Depok Raya, Blok C No. 57, Jawa Barat",
-    date: "",
-    duration: "3",
-    durationUnit: "Jam",
-    days: "1",
+    workHoursDuration: "3",
+    workDaysDuration: "1",
     tariff: "50000",
-  })
+  });
+  const [negotiationData, setNegotiationData] = useState<NegotiationData | null>(null);
+  const [lastOffer, setLastOffer] = useState<NegotiationMessage | null>(null);
+  const [agreementState, setAgreementState] = useState<AgreementState>("initial");
+  const [notification, setNotification] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+  const channelRef = useRef<Channel | null>(null);
 
+  // --- Data Fetching and Pusher Subscription ---
+  useEffect(() => {
+    if (!isOpen || !selectedChat) return;
+
+    const fetchNegotiationData = async () => {
+      const res = await fetch(`/api/chat/${selectedChat.id}/negotiation`);
+      if (res.ok) {
+        const data: NegotiationData = await res.json();
+        setNegotiationData(data);
+        updateFullState(data);
+      }
+    };
+
+    fetchNegotiationData();
+
+    const channelName = `private-negotiation-${negotiationData?.id || selectedChat.id}`;
+    if (channelRef.current?.name !== channelName) {
+        if (channelRef.current) {
+            pusherClient.unsubscribe(channelRef.current.name);
+        }
+        const channel = pusherClient.subscribe(channelName);
+        channelRef.current = channel;
+
+        channel.bind("new-offer", (newOffer: NegotiationMessage) => {
+            setNegotiationData(prev => prev ? {...prev, messages: [newOffer, ...prev.messages]} : null);
+            updateFullState({ ...negotiationData!, messages: [newOffer] });
+        });
+
+        channel.bind("status-updated", (data: { updatedStatus: NegotiationData }) => {
+            setNegotiationData(prev => prev ? {...prev, ...data.updatedStatus} : null);
+            updateFullState(data.updatedStatus);
+        });
+
+        channel.bind("negotiation-complete", (data: { message: string }) => {
+            setNotification({ message: data.message, type: 'success' });
+            setAgreementState("agreed");
+        });
+    }
+
+    return () => {
+      if (channelRef.current) {
+        pusherClient.unsubscribe(channelRef.current.name);
+        channelRef.current = null;
+      }
+    };
+  }, [isOpen, selectedChat, negotiationData?.id]);
+  
+  // Auto-dismiss notification
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000); // 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+
+  const updateFullState = (data: NegotiationData) => {
+    const latestMessage = data.messages && data.messages.length > 0 ? data.messages[0] : null;
+    if (latestMessage) {
+        setLastOffer(latestMessage);
+        setFormData({
+            workHoursDuration: latestMessage.workHoursDuration.toString(),
+            workDaysDuration: latestMessage.workDaysDuration.toString(),
+            tariff: latestMessage.negotiationPrice.toString(),
+        });
+    }
+
+    const { providerStatus, seekerStatus } = data;
+    const myRole = selectedChat?.currentUserRole;
+
+    if (providerStatus === 'agreed' && seekerStatus === 'agreed') {
+        setAgreementState("agreed");
+    } else if (myRole === 'jobprovider' && providerStatus === 'agreed') {
+        setAgreementState('user_agreed');
+    } else if (myRole === 'jobseeker' && seekerStatus === 'agreed') {
+        setAgreementState('user_agreed');
+    } else if (latestMessage && latestMessage.senderId !== selectedChat?.currentUserId) {
+        setAgreementState("can_accept");
+    } else if (latestMessage && latestMessage.senderId === selectedChat?.currentUserId) {
+        setAgreementState("waiting_other");
+    } else {
+        setAgreementState("initial");
+    }
+  };
+
+  // --- Event Handlers ---
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setAgreementState("can_propose");
+  };
 
-  const handleAgreement = () => {
-    console.log("Agreement submitted:", formData)
-  }
+  const handlePropose = async () => {
+    if (!negotiationData) return;
+    const res = await fetch("/api/negotiation/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        negotiationChatId: negotiationData.id,
+        negotiationPrice: formData.tariff,
+        workHoursDuration: formData.workHoursDuration,
+        workDaysDuration: formData.workDaysDuration,
+      }),
+    });
 
-  if (!isOpen) return null
+    if (res.ok) {
+      setAgreementState("waiting_other");
+    } else {
+      console.error("Failed to send negotiation offer.");
+    }
+  };
+  
+  const handleAcceptOffer = () => {
+      if (lastOffer) {
+          setFormData({
+              tariff: lastOffer.negotiationPrice.toString(),
+              workHoursDuration: lastOffer.workHoursDuration.toString(),
+              workDaysDuration: lastOffer.workDaysDuration.toString(),
+          });
+          setAgreementState("initial");
+      }
+  };
 
-  if (isMobile) {
-    return (
-      <div className="w-full bg-white flex flex-col h-full">
-        {/* Mobile Header */}
-        <div className="p-4 border-b border-gray-200 bg-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                >
-                  <ArrowLeft className="w-5 h-5 text-gray-600" />
-                </button>
-              )}
-              <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden flex-shrink-0">
-                <img
-                  src={selectedChat?.avatar || "/placeholder.svg"}
-                  alt={selectedChat?.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-gray-900 text-base truncate">{selectedChat?.name}</h3>
-              </div>
-            </div>
-            <button
-              onClick={onToggle}
-              className="px-3 py-1.5 rounded-lg font-medium transition-colors text-sm flex-shrink-0 ml-2 bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Kembali ke Chat
-            </button>
+  const handleAgree = async () => {
+    if (!selectedChat) return;
+    const res = await fetch("/api/negotiation/agree", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId: selectedChat.id })
+    });
+
+    if (res.ok) {
+        setAgreementState("user_agreed");
+    } else {
+        console.error("Failed to agree to negotiation.");
+    }
+  };
+
+  // --- UI Rendering Logic ---
+  const getButtonState = () => {
+    if (agreementState === "agreed") return { text: "Telah Disetujui!", disabled: true };
+    if (agreementState === 'can_propose') return { text: "Ajukan Nego", onClick: handlePropose, disabled: false };
+    if (agreementState === 'waiting_other') return { text: "Sepakat Kerja", onClick: handleAgree, disabled: false };
+    if (agreementState === 'can_accept') return { text: "Terima Nego", onClick: handleAcceptOffer, disabled: false };
+    if (agreementState === 'user_agreed') {
+        const otherParty = selectedChat?.currentUserRole === 'jobprovider' ? 'Pekerja' : 'Client';
+        return { text: `Menunggu Persetujuan ${otherParty}`, disabled: true };
+    }
+    return { text: "Sepakat Kerja", onClick: handleAgree, disabled: false };
+  };
+  
+  const getNotificationStyle = () => {
+    if (!notification) return {};
+    switch (notification.type) {
+      case "success":
+        return {
+          icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+          borderColor: "border-green-200",
+        };
+      case "error":
+        return {
+          icon: <XCircle className="w-6 h-6 text-red-500" />,
+          borderColor: "border-red-200",
+        };
+      case "info":
+        return {
+          icon: <Info className="w-6 h-6 text-blue-500" />,
+          borderColor: "border-blue-200",
+        };
+    }
+  };
+  
+  const buttonState = getButtonState();
+
+  if (!isOpen) return null;
+
+  const renderContent = () => (
+    <>
+      <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+        {/* Last Offer Notification */}
+        {lastOffer && lastOffer.senderId !== selectedChat?.currentUserId && agreementState !== 'agreed' && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg text-sm text-center">
+            <p className="font-semibold">
+              {lastOffer.sender.username} mengusulkan harga: Rp {lastOffer.negotiationPrice.toLocaleString('id-ID')}
+            </p>
+             <p className="font-semibold">
+              Durasi: {lastOffer.workHoursDuration} Jam, {lastOffer.workDaysDuration} Hari
+            </p>
+          </div>
+        )}
+
+        {/* Form Fields */}
+        <div>
+          <label className="block text-base font-medium text-gray-900 mb-3">Lokasi</label>
+          <textarea
+            value={negotiationData?.jobDetails?.location || "Loading..."}
+            readOnly
+            className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed resize-none"
+            rows={3}
+          />
+        </div>
+        <div>
+          <label className="block text-base font-medium text-gray-900 mb-3">Tanggal</label>
+          <div className="relative">
+            <input
+              type="text"
+              value={negotiationData ? new Date(negotiationData.jobDetails.dateTime).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "Loading..."}
+              readOnly
+              className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+            />
+            <Calendar className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
         </div>
-
-        {/* Mobile Form */}
-        <FormContent formData={formData} handleInputChange={handleInputChange} />
-
-        {/* Mobile Footer */}
-        <div className="p-6 border-t border-gray-200 bg-white">
-          <button
-            onClick={handleAgreement}
-            className="w-full bg-blue-600 text-white py-4 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors text-base"
-          >
-            Sepakat Kerja
-          </button>
+        <div>
+          <label className="block text-base font-medium text-gray-900 mb-3">Durasi Bekerja</label>
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              value={formData.workHoursDuration}
+              onChange={(e) => handleInputChange("workHoursDuration", e.target.value)}
+              className="w-20 p-3 border border-gray-300 rounded-lg text-center"
+              min="1"
+            />
+            <span className="text-gray-700 text-base">Jam</span>
+            <input
+              type="number"
+              value={formData.workDaysDuration}
+              onChange={(e) => handleInputChange("workDaysDuration", e.target.value)}
+              className="w-20 p-3 border border-gray-300 rounded-lg text-center"
+              min="1"
+            />
+            <span className="text-gray-700 text-base">Hari</span>
+          </div>
+        </div>
+        <div>
+          <label className="block text-base font-medium text-gray-900 mb-3">Tarif</label>
+          <input
+            type="number"
+            value={formData.tariff}
+            onChange={(e) => handleInputChange("tariff", e.target.value)}
+            className="w-full p-4 border border-gray-300 rounded-lg"
+            placeholder="50000"
+          />
         </div>
       </div>
-    )
-  }
+      <div className="p-6 border-t border-gray-200">
+        <button
+          onClick={buttonState.onClick}
+          disabled={buttonState.disabled}
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {buttonState.text}
+        </button>
+      </div>
+    </>
+  );
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
-      {/* Desktop Header */}
+    <div className={`bg-white border-l border-gray-200 flex flex-col h-full ${isMobile ? "w-full" : "w-80"}`}>
+       {/* Notification Popup */}
+       {notification && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5 duration-500">
+          <div
+            className={`bg-white rounded-lg shadow-lg p-4 flex items-center gap-3 border ${
+              getNotificationStyle().borderColor
+            }`}
+          >
+            {getNotificationStyle().icon}
+            <p className="font-medium text-gray-800">{notification.message}</p>
+          </div>
+        </div>
+      )}
+
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold text-gray-900">Negosiasi</h2>
@@ -114,108 +364,7 @@ export default function NegotiationPanel({
         </div>
         <p className="text-sm text-gray-600">Lakukan negosiasi dengan mudah!</p>
       </div>
-
-      {/* Desktop Form */}
-      <FormContent formData={formData} handleInputChange={handleInputChange} />
-
-      {/* Desktop Footer */}
-      <div className="p-6 border-t border-gray-200">
-        <button
-          onClick={handleAgreement}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-        >
-          Sepakat Kerja
-        </button>
-      </div>
+      {renderContent()}
     </div>
-  )
-}
-
-// 🧩 Reusable Form content for mobile & desktop
-type FormProps = {
-  formData: {
-    location: string
-    date: string
-    duration: string
-    durationUnit: string
-    days: string
-    tariff: string
-  }
-  handleInputChange: (field: keyof FormProps["formData"], value: string) => void
-}
-
-function FormContent({ formData, handleInputChange }: FormProps) {
-  return (
-    <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-      {/* Location */}
-      <div>
-        <label className="block text-base font-medium text-gray-900 mb-3">Lokasi</label>
-        <textarea
-          value={formData.location}
-          onChange={(e) => handleInputChange("location", e.target.value)}
-          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          rows={3}
-        />
-      </div>
-
-      {/* Date */}
-      <div>
-        <label className="block text-base font-medium text-gray-900 mb-3">Tanggal</label>
-        <div className="relative">
-          <input
-            type="date"
-            value={formData.date}
-            onChange={(e) => handleInputChange("date", e.target.value)}
-            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-          />
-          <Calendar className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
-
-      {/* Duration */}
-      <div>
-        <label className="block text-base font-medium text-gray-900 mb-3">Durasi Bekerja</label>
-        <div className="flex items-center gap-3">
-          <input
-            type="number"
-            value={formData.duration}
-            onChange={(e) => handleInputChange("duration", e.target.value)}
-            className="w-20 p-3 border border-gray-300 rounded-lg text-center"
-            min="1"
-          />
-          <select
-            value={formData.durationUnit}
-            onChange={(e) => handleInputChange("durationUnit", e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg"
-          >
-            <option value="Jam">Jam</option>
-            <option value="Menit">Menit</option>
-          </select>
-          <input
-            type="number"
-            value={formData.days}
-            onChange={(e) => handleInputChange("days", e.target.value)}
-            className="w-20 p-3 border border-gray-300 rounded-lg text-center"
-            min="1"
-          />
-          <span className="text-gray-700 text-base">Hari</span>
-        </div>
-      </div>
-
-      {/* Tariff */}
-      <div>
-        <label className="block text-base font-medium text-gray-900 mb-3">Tarif</label>
-        <input
-          type="number"
-          value={formData.tariff}
-          onChange={(e) => handleInputChange("tariff", e.target.value)}
-          className="w-full p-4 border border-gray-300 rounded-lg"
-          placeholder="50,000"
-        />
-        <p className="text-sm text-red-500 mt-2">
-          *Upah tidak layak berdasarkan beban kerja. Masukkan tarif lebih tinggi.
-        </p>
-      </div>
-    </div>
-  )
+  );
 }

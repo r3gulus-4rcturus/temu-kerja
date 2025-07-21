@@ -24,11 +24,13 @@ export async function POST(req: NextRequest) {
 
     // 2. Parse the form data sent by the pusher-js client
     const data = await req.formData();
+    // console.log("Pusher auth data:", data);
     const socketId = data.get("socket_id") as string;
     const channel = data.get("channel_name") as string;
 
     // 3. Extract the chatId from the channel name (e.g., "private-chat-someId" -> "someId")
     const chatId = channel.replace("private-chat-", "");
+    const negoId = channel.replace("private-negotiation-", "");
 
     // 4. Verify that the user is a participant of the chat
     const chat = await prisma.chat.findFirst({
@@ -42,8 +44,23 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const negoChat = await prisma.negotiationChat.findFirst({
+      where: {
+        id: negoId,
+        participants: {
+          some: {
+            id: currentUser.id,
+          }
+        },
+      },
+    });
+
+    // console.log("current user ID:", currentUser.id);
+    // console.log("Chat:", chat);
+    // console.log("Negotiation Chat:", negoChat);
+
     // 5. If the user is not a participant, deny access
-    if (!chat) {
+    if (!chat && !negoChat) {
       return NextResponse.json(
         { error: "Forbidden: User is not a participant of this chat." },
         { status: 403 }

@@ -60,6 +60,19 @@ export async function handleProviderInterest(applicationId: string) {
         },
       });
 
+      // Create the associated NegotiationChat entry
+      await prisma.negotiationChat.create({
+        data: {
+          chatId: newChat.id,
+          participants: {
+            connect: [
+              { id: provider.id },
+              { id: application.seekerId }
+            ],
+          },
+        },
+      });
+
       // Trigger Pusher event to notify the seeker in real-time
       const seekerChannel = `private-user-${application.seekerId}`;
       await pusherServer.trigger(seekerChannel, "new-chat", newChat);

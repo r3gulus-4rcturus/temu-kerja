@@ -92,6 +92,7 @@ export default function UploadCVPage(): JSX.Element {
       // Show notification instead of alert
       setShowNotification(true)
       localStorage.removeItem("addJobData")
+      localStorage.removeItem("registrationData")
 
       // Redirect after a delay
       setTimeout(() => {

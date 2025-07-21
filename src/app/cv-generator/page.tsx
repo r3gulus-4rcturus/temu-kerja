@@ -52,7 +52,7 @@ export default function CVGeneratorPage(): JSX.Element {
     }
 
     const dataDiri = generateDataDiri();
-    console.log(dataDiri)
+    // console.log(dataDiri)
 
     // Show the popup instead of the alert
     setShowPopup(true)

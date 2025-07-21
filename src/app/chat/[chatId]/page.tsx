@@ -77,6 +77,7 @@ export default async function ChatIdPage({
     name: otherParticipant?.username || "Chat",
     avatar: otherParticipant?.avatar || "/placeholder.svg",
     currentUserId: currentUser.id,
+    currentUserRole: currentUser.role, // Assuming you have a role field in the user model
   };
 
   return (

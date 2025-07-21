@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ChatSidebar from "../../../components/chat/ChatSidebar";
 import ChatWindow from "../../../components/chat/ChatWindow";
 import NegotiationPanel from "../../../components/chat/NegotiationPanel";
+import { UserRole } from "@prisma/client";
 
 // ---
 // Type Definitions
@@ -24,7 +25,9 @@ interface SelectedChat {
   id: string;
   name: string;
   avatar?: string;
+  time?: string;
   currentUserId: string;
+  currentUserRole: UserRole;
 }
 
 interface ChatClientPageProps {

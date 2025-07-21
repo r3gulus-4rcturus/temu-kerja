@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const applications = await getPendingApplicationsForProvider(user.id);
   const applicants = await getApplicantsForProvider();
 
-  console.log(orders)
+  // console.log(orders)
 
   // Pass the server-fetched data to the client component
   return <DashboardClient
