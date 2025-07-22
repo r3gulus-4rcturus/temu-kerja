@@ -14,7 +14,7 @@ import { prisma } from "../../../../../lib/prisma";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { chatId: string } }
+  context: { params: { chatId: string } }
 ) {
   try {
     // 1. Authenticate the user
@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { chatId } = params;
+    const { chatId } = context.params;
     if (!chatId) {
       return NextResponse.json({ error: "Chat ID is required" }, { status: 400 });
     }
