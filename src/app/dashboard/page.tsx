@@ -6,9 +6,6 @@ import {
   } from "../../lib/actions/fetchPropsForDashboard";
 import DashboardClient from "../../components/dashboard/DashboardClient";
 import { getCurrentUser } from "../../lib/auth";
-import { get } from "http";
-import { ApplicationStatus } from "../../generated/prisma";
-
 
 export default async function DashboardPage() {
   // Fetch the orders on the server
