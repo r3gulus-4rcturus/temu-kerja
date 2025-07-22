@@ -15,7 +15,7 @@ import { prisma } from "../../../../../lib/prisma";
  */
 export async function GET(
   req: NextRequest,
-  context: { params: { chatId: string } } // Changed to accept the full context object
+  { params }: { params: { chatId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { chatId } = context.params; // Destructure params from the context object here
+    const { chatId } = params;
 
     // Verify the user is part of the parent chat
     const parentChat = await prisma.chat.findFirst({
