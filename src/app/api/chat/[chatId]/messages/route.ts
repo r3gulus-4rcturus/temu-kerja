@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "../../../../../lib/auth";
-import { prisma } from "../../../../../lib/prisma";
+import { getCurrentUser } from "../../../../lib/auth";
+import { prisma } from "../../../../lib/prisma";
 
 /**
  * Fetches the message history for a specific chat.
@@ -62,7 +62,7 @@ export async function GET(
         },
       },
       orderBy: {
-        sentAt: "asc", // Order messages from oldest to newest
+        createdAt: "asc", // Order messages from oldest to newest
       },
     });
 

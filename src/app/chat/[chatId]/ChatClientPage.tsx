@@ -10,7 +10,7 @@ import { UserRole } from "@prisma/client";
 interface Message {
   id: string;
   content: string;
-  createdAt: string;
+  sentAt: string;
   sender: {
     id: string;
     username: string;
