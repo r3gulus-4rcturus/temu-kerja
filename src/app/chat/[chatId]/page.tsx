@@ -83,7 +83,10 @@ export default async function ChatIdPage({
   return (
     <ChatClientPage
       selectedChat={selectedChatInfo}
-      initialMessages={chatData.messages}
+      initialMessages={chatData.messages.map((msg) => ({
+        ...msg,
+        sentAt: msg.sentAt instanceof Date ? msg.sentAt.toISOString() : msg.sentAt,
+      }))}
     />
   );
 }

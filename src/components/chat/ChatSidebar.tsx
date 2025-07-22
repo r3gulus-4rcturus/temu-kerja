@@ -18,6 +18,8 @@ interface ChatItem {
 }
 
 interface ChatSidebarProps {
+  selectedChat: any | null; // Replace 'any' with the actual chat type if available
+  onChatSelect: (chatId: string) => void;
   onBack: () => void;
   isMobile: boolean;
 }

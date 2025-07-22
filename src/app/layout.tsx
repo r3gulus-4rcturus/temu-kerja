@@ -17,6 +17,9 @@ import React from "react"
 import { getCurrentUser } from "../lib/auth"
 import Navbar from "../components/shared/Navbar" // Adjust path if necessary
 
+// Add this line to force dynamic rendering for all pages
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Temu Kerja - Cari Kerja Jadi Lebih Mudah dan Cepat",
   description:

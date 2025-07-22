@@ -59,7 +59,9 @@ export default function ChatClientPage({
 
   return (
     <div className="flex w-full h-full p-8 gap-8">
-      <ChatSidebar onBack={handleBack} isMobile={isMobile} />
+      <ChatSidebar onBack={handleBack} isMobile={isMobile} selectedChat={undefined} onChatSelect={function (chatId: string): void {
+        throw new Error("Function not implemented.");
+      } } />
       <div className="flex-1 flex gap-8">
         <ChatWindow
           selectedChat={selectedChat}
