@@ -5,6 +5,9 @@ import { useState, useEffect, useRef } from "react";
 import { pusherClient } from "../../lib/pusher-client";
 import { Channel } from "pusher-js";
 import { UserRole } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Icon } from "@/components/ui/icon";
 
 // --- Type Definitions ---
 
@@ -95,26 +98,26 @@ export default function NegotiationPanel({
 
     const channelName = `private-negotiation-${negotiationData?.id || selectedChat.id}`;
     if (channelRef.current?.name !== channelName) {
-        if (channelRef.current) {
-            pusherClient.unsubscribe(channelRef.current.name);
-        }
-        const channel = pusherClient.subscribe(channelName);
-        channelRef.current = channel;
+      if (channelRef.current) {
+        pusherClient.unsubscribe(channelRef.current.name);
+      }
+      const channel = pusherClient.subscribe(channelName);
+      channelRef.current = channel;
 
-        channel.bind("new-offer", (newOffer: NegotiationMessage) => {
-            setNegotiationData(prev => prev ? {...prev, messages: [newOffer, ...prev.messages]} : null);
-            updateFullState({ ...negotiationData!, messages: [newOffer] });
-        });
+      channel.bind("new-offer", (newOffer: NegotiationMessage) => {
+        setNegotiationData(prev => prev ? { ...prev, messages: [newOffer, ...prev.messages] } : null);
+        updateFullState({ ...negotiationData!, messages: [newOffer] });
+      });
 
-        channel.bind("status-updated", (data: { updatedStatus: NegotiationData }) => {
-            setNegotiationData(prev => prev ? {...prev, ...data.updatedStatus} : null);
-            updateFullState(data.updatedStatus);
-        });
+      channel.bind("status-updated", (data: { updatedStatus: NegotiationData }) => {
+        setNegotiationData(prev => prev ? { ...prev, ...data.updatedStatus } : null);
+        updateFullState(data.updatedStatus);
+      });
 
-        channel.bind("negotiation-complete", (data: { message: string }) => {
-            setNotification({ message: data.message, type: 'success' });
-            setAgreementState("agreed");
-        });
+      channel.bind("negotiation-complete", (data: { message: string }) => {
+        setNotification({ message: data.message, type: 'success' });
+        setAgreementState("agreed");
+      });
     }
 
     return () => {
@@ -124,7 +127,7 @@ export default function NegotiationPanel({
       }
     };
   }, [isOpen, selectedChat, negotiationData?.id]);
-  
+
   // Auto-dismiss notification
   useEffect(() => {
     if (notification) {
@@ -139,29 +142,29 @@ export default function NegotiationPanel({
   const updateFullState = (data: NegotiationData) => {
     const latestMessage = data.messages && data.messages.length > 0 ? data.messages[0] : null;
     if (latestMessage) {
-        setLastOffer(latestMessage);
-        setFormData({
-            workHoursDuration: latestMessage.workHoursDuration.toString(),
-            workDaysDuration: latestMessage.workDaysDuration.toString(),
-            tariff: latestMessage.negotiationPrice.toString(),
-        });
+      setLastOffer(latestMessage);
+      setFormData({
+        workHoursDuration: latestMessage.workHoursDuration.toString(),
+        workDaysDuration: latestMessage.workDaysDuration.toString(),
+        tariff: latestMessage.negotiationPrice.toString(),
+      });
     }
 
     const { providerStatus, seekerStatus } = data;
     const myRole = selectedChat?.currentUserRole;
 
     if (providerStatus === 'agreed' && seekerStatus === 'agreed') {
-        setAgreementState("agreed");
+      setAgreementState("agreed");
     } else if (myRole === 'jobprovider' && providerStatus === 'agreed') {
-        setAgreementState('user_agreed');
+      setAgreementState('user_agreed');
     } else if (myRole === 'jobseeker' && seekerStatus === 'agreed') {
-        setAgreementState('user_agreed');
+      setAgreementState('user_agreed');
     } else if (latestMessage && latestMessage.senderId !== selectedChat?.currentUserId) {
-        setAgreementState("can_accept");
+      setAgreementState("can_accept");
     } else if (latestMessage && latestMessage.senderId === selectedChat?.currentUserId) {
-        setAgreementState("waiting_other");
+      setAgreementState("waiting_other");
     } else {
-        setAgreementState("initial");
+      setAgreementState("initial");
     }
   };
 
@@ -190,30 +193,30 @@ export default function NegotiationPanel({
       console.error("Failed to send negotiation offer.");
     }
   };
-  
+
   const handleAcceptOffer = () => {
-      if (lastOffer) {
-          setFormData({
-              tariff: lastOffer.negotiationPrice.toString(),
-              workHoursDuration: lastOffer.workHoursDuration.toString(),
-              workDaysDuration: lastOffer.workDaysDuration.toString(),
-          });
-          setAgreementState("initial");
-      }
+    if (lastOffer) {
+      setFormData({
+        tariff: lastOffer.negotiationPrice.toString(),
+        workHoursDuration: lastOffer.workHoursDuration.toString(),
+        workDaysDuration: lastOffer.workDaysDuration.toString(),
+      });
+      setAgreementState("initial");
+    }
   };
 
   const handleAgree = async () => {
     if (!selectedChat) return;
     const res = await fetch("/api/negotiation/agree", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId: selectedChat.id })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatId: selectedChat.id })
     });
 
     if (res.ok) {
-        setAgreementState("user_agreed");
+      setAgreementState("user_agreed");
     } else {
-        console.error("Failed to agree to negotiation.");
+      console.error("Failed to agree to negotiation.");
     }
   };
 
@@ -224,12 +227,12 @@ export default function NegotiationPanel({
     if (agreementState === 'waiting_other') return { text: "Sepakat Kerja", onClick: handleAgree, disabled: false };
     if (agreementState === 'can_accept') return { text: "Terima Nego", onClick: handleAcceptOffer, disabled: false };
     if (agreementState === 'user_agreed') {
-        const otherParty = selectedChat?.currentUserRole === 'jobprovider' ? 'Pekerja' : 'Client';
-        return { text: `Menunggu Persetujuan ${otherParty}`, disabled: true };
+      const otherParty = selectedChat?.currentUserRole === 'jobprovider' ? 'Pekerja' : 'Client';
+      return { text: `Menunggu Persetujuan ${otherParty}`, disabled: true };
     }
     return { text: "Sepakat Kerja", onClick: handleAgree, disabled: false };
   };
-  
+
   const getNotificationStyle = () => {
     if (!notification) return {};
     switch (notification.type) {
@@ -250,101 +253,167 @@ export default function NegotiationPanel({
         };
     }
   };
-  
+
   const buttonState = getButtonState();
 
   if (!isOpen) return null;
 
   const renderContent = () => (
-    <>
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-        {/* Last Offer Notification */}
-        {lastOffer && lastOffer.senderId !== selectedChat?.currentUserId && agreementState !== 'agreed' && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg text-sm text-center">
-            <p className="font-semibold">
-              {lastOffer.sender.username} mengusulkan harga: Rp {lastOffer.negotiationPrice.toLocaleString('id-ID')}
-            </p>
-             <p className="font-semibold">
-              Durasi: {lastOffer.workHoursDuration} Jam, {lastOffer.workDaysDuration} Hari
-            </p>
-          </div>
-        )}
+    <div
+      className={`flex flex-col w-[326px] h-[727px] items-start gap-4 pl-5 pr-[19px] pt-0 pb-6 relative bg-[#fdfdff] rounded-[20px] overflow-hidden border border-solid border-[#ebf2f7]`}
+    >
+      <div className="relative w-0.5 h-0.5 bg-[#d9d9d9] rounded-[1px]" />
 
-        {/* Form Fields */}
-        <div>
-          <label className="block text-base font-medium text-gray-900 mb-3">Lokasi</label>
-          <textarea
-            value={negotiationData?.jobDetails?.location || "Loading..."}
-            readOnly
-            className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed resize-none"
-            rows={3}
-          />
+      <div className="relative w-[250px] h-[61px]">
+        <div className="absolute top-0 left-0 font-heading-h4 font-[number:var(--heading-h4-font-weight)] text-theme-colordark text-[length:var(--heading-h4-font-size)] tracking-[var(--heading-h4-letter-spacing)] leading-[var(--heading-h4-line-height)] whitespace-nowrap [font-style:var(--heading-h4-font-style)]">
+          Negosiasi
         </div>
-        <div>
-          <label className="block text-base font-medium text-gray-900 mb-3">Tanggal</label>
-          <div className="relative">
-            <input
-              type="text"
-              value={negotiationData ? new Date(negotiationData.jobDetails.dateTime).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "Loading..."}
-              readOnly
-              className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-            />
-            <Calendar className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+
+        <p className="absolute top-[29px] left-0 font-sub-heading-s5 font-[number:var(--sub-heading-s5-font-weight)] text-[#2f587a] text-[length:var(--sub-heading-s5-font-size)] tracking-[var(--sub-heading-s5-letter-spacing)] leading-[var(--sub-heading-s5-line-height)] whitespace-nowrap [font-style:var(--sub-heading-s5-font-style)]">
+          Lakukan negosiasi dengan mudah!
+        </p>
+      </div>
+
+      <div className="flex-col w-72 items-start gap-6 mr-[-0.69px] flex relative flex-[0_0_auto]">
+        <div className="self-stretch w-full flex-[0_0_auto] flex flex-col items-start gap-1 relative">
+          <Label
+            className="!self-stretch !flex-[0_0_auto] !w-full"
+            divClassName="!tracking-[var(--body-b2-letter-spacing)] !text-[length:var(--body-b2-font-size)] ![font-style:var(--body-b2-font-style)] !font-[number:var(--body-b2-font-weight)] !font-body-b2 !leading-[var(--body-b2-line-height)]"
+            label="Lokasi"
+            showAsterisk={false}
+            size="lg"
+          />
+          <div className="flex items-start px-3 py-2 relative self-stretch w-full flex-[0_0_auto] rounded-lg border border-solid border-zinc-200">
+            <p className="relative flex-1 mt-[-1.00px] font-body-b3 font-[number:var(--body-b3-font-weight)] text-[#1d364b] text-[length:var(--body-b3-font-size)] tracking-[var(--body-b3-letter-spacing)] leading-[var(--body-b3-line-height)] [font-style:var(--body-b3-font-style)]">
+              {negotiationData?.jobDetails?.location || "Loading..."}
+            </p>
           </div>
         </div>
-        <div>
-          <label className="block text-base font-medium text-gray-900 mb-3">Durasi Bekerja</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="number"
-              value={formData.workHoursDuration}
-              onChange={(e) => handleInputChange("workHoursDuration", e.target.value)}
-              className="w-20 p-3 border border-gray-300 rounded-lg text-center"
-              min="1"
-            />
-            <span className="text-gray-700 text-base">Jam</span>
-            <input
-              type="number"
-              value={formData.workDaysDuration}
-              onChange={(e) => handleInputChange("workDaysDuration", e.target.value)}
-              className="w-20 p-3 border border-gray-300 rounded-lg text-center"
-              min="1"
-            />
-            <span className="text-gray-700 text-base">Hari</span>
+
+        <div className="flex flex-col items-start gap-1 relative self-stretch w-full flex-[0_0_auto]">
+          <Label
+            className="!self-stretch !flex-[0_0_auto] !w-full"
+            divClassName="!tracking-[var(--body-b2-letter-spacing)] !text-[length:var(--body-b2-font-size)] ![font-style:var(--body-b2-font-style)] !font-[number:var(--body-b2-font-weight)] !font-body-b2 !leading-[var(--body-b2-line-height)]"
+            label="Tanggal"
+            showAsterisk={false}
+            size="lg"
+          />
+          <div className="flex flex-col items-start gap-1 relative self-stretch w-full flex-[0_0_auto]">
+            <div className="flex flex-col items-start gap-1 relative self-stretch w-full flex-[0_0_auto]">
+              <div className="px-4 py-2.5 self-stretch w-full flex-[0_0_auto] shadow-shadows-sm flex min-h-9 items-center gap-2 relative bg-white rounded-md border border-solid border-zinc-200">
+                <Icon
+                  className="!h-[unset] !flex-[0_0_auto] !z-[1] !inline-flex !w-[unset]"
+                  icon={<Calendar className="!relative !w-5 !h-5" />}
+                  size="md"
+                />
+                <div className="flex gap-2 flex-1 grow z-0 items-center relative">
+                  <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
+                    <div className="font-body-b2 text-zinc-500 leading-[var(--body-b2-line-height)] relative w-fit mt-[-1.00px] font-[number:var(--body-b2-font-weight)] text-[length:var(--body-b2-font-size)] tracking-[var(--body-b2-letter-spacing)] whitespace-nowrap [font-style:var(--body-b2-font-style)]">
+                      {negotiationData ? new Date(negotiationData.jobDetails.dateTime).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "Loading..."}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <label className="block text-base font-medium text-gray-900 mb-3">Tarif</label>
-          <input
-            type="number"
-            value={formData.tariff}
-            onChange={(e) => handleInputChange("tariff", e.target.value)}
-            className="w-full p-4 border border-gray-300 rounded-lg"
-            placeholder="50000"
-          />
+
+        <div className="items-center gap-[18px] self-stretch w-full flex relative flex-[0_0_auto]">
+          <div className="flex-1 grow flex flex-col items-start gap-1 relative">
+            <Label
+              className="!self-stretch !flex-[0_0_auto] !w-full"
+              divClassName="!tracking-[var(--body-b2-letter-spacing)] !text-[length:var(--body-b2-font-size)] ![font-style:var(--body-b2-font-style)] !font-[number:var(--body-b2-font-weight)] !font-body-b2 !leading-[var(--body-b2-line-height)]"
+              label="Durasi Bekerja"
+              showAsterisk={false}
+              size="lg"
+            />
+            <div className="flex items-start gap-1 relative self-stretch w-full flex-[0_0_auto]">
+              <div className="flex flex-row w-full gap-4">
+                <div className="w-1/2 flex items-center">
+                  <div className="px-3 py-2.5 w-full overflow-hidden flex min-h-9 items-center gap-2 bg-white rounded-md border border-solid border-zinc-200">
+                    <div className="flex justify-between w-full items-center">
+                      <input
+                        type="number"
+                        value={formData.workHoursDuration}
+                        onChange={(e) => handleInputChange('workHoursDuration', e.target.value)}
+                        className="[font-family:'Inter-Regular',Helvetica] text-[#414d5f] leading-7 w-full mt-[-1.00px] font-normal text-base tracking-[0] whitespace-nowrap"
+                        min="1"
+                      />
+                      <div className="[font-family:'Inter-Regular',Helvetica] text-[#414d5f] leading-7 w-fit mt-[-1.00px] font-normal text-base tracking-[0] whitespace-nowrap">
+                        Jam
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-1/2 flex items-center">
+                  <div className="px-3 py-2.5 w-full overflow-hidden flex min-h-9 items-center gap-2 bg-white rounded-md border border-solid border-zinc-200">
+                    <div className="flex justify-between w-full items-center">
+                      <input
+                        type="number"
+                        value={formData.workDaysDuration}
+                        onChange={(e) => handleInputChange('workDaysDuration', e.target.value)}
+                        className="[font-family:'Inter-Regular',Helvetica] text-[#414d5f] leading-7 w-full mt-[-1.00px] font-normal text-base tracking-[0] whitespace-nowrap"
+                        min="1"
+                      />
+                      <div className="[font-family:'Inter-Regular',Helvetica] text-[#414d5f] leading-7 w-fit mt-[-1.00px] font-normal text-base tracking-[0] whitespace-nowrap">
+                        Hari
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-[18px] relative self-stretch w-full flex-[0_0_auto]">
+          <div className="flex-1 grow flex flex-col items-start gap-1 relative">
+            <Label
+              className="!self-stretch !flex-[0_0_auto] !w-full"
+              divClassName="!tracking-[var(--body-b2-letter-spacing)] !text-[length:var(--body-b2-font-size)] ![font-style:var(--body-b2-font-style)] !font-[number:var(--body-b2-font-weight)] !font-body-b2 !leading-[var(--body-b2-line-height)]"
+              label="Tarif"
+              showAsterisk={false}
+              size="lg"
+            />
+            <div className="self-stretch w-full flex-[0_0_auto] flex items-center gap-[17px] relative">
+              <div className="px-3 py-2.5 flex-1 grow overflow-hidden flex min-h-9 items-center gap-2 relative bg-white rounded-md border border-solid border-zinc-200">
+                <div className="flex gap-0.5 flex-1 self-stretch grow items-center relative">
+                  <input
+                    type="number"
+                    value={formData.tariff}
+                    onChange={(e) => handleInputChange("tariff", e.target.value)}
+                    className="[font-family:'Inter-Regular',Helvetica] text-[#414d5f] leading-7 relative w-fit mt-[-1.00px] font-normal text-base tracking-[0] whitespace-nowrap"
+                    placeholder="50000"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="p-6 border-t border-gray-200">
-        <button
+
+      <div className="flex flex-col items-end gap-2.5 relative self-stretch w-full flex-[0_0_auto]">
+        <Button
           onClick={buttonState.onClick}
           disabled={buttonState.disabled}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="default"
+          size="lg"
+          className="w-full"
         >
           {buttonState.text}
-        </button>
+        </Button>
       </div>
-    </>
+    </div>
   );
 
   return (
-    <div className={`bg-white border-l border-gray-200 flex flex-col h-full ${isMobile ? "w-full" : "w-80"}`}>
-       {/* Notification Popup */}
-       {notification && (
+    <div className={`bg-white  flex flex-col h-full ${isMobile ? "w-full" : "w-80"}`}>
+      {/* Notification Popup */}
+      {notification && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5 duration-500">
           <div
-            className={`bg-white rounded-lg shadow-lg p-4 flex items-center gap-3 border ${
-              getNotificationStyle().borderColor
-            }`}
+            className={`bg-white rounded-lg shadow-lg p-4 flex items-center gap-3 border ${getNotificationStyle().borderColor
+              }`}
           >
             {getNotificationStyle().icon}
             <p className="font-medium text-gray-800">{notification.message}</p>
@@ -352,18 +421,6 @@ export default function NegotiationPanel({
         </div>
       )}
 
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xl font-semibold text-gray-900">Negosiasi</h2>
-          <button
-            onClick={onToggle}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Kembali ke Chat
-          </button>
-        </div>
-        <p className="text-sm text-gray-600">Lakukan negosiasi dengan mudah!</p>
-      </div>
       {renderContent()}
     </div>
   );
