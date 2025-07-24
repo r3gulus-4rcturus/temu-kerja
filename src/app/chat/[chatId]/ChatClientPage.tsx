@@ -5,6 +5,7 @@ import ChatSidebar from "../../../components/chat/ChatSidebar";
 import ChatWindow from "../../../components/chat/ChatWindow";
 import NegotiationPanel from "../../../components/chat/NegotiationPanel";
 import { UserRole } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 // --- Type Definitions ---
 interface Message {
@@ -39,6 +40,7 @@ export default function ChatClientPage({
 }: ChatClientPageProps) {
   const [isNegotiationOpen, setIsNegotiationOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -51,24 +53,49 @@ export default function ChatClientPage({
     setIsNegotiationOpen((prev) => !prev);
   };
 
-  const handleBack = () => {
+  const handleBackToSidebar = () => {
+    router.push("/chat");
+  };
+
+  const handleBackToChat = () => {
     if (isNegotiationOpen) {
       setIsNegotiationOpen(false);
     }
   };
 
+  if (isMobile) {
+    if (isNegotiationOpen) {
+      return (
+        <NegotiationPanel
+          isOpen={isNegotiationOpen}
+          onToggle={handleBackToChat}
+          selectedChat={selectedChat}
+          isMobile={isMobile}
+        />
+      );
+    }
+    return (
+      <ChatWindow
+        selectedChat={selectedChat}
+        initialMessages={initialMessages}
+        onToggleNegotiation={handleToggleNegotiation}
+        isNegotiationOpen={isNegotiationOpen}
+        onBack={handleBackToSidebar}
+        isMobile={isMobile}
+      />
+    );
+  }
+
   return (
     <div className="flex w-full h-full p-8 gap-8">
-      <ChatSidebar onBack={handleBack} isMobile={isMobile} selectedChat={undefined} onChatSelect={function (chatId: string): void {
-        throw new Error("Function not implemented.");
-      } } />
+      <ChatSidebar onBack={() => {}} isMobile={isMobile} selectedChat={selectedChat} onChatSelect={(chatId) => router.push(`/chat/${chatId}`)} />
       <div className="flex-1 flex gap-8">
         <ChatWindow
           selectedChat={selectedChat}
           initialMessages={initialMessages}
           onToggleNegotiation={handleToggleNegotiation}
           isNegotiationOpen={isNegotiationOpen}
-          onBack={handleBack}
+          onBack={handleBackToSidebar}
           isMobile={isMobile}
         />
         <NegotiationPanel

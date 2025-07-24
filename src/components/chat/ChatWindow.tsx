@@ -123,30 +123,36 @@ export default function ChatWindow({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex gap-3 ${
-              msg.sender.id === selectedChat.currentUserId
-              ? "justify-end"
-              : "justify-start"
-              }`}
-              >
-            {msg.sender.id !== selectedChat.currentUserId && (
-              <img src={msg.sender.avatar || "/placeholder.svg"} alt="Avatar" className="w-8 h-8 rounded-full object-cover self-start" />
-            )}
-            <div className={`flex flex-col ${msg.sender.id === selectedChat.currentUserId ? "items-end" : "items-start"}`}>
-              <div className={`max-w-md p-3 rounded-[10px] ${msg.sender.id === selectedChat.currentUserId ? "bg-[#558ebd] text-white" : "bg-white border border-solid border-[#4581b2]"}`}>
-                <p className="text-xs leading-5" style={{fontFamily: 'Roboto-Regular, Helvetica'}}>
-                  {msg.content}
+        {messages.length > 0 ? (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex gap-3 ${
+                msg.sender.id === selectedChat.currentUserId
+                ? "justify-end"
+                : "justify-start"
+                }`}
+                >
+              {msg.sender.id !== selectedChat.currentUserId && (
+                <img src={msg.sender.avatar || "/placeholder.svg"} alt="Avatar" className="w-8 h-8 rounded-full object-cover self-start" />
+              )}
+              <div className={`flex flex-col ${msg.sender.id === selectedChat.currentUserId ? "items-end" : "items-start"}`}>
+                <div className={`max-w-md p-3 rounded-[10px] ${msg.sender.id === selectedChat.currentUserId ? "bg-[#558ebd] text-white" : "bg-white border border-solid border-[#4581b2]"}`}>
+                  <p className="text-xs leading-5" style={{fontFamily: 'Roboto-Regular, Helvetica'}}>
+                    {msg.content}
+                  </p>
+                </div>
+                <p className="text-[10px] text-[#333333] mt-1 px-2" style={{fontFamily: 'Public_Sans-Regular, Helvetica'}}>
+                  {new Date(msg.sentAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
-              <p className="text-[10px] text-[#333333] mt-1 px-2" style={{fontFamily: 'Public_Sans-Regular, Helvetica'}}>
-                {new Date(msg.sentAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-              </p>
             </div>
+          ))
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No messages yet. Start the conversation!
           </div>
-        ))}
+        )}
         <div ref={messagesEndRef} />
       </div>
 

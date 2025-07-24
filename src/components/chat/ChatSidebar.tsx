@@ -28,7 +28,7 @@ interface ChatSidebarProps {
 // ChatSidebar Component
 // ---
 
-export default function ChatSidebar({ onBack, isMobile }: ChatSidebarProps) {
+export default function ChatSidebar({ onChatSelect, isMobile }: ChatSidebarProps) {
   const params = useParams();
   const currentChatId = params.chatId as string;
   const [chats, setChats] = useState<ChatItem[]>([]);
@@ -55,8 +55,14 @@ export default function ChatSidebar({ onBack, isMobile }: ChatSidebarProps) {
     fetchChats();
   }, []);
 
+  const handleChatClick = (chatId: string) => {
+    if (isMobile) {
+      onChatSelect(chatId);
+    }
+  };
+
   return (
-    <div className="flex-shrink-0 w-full md:w-[460px] h-full flex flex-col">
+    <div className={`flex-shrink-0 h-full flex flex-col ${isMobile ? 'w-full' : 'md:w-[460px]'}`}>
       <div className="p-8">
         <h1 style={{fontFamily: 'var(--heading-h3-font-family)', fontWeight: 'var(--heading-h3-font-weight)', color: 'var(--theme-colordark)', fontSize: 'var(--heading-h3-font-size)'}} className="whitespace-nowrap">
           Chat
@@ -71,7 +77,7 @@ export default function ChatSidebar({ onBack, isMobile }: ChatSidebarProps) {
             <div className="p-4 text-center text-gray-500 w-full">No conversations yet.</div>
           ) : (
             chats.map((chat) => (
-              <Link href={`/chat/${chat.id}`} key={chat.id} className="w-full">
+              <Link href={`/chat/${chat.id}`} key={chat.id} className="w-full" onClick={() => handleChatClick(chat.id)}>
                 <div className={`flex w-full items-center p-4 rounded-[10px] border border-solid border-[#dfe0eb] cursor-pointer transition-colors ${currentChatId === chat.id ? "bg-blue-50" : "bg-white hover:bg-gray-50"}`}>
                   <div className="flex items-center gap-3 flex-1">
                     <div className="relative w-12 h-12">

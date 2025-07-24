@@ -256,15 +256,21 @@ export default function NegotiationPanel({
 
   const buttonState = getButtonState();
 
-  if (!isOpen) return null;
+  if (!isOpen && !isMobile) return null;
+  if (!isOpen && isMobile) return null;
 
   const renderContent = () => (
     <div
-      className={`flex flex-col w-[326px] h-[727px] items-start gap-4 pl-5 pr-[19px] pt-0 pb-6 relative bg-[#fdfdff] rounded-[20px] overflow-hidden border border-solid border-[#ebf2f7]`}
+      className={`flex flex-col w-full md:w-[326px] h-full items-start gap-4 p-5 relative bg-[#fdfdff] rounded-[20px] overflow-hidden border border-solid border-[#ebf2f7]`}
     >
       <div className="relative w-0.5 h-0.5 bg-[#d9d9d9] rounded-[1px]" />
-
-      <div className="relative w-[250px] h-[61px]">
+      
+      {isMobile ? (
+        <button onClick={onToggle} className="w-full border-[3px] border-[#558ebd] h-[42px] rounded-lg text-[#3f75a1] font-bold text-sm hover:bg-blue-50 transition-colors mb-4">
+          Tutup Negosiasi
+        </button>
+      ): (
+        <div className="relative w-[250px] h-[61px]">
         <div className="absolute top-0 left-0 font-heading-h4 font-[number:var(--heading-h4-font-weight)] text-theme-colordark text-[length:var(--heading-h4-font-size)] tracking-[var(--heading-h4-letter-spacing)] leading-[var(--heading-h4-line-height)] whitespace-nowrap [font-style:var(--heading-h4-font-style)]">
           Negosiasi
         </div>
@@ -273,8 +279,9 @@ export default function NegotiationPanel({
           Lakukan negosiasi dengan mudah!
         </p>
       </div>
+      )}
 
-      <div className="flex-col w-72 items-start gap-6 mr-[-0.69px] flex relative flex-[0_0_auto]">
+      <div className="flex-col w-full items-start gap-6 mr-[-0.69px] flex relative flex-[0_0_auto]">
         <div className="self-stretch w-full flex-[0_0_auto] flex flex-col items-start gap-1 relative">
           <Label
             className="!self-stretch !flex-[0_0_auto] !w-full"
