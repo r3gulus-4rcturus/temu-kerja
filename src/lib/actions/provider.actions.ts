@@ -7,146 +7,102 @@ import { pusherServer } from "../pusher"; // Import the Pusher server instance
 
 /**
  * Handles a job provider's interest in a seeker's application.
- * If the application is for a specific job from this provider, it moves it to negotiation and creates a chat.
- * Otherwise, it uses the seeker's first-ever application as a template to create new 'pending' applications for all of the provider's open jobs.
- * @param applicationId The ID of the application the provider is interested in.
+ * This action finds the corresponding 'sent' JobApplication from the seeker,
+ * updates its status to 'onnegotiation', and creates a new chat session.
+ * @param applicationId The ID of the base Application record displayed to the provider.
  */
 export async function handleProviderInterest(applicationId: string) {
+  // 1. Authenticate the provider
   const provider = await getCurrentUser();
   if (!provider || provider.role !== "jobprovider") {
     return { success: false, message: "Unauthorized: Not a provider." };
   }
 
-  const application = await prisma.application.findUnique({
+  // 2. Find the base application to identify the seeker
+  const baseApplication = await prisma.application.findUnique({
     where: { id: applicationId },
-    include: { job: true }, // Include job to check its provider
+    select: { seekerId: true },
   });
 
-  if (!application) {
-    return { success: false, message: "Application not found." };
+  if (!baseApplication) {
+    return { success: false, message: "Base application profile not found." };
   }
 
-  // Case 1: The application is for a specific job owned by the current provider.
-  // The provider is "matching" the seeker's application.
-  if (application.job && application.job.providerId === provider.id) {
-    try {
-      // Update application status to onNegotiation
-      await prisma.application.update({
-        where: { id: applicationId },
-        data: { status: "onnegotiation" },
-      });
+  const { seekerId } = baseApplication;
 
-      // Create a new Chat entry
-      const newChat = await prisma.chat.create({
-        data: {
-          participants: {
-            connect: [{ id: provider.id }, { id: application.seekerId }],
-          },
-          job: {
-            connect: { id: application.jobId! },
-          },
-          application: {
-            connect: { id: applicationId },
+  // 3. Find the specific "sent" JobApplication from this seeker to this provider.
+  // This represents the seeker's interest that the provider is now matching.
+  const jobApplicationToMatch = await prisma.jobApplication.findFirst({
+    where: {
+      seekerId: seekerId,
+      providerId: provider.id,
+      status: "sent",
+    },
+  });
+
+  if (!jobApplicationToMatch) {
+    return {
+      success: false,
+      message: "No pending application from this seeker found to match with.",
+    };
+  }
+
+  try {
+    // 4. Update the JobApplication status to onnegotiation
+    const updatedJobApplication = await prisma.jobApplication.update({
+      where: { id: jobApplicationToMatch.id },
+      data: { status: "onnegotiation" },
+    });
+
+    // 5. Create a new Chat and connect it to the Job, Application, and both users.
+    const newChat = await prisma.chat.create({
+      data: {
+        // Connect participants
+        participants: {
+          connect: [{ id: provider.id }, { id: seekerId }],
+        },
+        // Connect to the specific job from the matched application
+        job: {
+          connect: { id: updatedJobApplication.jobId },
+        },
+        // Connect to the new JobApplication via the 1-to-1 relation
+        jobApplication: {
+          connect: { id: updatedJobApplication.id },
+        }
+      },
+      include: {
+        participants: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
           },
         },
-        include: {
-          participants: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
+      },
+    });
+
+    // 6. Create the associated NegotiationChat entry
+    await prisma.negotiationChat.create({
+      data: {
+        chatId: newChat.id,
+        participants: {
+          connect: [{ id: provider.id }, { id: seekerId }],
         },
-      });
+      },
+    });
 
-      // Create the associated NegotiationChat entry
-      await prisma.negotiationChat.create({
-        data: {
-          chatId: newChat.id,
-          participants: {
-            connect: [
-              { id: provider.id },
-              { id: application.seekerId }
-            ],
-          },
-        },
-      });
+    // 7. Trigger a Pusher event to notify the seeker in real-time
+    const seekerChannel = `private-user-${seekerId}`;
+    await pusherServer.trigger(seekerChannel, "new-chat", newChat);
 
-      // Trigger Pusher event to notify the seeker in real-time
-      const seekerChannel = `private-user-${application.seekerId}`;
-      await pusherServer.trigger(seekerChannel, "new-chat", newChat);
-
-      revalidatePath("/dashboard");
-      return {
-        success: true,
-        message: "Match! Silahkan melanjutkan negosiasi di fitur chat.",
-      };
-    } catch (error) {
-      console.error("Error starting negotiation:", error);
-      return { success: false, message: "Failed to start negotiation." };
-    }
-  } else {
-    // Case 2: The application is a general one, or for another provider's job.
-    // The provider wants to offer their open jobs to this seeker.
-    try {
-      // Find the seeker's very first application to use as a template.
-      const baseApplication = await prisma.application.findFirst({
-        where: { seekerId: application.seekerId },
-        orderBy: { createdAt: "asc" },
-      });
-
-      if (!baseApplication) {
-        return {
-          success: false,
-          message: "Could not find a base application for this seeker.",
-        };
-      }
-
-      const openJobs = await prisma.job.findMany({
-        where: {
-          providerId: provider.id,
-          status: "open",
-        },
-      });
-
-      if (openJobs.length === 0) {
-        return { success: false, message: "You have no open jobs to offer." };
-      }
-
-      // Update the seeker's base application to link it to the provider's job.
-      await prisma.application.update({
-        where: {
-          id: baseApplication.id,
-        },
-        data: {
-          additionalNotes: `Offered by ${provider.username}.`,
-        },
-      });
-
-      // Loop through each of the provider's open jobs
-      for (const job of openJobs) {
-        // Update the job to connect it to the seeker's base application.
-        // This does NOT create a new application record.
-        await prisma.job.update({
-          where: {
-            id: job.id,
-          },
-          data: {
-            applications: {
-              connect: {
-                id: baseApplication.id,
-              },
-            },
-          },
-        });
-      }
-
-      revalidatePath("/dashboard");
-      return { success: true, message: `Berhasil menawarkan pekerjaan.` };
-    } catch (error) {
-      console.error("Error offering jobs:", error);
-      return { success: false, message: "Failed to offer jobs." };
-    }
+    // 8. Revalidate the dashboard path to update the UI
+    revalidatePath("/dashboard");
+    return {
+      success: true,
+      message: "Match! Silahkan melanjutkan negosiasi di fitur chat.",
+    };
+  } catch (error) {
+    console.error("Error starting negotiation:", error);
+    return { success: false, message: "Failed to start negotiation." };
   }
 }

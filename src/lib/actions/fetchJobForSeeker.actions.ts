@@ -156,7 +156,8 @@ export async function getAcceptedApplicationJobs(): Promise<JobWithTimeDetails[]
 
     const jobsWithoutColor = await prisma.job.findMany({
       where: {
-        applications: {
+        status: 'closed',
+        applicants: {
           some: {
             seekerId: currentUser.id,
             status: 'accepted',
@@ -211,7 +212,7 @@ export async function getOnNegotiationApplicationJobs(): Promise<Job[]> {
 
     const jobsWithoutColor = await prisma.job.findMany({
       where: {
-        applications: {
+        applicants: {
           some: {
             seekerId: currentUser.id,
             status: 'onnegotiation',
@@ -261,7 +262,7 @@ export async function getSentApplicationJobs(): Promise<Job[]> {
 
     const jobsWithoutColor = await prisma.job.findMany({
       where: {
-        applications: {
+        applicants: {
           some: {
             seekerId: currentUser.id,
             status: 'sent',

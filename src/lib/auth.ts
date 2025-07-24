@@ -52,6 +52,8 @@ export async function getCurrentUser() {
         id: true,
         username: true,
         role: true,
+        city: true,
+        province: true,
       },
     })
 

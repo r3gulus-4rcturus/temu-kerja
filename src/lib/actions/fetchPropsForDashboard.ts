@@ -25,16 +25,15 @@ export interface Order {
 
 // Defines a more detailed type for our application data
 export type FullApplication = Application & {
-  job: Job;
   seeker: User;
 };
 
 export type ApplicantInfo = {
-    id: string;
-    fullname: string;
-    location: string; // using city for location
-    tags: string[];
-    avatar: string | null;
+  id: string;
+  fullname: string;
+  location: string; // using city for location
+  tags: string[];
+  avatar: string | null;
 };
 
 
@@ -76,7 +75,7 @@ const getStatusDisplayName = (status: JobStatus): string => {
 // ---
 
 /**
- * Fetches and processes all non-open jobs for the current user.
+ * Fetches and processes all 'closed' jobs for the current provider that have an accepted application.
  * @returns {Promise<Order[]>} A promise that resolves to an array of orders.
  */
 export async function getOrdersForUser(): Promise<Order[]> {
@@ -89,11 +88,15 @@ export async function getOrdersForUser(): Promise<Order[]> {
   const jobs = await prisma.job.findMany({
     where: {
       providerId: currentUser.id,
-      status: { not: 'open' },
-      applications: { some: { status: 'accepted' } },
+      status: 'closed',
+      applicants: {
+        some: {
+          status: 'accepted',
+        },
+      },
     },
     include: {
-      applications: {
+      applicants: {
         where: { status: 'accepted' },
         include: { seeker: { select: { fullname: true, avatar: true } } },
         take: 1,
@@ -103,7 +106,7 @@ export async function getOrdersForUser(): Promise<Order[]> {
   });
 
   return jobs.map((job) => {
-    const acceptedApplication = job.applications[0];
+    const acceptedApplication = job.applicants[0];
     return {
       id: job.id,
       date: new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }).format(job.dateTime),
@@ -140,106 +143,114 @@ export async function getJobsByProvider(providerId: string): Promise<Job[]> {
 }
 
 /**
- * Fetches all pending applications for all jobs created by a specific user.
- * @param providerId - The ID of the job provider (the current user).
- * @returns A promise that resolves to an array of full application details.
- */
-export async function getPendingApplicationsForProvider(providerId: string): Promise<FullApplication[]> {
-  try {
-    if (!providerId) return [];
-
-    const applications = await prisma.application.findMany({
-      where: {
-        // Only fetch applications with a 'pending' or 'sent' status
-        status: {
-          in: ['pending', 'sent'],
-        },
-      },
-      include: {
-        job: true,    // Include the full Job object
-        seeker: true, // Include the full User object of the applicant
-      },
-      orderBy: {
-        createdAt: 'asc', // Show the oldest applications first
-      },
-    });
-
-    // console.log(applications)
-
-    return applications;
-  } catch (error) {
-    console.error("Failed to fetch pending applications:", error);
-    return [];
-  }
-}
-
-/**
- * Fetches a list of unique applicants for the current provider's jobs.
- * It aggregates all skills (tags) from the various applications a user might have submitted.
+ * Fetches a list of unique applicants who have sent a JobApplication to the current provider.
+ * It aggregates all skills (tags) from the various jobs a user might have applied to.
  * @returns {Promise<ApplicantInfo[]>} A promise that resolves to an array of unique applicants.
  */
 export async function getApplicantsForProvider(): Promise<ApplicantInfo[]> {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-        return [];
-    }
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return [];
+  }
 
-    // Find all applications for jobs created by the current provider
-    const applications = await prisma.application.findMany({
+  // Find all unique seekers who have a 'sent' JobApplication for the current provider
+  const applicants = await prisma.user.findMany({
+    where: {
+      submittedJobApplications: {
+        some: {
+          providerId: currentUser.id,
+          status: 'sent',
+        },
+      },
+    },
+    include: {
+      // We need the applications to aggregate the tags from the jobs
+      submittedJobApplications: {
         where: {
-            job: {
-                providerId: currentUser.id,
-            },
-            status: "sent"
+          providerId: currentUser.id,
+          status: 'sent',
         },
         include: {
-            seeker: {
-                select: {
-                    id: true,
-                    fullname: true,
-                    city: true,
-                    avatar: true,
-                },
+          job: {
+            select: {
+              categories: true,
             },
-            job: {
-                select: {
-                    categories: true,
-                }
-            }
+          },
         },
+      },
+    },
+  });
+
+  // Process to get unique seekers and aggregate their application tags
+  return applicants.map(applicant => {
+    const allTags = applicant.submittedJobApplications.flatMap(app => app.job.categories);
+    return {
+      id: applicant.id,
+      fullname: applicant.fullname ?? 'Unknown Applicant',
+      location: applicant.city ?? 'Unknown Location',
+      avatar: applicant.avatar,
+      tags: [...new Set(allTags)], // Deduplicate tags
+    };
+  });
+}
+
+/**
+ * Fetches the first-ever created 'Application' for each seeker who has sent a 'JobApplication'
+ * to the current provider. This is used for the "Just Swipe" feature.
+ * @returns A promise that resolves to an array of full application details.
+ */
+export async function getJobApplicationsForProvider(): Promise<FullApplication[]> {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return [];
+  }
+
+  try {
+    // Step 1: Find all seeker IDs who have sent a JobApplication to the current provider.
+    const seekersWithSentApplications = await prisma.user.findMany({
+      where: {
+        submittedJobApplications: {
+          some: {
+            providerId: currentUser.id,
+            status: 'sent',
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
     });
-    // console.log(applications)
 
-    // Process to get unique seekers and aggregate their application tags
-    const applicantsMap = new Map<string, ApplicantInfo>();
+    if (seekersWithSentApplications.length === 0) {
+      return [];
+    }
 
-    applications.forEach(app => {
-        if (!app.seeker) return;
+    const seekerIds = seekersWithSentApplications.map(s => s.id);
 
-        if (!applicantsMap.has(app.seeker.id)) {
-            applicantsMap.set(app.seeker.id, {
-                id: app.seeker.id,
-                fullname: app.seeker.fullname ?? 'Unknown Applicant',
-                location: app.seeker.city ?? 'Unknown Location',
-                avatar: app.seeker.avatar,
-                tags: [],
-            });
-        }
-        
-        const applicant = applicantsMap.get(app.seeker.id)!;
-        // Assuming tags/categories are on the job, not the application
-        if (app.job && app.job.categories) {
-            applicant.tags.push(...app.job.categories);
-        }
-    });
+    // Step 2: For each seeker, find their first-ever 'Application' record.
+    const firstApplications = await Promise.all(
+      seekerIds.map(seekerId =>
+        prisma.application.findFirst({
+          where: {
+            seekerId: seekerId,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+          include: {
+            seeker: true,
+          },
+        })
+      )
+    );
 
-    // Deduplicate tags for each applicant
-    const uniqueApplicants = Array.from(applicantsMap.values()).map(applicant => ({
-        ...applicant,
-        tags: [...new Set(applicant.tags)],
-    }));
+    // Filter out any null results and ensure the type matches FullApplication.
+    const validApplications = firstApplications.filter(app => app !== null) as FullApplication[];
 
-    // console.log(uniqueApplicants)
+    return validApplications;
 
-    return uniqueApplicants;
+  } catch (error) {
+    console.error("Failed to fetch job applications for provider:", error);
+    return [];
+  }
 }

@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
                 rateType: data.wages.rateType,
                 minRate: parseFloat(data.wages.minRate),
                 maxRate: parseFloat(data.wages.maxRate),
-                seeker: { connect: { id: currentUser.id,} } // Link the job to the logged-in user
+                seeker: { connect: { id: currentUser.id,} }, // Link the job to the logged-in user
+                location: [currentUser.city, currentUser.province].filter(Boolean).join(', ')
             },
         });
 

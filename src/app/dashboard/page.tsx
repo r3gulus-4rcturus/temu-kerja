@@ -1,7 +1,7 @@
 import {
    getOrdersForUser, 
    getJobsByProvider, 
-   getPendingApplicationsForProvider,
+   getJobApplicationsForProvider,
    getApplicantsForProvider
   } from "../../lib/actions/fetchPropsForDashboard";
 import DashboardClient from "../../components/dashboard/DashboardClient";
@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   const orders = await getOrdersForUser();
   const user = await getCurrentUser();
   const jobs = await getJobsByProvider(user.id);
-  const applications = await getPendingApplicationsForProvider(user.id);
+  const applications = await getJobApplicationsForProvider();
   const applicants = await getApplicantsForProvider();
 
   // console.log(orders)
