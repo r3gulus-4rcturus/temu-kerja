@@ -247,6 +247,7 @@ const applicationsToSeed = [
     rateType: RateType.fixed,
     minRate: 120000,
     maxRate: 180000,
+    location: "Depok, Jawa Barat",
   },
   {
     seekerEmail: "rafsan@gmail.com",
@@ -259,6 +260,7 @@ const applicationsToSeed = [
     rateType: RateType.hourly,
     minRate: 45000,
     maxRate: 60000,
+    location: "Lampung, Jawa Barat",
   },
   {
     seekerEmail: "banang@gmail.com",
@@ -271,6 +273,7 @@ const applicationsToSeed = [
     rateType: RateType.hourly,
     minRate: 60000,
     maxRate: 90000,
+    location: "Bogor, Jawa Barat",
   },
   {
     seekerEmail: "siti@gmail.com",
@@ -283,6 +286,7 @@ const applicationsToSeed = [
     rateType: RateType.fixed,
     minRate: 180000,
     maxRate: 220000,
+    location: "Surabaya, Jawa Timur",
   },
   {
     seekerEmail: "dewi@gmail.com",
@@ -296,6 +300,7 @@ const applicationsToSeed = [
     rateType: RateType.hourly,
     minRate: 50000,
     maxRate: 75000,
+    location: "Bandung, Jawa Barat",
   },
   {
     seekerEmail: "budi@gmail.com",
@@ -309,6 +314,7 @@ const applicationsToSeed = [
     rateType: RateType.fixed,
     minRate: 500000,
     maxRate: 1000000,
+    location: "Yogyakarta, DI Yogyakarta",
   },
   {
     seekerEmail: "agus@gmail.com",
@@ -321,6 +327,7 @@ const applicationsToSeed = [
     rateType: RateType.fixed,
     minRate: 200000,
     maxRate: 250000,
+    location: "Semarang, Jawa Tengah",
   },
 ]
 
@@ -378,6 +385,7 @@ async function main() {
           minRate: appData.minRate,
           maxRate: appData.maxRate,
           seekerId: seeker.id,
+          location: appData.location,
         },
       })
       console.log(`Created application for: ${appData.seekerEmail}`)

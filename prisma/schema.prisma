@@ -31,8 +31,11 @@ model User {
   favoritedBy Favorite[] @relation("FavoritedBy")
 
   // Relations
-  jobs                Job[]                @relation("ProviderJobs")
-  applications        Application[]        @relation("SeekerApplications")
+  submittedJobApplications JobApplication[] @relation("SeekerJobApplication") // untuk job seeker yang mengajukan lamaran
+  receivedJobApplications  JobApplication[] @relation("ProviderJobApplication") // untuk job provider yang menerima lamaran
+
+  jobs                Job[]                @relation("ProviderJobs")            // lowongan pekerjaan yang dibuat oleh job provider
+  applications        Application[]        @relation("SeekerApplications")      // data skill pekerjaan yang dimiliki job seeker
   chats               Chat[]               @relation("UserChats")
   reviews             Review[]             @relation("UserReviews")
   notifications       Notification[]
@@ -56,6 +59,7 @@ model Favorite {
   @@id([userId, favoriteId])
 }
 
+// Lowongan Pekerjaan
 model Job {
   id          String    @id @default(uuid())
   title       String
@@ -69,12 +73,12 @@ model Job {
   providerId  String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  dateTime    DateTime // Add this line
+  dateTime    DateTime
 
-  // Relations
-  applications Application[]
-  reviews      Review[]      @relation("JobReviews")
-  chats        Chat[]        @relation("JobChats")
+  // UPDATED relations
+  applicants JobApplication[] @relation("applicants") // lamaran yang masuk
+  reviews    Review[]         @relation("JobReviews")
+  chats      Chat[]           @relation("JobChats")
 }
 
 enum JobStatus {
@@ -84,6 +88,7 @@ enum JobStatus {
   completed
 }
 
+// data skill 
 model Application {
   id              String            @id @default(uuid())
   name            String
@@ -95,26 +100,37 @@ model Application {
   minRate         Float
   maxRate         Float
   tags            String[]
-  job             Job?              @relation(fields: [jobId], references: [id])
-  jobId           String?
+  location        String
   seeker          User              @relation("SeekerApplications", fields: [seekerId], references: [id])
   seekerId        String
-  status          ApplicationStatus @default(pending)
   cvFile          String? // file path or URL
   portfolioLinks  String?
   additionalNotes String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  chats           Chat[]            @relation("ApplicationChats")
 }
 
-enum ApplicationStatus {
-  pending
+// Lamaran Pekerjaan
+model JobApplication {
+  id         String               @id @default(uuid())
+  seeker     User                 @relation("SeekerJobApplication", fields: [seekerId], references: [id])
+  seekerId   String
+  provider   User                 @relation("ProviderJobApplication", fields: [providerId], references: [id])
+  providerId String
+  job        Job                  @relation("applicants", fields: [jobId], references: [id])
+  jobId      String
+  status     JobApplicationStatus
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  // 1-to-1 relation with Chat
+  chat Chat? @relation("ChatApplication")
+}
+
+enum JobApplicationStatus {
   sent
   onnegotiation
   accepted
-  rejected
-  withdrawn
 }
 
 enum SkillLevel {
@@ -145,12 +161,13 @@ model Chat {
   participants    User[]           @relation("UserChats")
   job             Job              @relation("JobChats", fields: [jobId], references: [id])
   jobId           String
-  application     Application      @relation("ApplicationChats", fields: [applicationId], references: [id])
-  applicationId   String
   messages        Message[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   negotiationChat NegotiationChat?
+
+  jobApplication   JobApplication @relation("ChatApplication", fields: [jobApplicationId], references: [id])
+  jobApplicationId String         @unique
 }
 
 model Message {
