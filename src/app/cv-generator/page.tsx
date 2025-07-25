@@ -4,20 +4,10 @@ import { useState, useRef, useEffect, JSX } from "react"
 import { useRouter } from "next/navigation"
 import { Mic, MicOff, Upload, Sparkles } from "lucide-react"
 
-// --- Tambahan: Definisi Tipe untuk Web Speech API ---
-// Ini diperlukan agar TypeScript mengenali SpeechRecognition
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-}
-
+// --- Perbaikan: Definisi Tipe untuk Web Speech API ---
 interface SpeechRecognitionEvent extends Event {
+  // Properti yang hilang telah ditambahkan di sini
+  resultIndex: number; 
   results: {
     isFinal: boolean;
     [key: number]: {
@@ -30,13 +20,24 @@ interface SpeechRecognitionErrorEvent extends Event {
   error: string;
 }
 
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
 declare global {
   interface Window {
     SpeechRecognition: new () => SpeechRecognition;
     webkitSpeechRecognition: new () => SpeechRecognition;
   }
 }
-// --- Akhir dari Definisi Tipe ---
+// --- Akhir dari Perbaikan Definisi Tipe ---
 
 
 interface FormData {
@@ -55,13 +56,9 @@ export default function CVGeneratorPage(): JSX.Element {
     })
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [showPopup, setShowPopup] = useState<boolean>(false)
-
-    // --- State untuk Speech Recognition ---
     const [isRecording, setIsRecording] = useState<boolean>(false)
     const recognitionRef = useRef<SpeechRecognition | null>(null)
-    // ------------------------------------
 
-    // ... (Fungsi handleSubmit, handleBack, dan lainnya tetap sama)
     const handleSubmit = async (): Promise<void> => {
         if (!formData.description.trim()) {
             alert("Silakan deskripsikan pengalaman kerja Anda terlebih dahulu")
@@ -121,7 +118,6 @@ export default function CVGeneratorPage(): JSX.Element {
       router.push("/add-job/upload-cv")
     }
 
-    // --- FUNGSI BARU UNTUK MICROPHONE ---
     const toggleRecording = () => {
       if (isRecording) {
         recognitionRef.current?.stop();
@@ -140,23 +136,19 @@ export default function CVGeneratorPage(): JSX.Element {
       recognitionRef.current = new SpeechRecognitionAPI();
       const recognition = recognitionRef.current;
   
-      recognition.lang = 'id-ID'; // Menggunakan Bahasa Indonesia
-      recognition.continuous = true; // Terus merekam hingga dihentikan manual
-      recognition.interimResults = true; // Menampilkan hasil sementara saat bicara
+      recognition.lang = 'id-ID';
+      recognition.continuous = true;
+      recognition.interimResults = true;
   
       recognition.onresult = (event: SpeechRecognitionEvent) => {
         let finalTranscript = '';
-        let interimTranscript = '';
   
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
           }
         }
         
-        // Menambahkan hasil transkrip ke deskripsi yang sudah ada
         setFormData(prev => ({
           ...prev,
           description: prev.description + finalTranscript
@@ -176,7 +168,6 @@ export default function CVGeneratorPage(): JSX.Element {
       setIsRecording(true);
     };
 
-    // ... (sisa fungsi file upload dan formatting tidak berubah)
     const handleFileUpload = (file: File, type: FileUploadType): void => {
       setFormData((prev) => ({
         ...prev,
