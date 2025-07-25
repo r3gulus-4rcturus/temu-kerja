@@ -1,11 +1,11 @@
-import { FullApplication } from "../../lib/actions/application.actions";
+import { FullApplication } from "../../lib/actions/fetchPropsForDashboard";
 
 interface ApplicationCardProps {
   application: FullApplication;
 }
 
 export default function ApplicationCard({ application }: ApplicationCardProps) {
-  const { seeker, job } = application;
+  const { seeker } = application;
 
   return (
     <div className="absolute left-0 top-0 w-[775px] h-[620px] flex">
