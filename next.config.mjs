@@ -5,7 +5,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
-        pathname: '/**', // This allows any path on that hostname
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -14,15 +14,12 @@ const nextConfig = {
         pathname: '/**',
       },],
   },
+  
+  // --- ADD THIS BLOCK TO SOLVE THE PDFKIT ISSUE ---
+  experimental: {
+    serverComponentsExternalPackages: ['pdfkit'],
+  },
+  // ---------------------------------------------
 };
 
 export default nextConfig;
-
-export const config = {
-  matcher: [
-    /*
-     * Apply middleware to all routes except API and public files:
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
-};
