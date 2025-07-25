@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       address,
       province,
       city,
+      avatar: `https://i.pravatar.cc/150?u=${username}`
     },
   });
 
