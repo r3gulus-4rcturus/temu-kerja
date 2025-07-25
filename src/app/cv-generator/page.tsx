@@ -1,8 +1,43 @@
 "use client"
 
-import { useState, useRef, JSX } from "react"
+import { useState, useRef, useEffect, JSX } from "react"
 import { useRouter } from "next/navigation"
 import { Mic, MicOff, Upload, Sparkles } from "lucide-react"
+
+// --- Tambahan: Definisi Tipe untuk Web Speech API ---
+// Ini diperlukan agar TypeScript mengenali SpeechRecognition
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    isFinal: boolean;
+    [key: number]: {
+      transcript: string;
+    };
+  }[];
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+// --- Akhir dari Definisi Tipe ---
+
 
 interface FormData {
   description: string
@@ -21,7 +56,12 @@ export default function CVGeneratorPage(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [showPopup, setShowPopup] = useState<boolean>(false)
 
-    // --- FUNGSI YANG DIMODIFIKASI ---
+    // --- State untuk Speech Recognition ---
+    const [isRecording, setIsRecording] = useState<boolean>(false)
+    const recognitionRef = useRef<SpeechRecognition | null>(null)
+    // ------------------------------------
+
+    // ... (Fungsi handleSubmit, handleBack, dan lainnya tetap sama)
     const handleSubmit = async (): Promise<void> => {
         if (!formData.description.trim()) {
             alert("Silakan deskripsikan pengalaman kerja Anda terlebih dahulu")
@@ -43,7 +83,6 @@ export default function CVGeneratorPage(): JSX.Element {
                 throw new Error(errorData.error || 'Gagal membuat PDF.');
             }
 
-            // Dapatkan nama file dari header Content-Disposition
             const disposition = response.headers.get('content-disposition');
             let fileName = 'cv-hasil-ai.pdf';
             if (disposition && disposition.indexOf('attachment') !== -1) {
@@ -54,10 +93,7 @@ export default function CVGeneratorPage(): JSX.Element {
                 }
             }
 
-            // Ubah respons menjadi blob (data file)
             const blob = await response.blob();
-            
-            // Buat URL sementara untuk blob
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
@@ -65,7 +101,6 @@ export default function CVGeneratorPage(): JSX.Element {
             document.body.appendChild(link);
             link.click();
 
-            // Hapus link dan URL sementara
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
 
@@ -82,55 +117,66 @@ export default function CVGeneratorPage(): JSX.Element {
         }
     };
     
-    // ... (sisa fungsi dan kode JSX tidak perlu diubah)
     const handleBack = (): void => {
       router.push("/add-job/upload-cv")
     }
 
-    const [isRecording, setIsRecording] = useState<boolean>(false)
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-  
-    const startRecording = async (): Promise<void> => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        const recorder = new MediaRecorder(stream)
-  
-        recorder.ondataavailable = (event: BlobEvent): void => {
-          console.log("Audio data available:", event.data)
-        }
-  
-        recorder.onstop = (): void => {
-          stream.getTracks().forEach((track) => track.stop())
-          setIsRecording(false)
-        }
-  
-        recorder.start()
-        setMediaRecorder(recorder)
-        setIsRecording(true)
-      } catch (error) {
-        console.error("Error accessing microphone:", error)
-        alert(
-          "Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin akses."
-        )
-      }
-    }
-  
-    const stopRecording = (): void => {
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop()
-        setMediaRecorder(null)
-      }
-    }
-  
-    const handleMicClick = (): void => {
+    // --- FUNGSI BARU UNTUK MICROPHONE ---
+    const toggleRecording = () => {
       if (isRecording) {
-        stopRecording()
+        recognitionRef.current?.stop();
       } else {
-        startRecording()
+        startRecording();
       }
-    }
+    };
   
+    const startRecording = () => {
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognitionAPI) {
+        alert("Browser Anda tidak mendukung Speech Recognition API. Coba gunakan Google Chrome.");
+        return;
+      }
+  
+      recognitionRef.current = new SpeechRecognitionAPI();
+      const recognition = recognitionRef.current;
+  
+      recognition.lang = 'id-ID'; // Menggunakan Bahasa Indonesia
+      recognition.continuous = true; // Terus merekam hingga dihentikan manual
+      recognition.interimResults = true; // Menampilkan hasil sementara saat bicara
+  
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+  
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        // Menambahkan hasil transkrip ke deskripsi yang sudah ada
+        setFormData(prev => ({
+          ...prev,
+          description: prev.description + finalTranscript
+        }));
+      };
+  
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error("Speech recognition error:", event.error);
+        setIsRecording(false);
+      };
+  
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+  
+      recognition.start();
+      setIsRecording(true);
+    };
+
+    // ... (sisa fungsi file upload dan formatting tidak berubah)
     const handleFileUpload = (file: File, type: FileUploadType): void => {
       setFormData((prev) => ({
         ...prev,
@@ -208,7 +254,6 @@ export default function CVGeneratorPage(): JSX.Element {
   
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <textarea
-              ref={textareaRef}
               value={formData.description}
               onChange={handleTextareaChange}
               placeholder="Deskripsikan tentang pekerjaan Anda dan pengalaman kerja Anda dengan detail!"
@@ -218,9 +263,9 @@ export default function CVGeneratorPage(): JSX.Element {
   
           <div className="flex items-center justify-center gap-4 mb-8">
             <button
-              onClick={handleMicClick}
+              onClick={toggleRecording}
               className={`p-4 rounded-full transition-colors ${isRecording
-                ? "bg-red-500 hover:bg-red-600 text-white"
+                ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
                 : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
             >
@@ -341,4 +386,4 @@ export default function CVGeneratorPage(): JSX.Element {
         </div>
       </div>
     )
-  }
+}
