@@ -9,6 +9,7 @@ import ContactWorkersSection from "./ContactWorkersSection"
 import JustSwipeSection from "./JustSwipeSection"
 import FindWorkerSection from "./FindWorkerSection"
 import Footer from "../shared/Footer"
+import { Worker } from "../../lib/actions/worker.actions";
 
 import { Job } from "@prisma/client"
 import { FullApplication } from "../../lib/actions/fetchPropsForDashboard";
@@ -20,6 +21,7 @@ interface DashboardClientProps {
   jobs: Job[];
   applications: FullApplication[];
   applicants: ApplicantInfo[];
+  workers: Worker[];
 }
 
 // Define the Notification type here or import it if defined elsewhere
@@ -35,7 +37,8 @@ export default function DashboardClient({
   userId, 
   jobs, 
   applications,
-  applicants
+  applicants,
+  workers
 }: DashboardClientProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
@@ -72,7 +75,7 @@ export default function DashboardClient({
         <div className="mt-12"> <JobUploadSection userId={userId} jobs={jobs}/> </div>
         <div className="mt-12"> <ContactWorkersSection applicants={applicants}/> </div>
         <div className="mt-12"> <JustSwipeSection applications={applications}/> </div>
-        <div className="mt-12"> <FindWorkerSection /> </div>
+        <div className="mt-12"> <FindWorkerSection workers={workers} /> </div>
       </div>
       <Footer />
     </div>

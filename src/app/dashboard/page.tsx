@@ -4,6 +4,7 @@ import {
    getJobApplicationsForProvider,
    getApplicantsForProvider
   } from "../../lib/actions/fetchPropsForDashboard";
+import { getWorkers } from "../../lib/actions/worker.actions";  
 import DashboardClient from "../../components/dashboard/DashboardClient";
 import { getCurrentUser } from "../../lib/auth";
 
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
   const jobs = await getJobsByProvider(user.id);
   const applications = await getJobApplicationsForProvider();
   const applicants = await getApplicantsForProvider();
+  const workers = await getWorkers();
 
   // console.log(orders)
 
@@ -25,5 +27,6 @@ export default async function DashboardPage() {
     userId={user?.id || ""}
     applications = {applications}
     applicants = {applicants}
+    workers = {workers}
   />;
 }
