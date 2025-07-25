@@ -75,19 +75,6 @@ export default function RegistrationSuccessPage() {
               <Plus className="w-6 h-6" />
               <span>Tambah Pekerjaan</span>
             </button>
-
-            {/* Skip Option */}
-            <button
-              onClick={handleSkipForNow}
-              className="block mx-auto text-gray-500 hover:text-gray-700 transition-colors text-sm underline"
-            >
-              Lewati untuk sekarang
-            </button>
-          </div>
-
-          {/* Additional Info */}
-          <div className="mt-12 text-sm text-gray-500">
-            <p>Anda dapat menambahkan pekerjaan kapan saja melalui dashboard Anda</p>
           </div>
         </div>
       </main>
