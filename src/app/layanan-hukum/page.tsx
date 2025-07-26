@@ -19,7 +19,8 @@ export default function LayananHukumPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showChat, setShowChat] = useState<boolean>(false)
 
-  const NGROK_API_URL = process.env.NGROK_API_URL
+  // HAPUS NGROK_API_URL, kita akan panggil endpoint lokal
+  const API_ENDPOINT = "/api/rag-chat";
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -39,7 +40,8 @@ export default function LayananHukumPage() {
     setInputMessage("")
 
     try {
-      const response = await fetch(NGROK_API_URL, {
+      // --- PERUBAHAN DI SINI ---
+      const response = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: userMessage.text }),
@@ -81,10 +83,15 @@ export default function LayananHukumPage() {
   const handleTextareaKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      handleFormSubmit(e as unknown as FormEvent<HTMLFormElement>)
+      const form = e.target.closest('form');
+      if (form) {
+        handleFormSubmit(new Event('submit', { cancelable: true, bubbles: true }) as unknown as FormEvent<HTMLFormElement>);
+      }
     }
   }
-
+  
+  // Sisa dari file JSX tidak perlu diubah...
+  // ... (salin sisa kode dari file asli Anda ke sini)
   if (showChat) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -114,7 +121,7 @@ export default function LayananHukumPage() {
                   <div className="flex flex-col">
                     <div className={`px-4 py-3 rounded-2xl ${message.sender === "user" ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"}`}>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-                      {message.sender === "bot" && message.sources && (
+                      {message.sender === "bot" && message.sources && message.sources.length > 0 && (
                         <div className="mt-2 pt-2 border-t border-gray-500 border-opacity-30 text-xs">
                           <p className="font-bold mb-1">Sumber:</p>
                           <ul className="list-disc list-inside">

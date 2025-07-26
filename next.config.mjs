@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   images: {
     remotePatterns: [ {
@@ -15,11 +16,9 @@ const nextConfig = {
       },],
   },
   
-  // --- ADD THIS BLOCK TO SOLVE THE PDFKIT ISSUE ---
   experimental: {
     serverComponentsExternalPackages: ['pdfkit'],
   },
-  // ---------------------------------------------
 };
 
 export default nextConfig;
