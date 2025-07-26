@@ -73,7 +73,6 @@ const getStatusDisplayName = (status: JobStatus): string => {
 
 const getMonth = (date: Date): string => {
   return date.toLocaleDateString('id-ID', { month: 'long' });
-
 }
 
 const getDateInMonth = (date: Date): number => {

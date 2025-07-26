@@ -36,7 +36,7 @@ export default function DashboardSidebar({
     orders.forEach(order => {
       // The `order.date` is already a formatted string like "July 10, 2025"
       // We need to parse it back to a Date object to work with it
-      const orderDate = new Date(order.date);
+      const orderDate = new Date(order.dateTime);
       if (!isNaN(orderDate.getTime())) { // Check if the date is valid
         // Store date as 'YYYY-M-D' string for easy comparison
         dates.add(`${orderDate.getFullYear()}-${orderDate.getMonth()}-${orderDate.getDate()}`);
@@ -166,7 +166,7 @@ export default function DashboardSidebar({
           {/* Event Legend */}
           <div className="mt-3 space-y-2 max-h-28 overflow-y-auto">
             {orders.map((order) => {
-                const orderDate = new Date(order.date);
+                const orderDate = new Date(order.dateTime);
                 const date = orderDate.getDate();
                 const month = orderDate.toLocaleString('id-ID', { month: 'short' });
                 return (

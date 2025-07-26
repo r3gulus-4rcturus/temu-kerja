@@ -46,6 +46,7 @@ export default function SeekerDashboardSidebar({
       const jobDate = new Date(job.dateTime);
       // Store date as 'YYYY-M-D' string for easy comparison
       dates.add(`${jobDate.getFullYear()}-${jobDate.getMonth()}-${jobDate.getDate()}`);
+      console.log(`Job Date: ${jobDate.toLocaleDateString()} - ID: ${job.id}`);
     });
     return dates;
   }, [acceptedJobs]);

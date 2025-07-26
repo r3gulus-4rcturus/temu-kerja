@@ -5,6 +5,24 @@ import { getCurrentUser } from "../auth";
 import { Job, JobStatus, Application, User } from "@prisma/client";
 import { unique } from "next/dist/build/utils";
 
+const getMonth = (date: Date): string => {
+  return date.toLocaleDateString('id-ID', { month: 'long' });
+
+}
+
+const getDateInMonth = (date: Date): number => {
+  return date.getDate();
+}
+
+const getHour = (date: Date): string => {
+  // 3. Get the time with AM/PM format
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true, // This is key for AM/PM format
+  });
+}
+
 // ---
 // Type Definitions
 // ---
@@ -12,8 +30,10 @@ import { unique } from "next/dist/build/utils";
 // Defines the shape of the Order data for the dashboard
 export interface Order {
   id: string;
+  month: string;
   date: string;
-  time: string;
+  hour: string;
+  dateTime: Date,
   worker: string;
   title: string;
   tag: string;
@@ -109,8 +129,10 @@ export async function getOrdersForUser(): Promise<Order[]> {
     const acceptedApplication = job.applicants[0];
     return {
       id: job.id,
-      date: new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }).format(job.dateTime),
-      time: new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(job.dateTime),
+      month: getMonth(job.dateTime),
+      date: String(getDateInMonth(job.dateTime)),
+      hour: getHour(job.dateTime),
+      dateTime: job.dateTime,
       worker: acceptedApplication?.seeker?.fullname ?? 'N/A',
       tag: job.categories[0] || 'General',
       status: getStatusDisplayName(job.status),
