@@ -13,21 +13,18 @@ const colorMap: { [key: string]: string } = {
 };
 
 export default function OrderCard({ order }: OrderCardProps) {
-  const dateObj = new Date(order.date);
-  const month = dateObj.toLocaleString('id-ID', { month: 'long' });
-  const day = dateObj.getDate();
 
   return (
     <div className="bg-white rounded-xl flex overflow-hidden shadow-sm">
       {/* Date Section */}
       <div className="bg-[#9FB6EF] px-9 py-5 flex flex-col items-center justify-between min-w-[125px]">
         <div className="text-center">
-          <div className="text-[#666] text-base mb-1">{month}</div>
+          <div className="text-[#666] text-base mb-1">{order.month}</div>
           <div className="text-[#181818] text-2xl font-normal tracking-[4.56px]">
-            {day}
+            {order.date}
           </div>
         </div>
-        <div className="text-[#3C3C43] text-xs mt-16">{order.time}</div>
+        <div className="text-[#3C3C43] text-xs mt-16">{order.hour}</div>
       </div>
 
       {/* Content Section */}
