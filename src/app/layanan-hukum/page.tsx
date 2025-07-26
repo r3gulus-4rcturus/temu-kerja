@@ -4,7 +4,6 @@ import { useState, FormEvent, ChangeEvent, KeyboardEvent } from "react"
 import { Send, AlertTriangle, Bot, User } from "lucide-react"
 import Footer from "../../components/shared/Footer"
 
-// Tipe untuk setiap pesan di chat
 type Message = {
   id: number
   text: string
@@ -19,7 +18,6 @@ export default function LayananHukumPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showChat, setShowChat] = useState<boolean>(false)
 
-  // HAPUS NGROK_API_URL, kita akan panggil endpoint lokal
   const API_ENDPOINT = "/api/rag-chat";
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -40,7 +38,6 @@ export default function LayananHukumPage() {
     setInputMessage("")
 
     try {
-      // --- PERUBAHAN DI SINI ---
       const response = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,19 +76,17 @@ export default function LayananHukumPage() {
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInputMessage(e.target.value)
   }
-
+  
   const handleTextareaKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      const form = e.target.closest('form');
+      e.preventDefault();
+      const form = (e.target as HTMLElement).closest('form');
       if (form) {
-        handleFormSubmit(new Event('submit', { cancelable: true, bubbles: true }) as unknown as FormEvent<HTMLFormElement>);
+        form.requestSubmit();
       }
     }
-  }
-  
-  // Sisa dari file JSX tidak perlu diubah...
-  // ... (salin sisa kode dari file asli Anda ke sini)
+  };
+
   if (showChat) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">

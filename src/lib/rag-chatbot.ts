@@ -4,7 +4,6 @@ import {
   } from "@langchain/google-genai";
   import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
   import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-  // --- PERUBAHAN: Path impor untuk MemoryVectorStore diperbaiki ---
   import { MemoryVectorStore } from "langchain/vectorstores/memory";
   import { PromptTemplate } from "@langchain/core/prompts";
   import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
